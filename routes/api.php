@@ -29,6 +29,12 @@ Route::group(['prefix' => 'location', 'namespace' => 'Location'], function () {
 });
 
 Route::group(['prefix' => 'user', 'namespace' => 'User'], function () {
-    Route::post('/registration', 'UserController@registration')->name('user.registration');
+    Route::group(['prefix' => 'registration'], function () {
+        // Route::post('/', 'UserController@registration')->name('user.registration');
+        Route::post('/personal', 'UserController@registrationPersonal')->name('user.registration.personal');
+        Route::post('/school', 'UserController@registrationSchool')->name('user.registration.school');
+        Route::post('/other', 'UserController@registrationOther')->name('user.registration.Other');
+    });
+
     Route::post('/login', 'UserController@doLogin')->name('user.login');
 });

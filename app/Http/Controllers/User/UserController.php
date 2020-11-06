@@ -106,6 +106,124 @@ class UserController extends BaseController
         return $this->returnNull();
     }
 
+    public function registrationPersonal(Request $request)
+    {
+        $data  = $request->all();
+        $model = new User();
+
+        $data['password'] = !empty($data['password']) ? Hash::make($data['password']) : NULL;
+
+        $validator = $model->validator($data);
+
+        if ($validator->fails()) {
+            return $this->returnError($validator->errors()->first());
+        }
+
+        $create = $model->create($data);
+
+        if ($create) {
+            return $this->returnSuccess(__('User personal details saved successfully!'), $create);
+        }
+
+        return $this->returnError(__('Something went wrong!'));
+    }
+
+    public function registrationSchool(Request $request)
+    {
+        $data  = $request->all();
+        $model = new User();
+
+        $requiredFileds = [
+            'name'      => ['nullable'],
+            'password'  => ['nullable'],
+            'email'     => ['nullable'],
+            'school_id' => ['required']
+        ];
+
+        $extraFields = [
+            'user_id' => ['required', 'integer', 'exists:' . $model->getTableName() . ',id']
+        ];
+
+        $validator = $model->validator($data, $requiredFileds, $extraFields);
+
+        if ($validator->fails()) {
+            return $this->returnError($validator->errors()->first());
+        }
+
+        $user = $model::find($data['user_id']);
+
+        $user->school_id = (int)$data['school_id'];
+
+        if ($user->save()) {
+            $user->refresh();
+
+            return $this->returnSuccess(__('User school details saved successfully!'), $user);
+        }
+
+        return $this->returnError(__('Something went wrong!'));
+    }
+
+    public function registrationOther(Request $request)
+    {
+        $data  = $request->all();
+        $model = new User();
+
+        $extraRequired = [];
+        if (!empty($data['current_status']) && is_integer($data['current_status'])) {
+            if ($data['current_status'] == 1) {
+                $extraRequired = [
+                    'company'      => ['required'],
+                    'job_position' => ['required']
+                ];
+            } elseif ($data['current_status'] == 2) {
+                $extraRequired = [
+                    'university'     => ['required'],
+                    'field_of_study' => ['required']
+                ];
+            }
+        }
+
+        $requiredFileds = array_merge([
+            'name'             => ['nullable'],
+            'password'         => ['nullable'],
+            'email'            => ['nullable'],
+            'current_location' => ['required'],
+            'nation'           => ['required'],
+            'gender'           => ['required'],
+            'birthday'         => ['nullable']
+        ], $extraRequired);
+
+        $extraFields = [
+            'user_id' => ['required', 'integer', 'exists:' . $model->getTableName() . ',id']
+        ];
+
+        $validator = $model->validator($data, $requiredFileds, $extraFields);
+
+        if ($validator->fails()) {
+            return $this->returnError($validator->errors()->first());
+        }
+
+        $user = $model::find($data['user_id']);
+
+        $user->current_location = $data['current_location'];
+        $user->nation           = $data['nation'];
+        $user->gender           = $data['gender'];
+        $user->birthday         = !empty($data['birthday']) ? $data['birthday'] : NULL;
+        $user->current_status   = isset($data['current_status']) ? (int)$data['current_status'] : 0;
+        $user->company          = !empty($data['company']) ? $data['company'] : NULL;
+        $user->job_position     = !empty($data['job_position']) ? $data['job_position'] : NULL;
+        $user->university       = !empty($data['university']) ? $data['university'] : NULL;
+        $user->field_of_study   = !empty($data['field_of_study']) ? $data['field_of_study'] : NULL;
+
+        if ($user->save()) {
+            $user->refresh();
+
+            return $this->returnSuccess(__('User other details saved successfully!'), $user);
+        }
+
+        return $this->returnError(__('Something went wrong!'));
+    }
+
     public function doLogin(Request $request)
     {
         $model = new User();
@@ -118,7 +236,7 @@ class UserController extends BaseController
             return $this->returnError(__('Username or Password is incorrect.'));
         }
 
-        $user = $model->where('name', $userName)->first();
+        $user = $model->where('email', $userName)->first();
 
         if (!empty($user) && Hash::check($password, $user->password)) {
             return $this->returnSuccess(__('Logged in successfully!'), $user);

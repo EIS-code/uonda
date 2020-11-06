@@ -30,6 +30,11 @@ class CreateUsersTable extends Migration
             $table->foreign('country_id')->references('id')->on('countries')->onDelete('cascade');
             $table->bigInteger('city_id')->unsigned()->nullable();
             $table->foreign('city_id')->references('id')->on('cities')->onDelete('cascade');
+            $table->enum('current_status', ['0', '1', '2', '3'])->default('0')->comment('0: None, 1: Working, 2: Studying, 3: Chilling');
+            $table->string('company')->nullable();
+            $table->string('job_position')->nullable();
+            $table->string('university')->nullable();
+            $table->string('field_of_study')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
