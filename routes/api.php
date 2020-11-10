@@ -38,3 +38,9 @@ Route::group(['prefix' => 'user', 'namespace' => 'User'], function () {
 
     Route::post('/login', 'UserController@doLogin')->name('user.login');
 });
+
+Route::group(['prefix' => 'school', 'namespace' => 'School'], function () {
+    Route::get('/get', 'SchoolController@getSchool')->name('getSchool');
+    Route::post('/save', 'SchoolController@saveSchool')->name('saveSchool');
+    Route::post('/update', 'SchoolController@updateSchool')->name('updateSchool');
+});
