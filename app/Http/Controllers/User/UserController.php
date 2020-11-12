@@ -111,7 +111,8 @@ class UserController extends BaseController
         $data  = $request->all();
         $model = new User();
 
-        $data['password'] = !empty($data['password']) ? Hash::make($data['password']) : NULL;
+        $data['password']      = !empty($data['password']) ? Hash::make($data['password']) : NULL;
+        $data['personal_flag'] = $model::PERSONAL_FLAG_DONE;
 
         $validator = $model->validator($data);
 
@@ -152,7 +153,8 @@ class UserController extends BaseController
 
         $user = $model::find($data['user_id']);
 
-        $user->school_id = (int)$data['school_id'];
+        $user->school_id   = (int)$data['school_id'];
+        $user->school_flag = $model::SCHOOL_FLAG_DONE;
 
         if ($user->save()) {
             $user->refresh();
@@ -214,6 +216,7 @@ class UserController extends BaseController
         $user->job_position     = !empty($data['job_position']) ? $data['job_position'] : NULL;
         $user->university       = !empty($data['university']) ? $data['university'] : NULL;
         $user->field_of_study   = !empty($data['field_of_study']) ? $data['field_of_study'] : NULL;
+        $user->other_flag       = $model::OTHER_FLAG_DONE;
 
         if ($user->save()) {
             $user->refresh();
@@ -243,5 +246,103 @@ class UserController extends BaseController
         }
 
         return $this->returnError(__('Username or Password is incorrect.'));
+    }
+
+    public function getDetails(Request $request)
+    {
+        $model = new User();
+        $data  = $request->all();
+
+        if (empty($data['user_id']) || !is_numeric($data['user_id'])) {
+            return $this->returnError(__('User id seems incorrect.'));
+        }
+
+        $userId = (int)$data['user_id'];
+
+        $user   = $model::find($userId);
+
+        if (!empty($user)) {
+            return $this->returnSuccess(__('User details get successfully!'), $user);
+        }
+
+        return $this->returnNull();
+    }
+
+    public function getStatus(Request $request)
+    {
+        $model = new User();
+        $data  = $request->all();
+
+        if (empty($data['user_id']) || !is_numeric($data['user_id'])) {
+            return $this->returnError(__('User id seems incorrect.'));
+        }
+
+        $userId = (int)$data['user_id'];
+
+        $user = $model::select('personal_flag', 'school_flag', 'other_flag')->find($userId);
+
+        if (!empty($user)) {
+            $user->makeVisible(['personal_flag', 'school_flag', 'other_flag']);
+
+            return $this->returnSuccess(__('User details get successfully!'), $user);
+
+            $user->makeHidden(['personal_flag', 'school_flag', 'other_flag']);
+        }
+
+        return $this->returnNull();
+    }
+
+    public function profileUpdate(Request $request)
+    {
+        $model = new User();
+        $data  = $request->all();
+
+        if (empty($data['user_id']) || !is_numeric($data['user_id'])) {
+            return $this->returnError(__('User id seems incorrect.'));
+        }
+
+        $userId = (int)$data['user_id'];
+
+        unset($data['user_id']);
+
+        $data['password'] = !empty($data['password']) ? Hash::make($data['password']) : NULL;
+
+        $user = $model::find($userId);
+
+        if (!empty($user)) {
+            $fillableFields = $model->getFillable();
+
+            $requiredFileds = [
+                'name'      => ['nullable'],
+                'password'  => ['nullable'],
+                'email'     => ['nullable']
+            ];
+
+            foreach ($data as $field => $value) {
+                if (in_array($field, $fillableFields)) {
+                    $requiredFileds[$field] = ['required'];
+                }
+            }
+
+            $validator = $model->validator($data, $requiredFileds);
+
+            if ($validator->fails()) {
+                return $this->returnError($validator->errors()->first());
+            }
+
+            foreach ($data as $field => $value) {
+                if (in_array($field, $fillableFields)) {
+                    $user->{$field} = $value;
+                }
+            }
+
+            if ($user->save()) {
+                $user->refresh();
+
+                return $this->returnSuccess(__('User profile details updated successfully!'), $user);
+            }
+        }
+
+        return $this->returnNull();
     }
 }

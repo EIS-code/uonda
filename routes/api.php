@@ -29,14 +29,21 @@ Route::group(['prefix' => 'location', 'namespace' => 'Location'], function () {
 });
 
 Route::group(['prefix' => 'user', 'namespace' => 'User'], function () {
+    Route::post('/details', 'UserController@getDetails')->name('user.get.details');
+
     Route::group(['prefix' => 'registration'], function () {
         // Route::post('/', 'UserController@registration')->name('user.registration');
         Route::post('/personal', 'UserController@registrationPersonal')->name('user.registration.personal');
         Route::post('/school', 'UserController@registrationSchool')->name('user.registration.school');
         Route::post('/other', 'UserController@registrationOther')->name('user.registration.Other');
+        Route::post('/status', 'UserController@getStatus')->name('user.get.status');
     });
 
     Route::post('/login', 'UserController@doLogin')->name('user.login');
+
+    Route::group(['prefix' => 'profile'], function () {
+         Route::post('/update', 'UserController@profileUpdate')->name('user.profile.update');
+    });
 });
 
 Route::group(['prefix' => 'school', 'namespace' => 'School'], function () {
