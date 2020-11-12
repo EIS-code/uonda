@@ -305,7 +305,9 @@ class UserController extends BaseController
 
         unset($data['user_id']);
 
-        $data['password'] = !empty($data['password']) ? Hash::make($data['password']) : NULL;
+        if (isset($data['password'])) {
+            $data['password'] = !empty($data['password']) ? Hash::make($data['password']) : NULL;
+        }
 
         $user = $model::find($userId);
 
