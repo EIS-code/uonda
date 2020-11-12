@@ -42,6 +42,14 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    const MALE = 'm';
+    const FEMALE = 'f';
+
+    public $genders = [
+        self::MALE => 'Male',
+        self::FEMALE => 'Female'
+    ];
+
     const PERSONAL_FLAG_DONE = '1';
     const PERSONAL_FLAG_PENDING = '0';
 
@@ -105,5 +113,10 @@ class User extends Authenticatable
         }
 
         return $validator;
+    }
+
+    public function getGenderAttribute($value)
+    {
+        return !empty($this->genders[$value]) ? $this->genders[$value] : $value;
     }
 }
