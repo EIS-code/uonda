@@ -23,7 +23,7 @@ class CreateUsersTable extends Migration
             $table->string('referral_code')->nullable();
             $table->text('current_location')->nullable();
             $table->string('nation')->nullable();
-            $table->enum('gender', ['0', '1'])->default('0')->comment('m: Male, f: Female');
+            $table->enum('gender', ['m', 'f'])->nullable()->comment('m: Male, f: Female');
             $table->timestamp('birthday')->nullable();
             $table->bigInteger('school_id')->unsigned()->nullable();
             $table->foreign('school_id')->references('id')->on('states')->onDelete('cascade');

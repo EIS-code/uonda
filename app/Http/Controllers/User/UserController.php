@@ -192,7 +192,9 @@ class UserController extends BaseController
             'current_location' => ['required'],
             'nation'           => ['required'],
             'gender'           => ['required'],
-            'birthday'         => ['nullable']
+            'birthday'         => ['nullable'],
+            'country_id'       => ['nullable'],
+            'city_id'          => ['nullable']
         ], $extraRequired);
 
         $extraFields = [
@@ -217,6 +219,8 @@ class UserController extends BaseController
         $user->university       = !empty($data['university']) ? $data['university'] : NULL;
         $user->field_of_study   = !empty($data['field_of_study']) ? $data['field_of_study'] : NULL;
         $user->other_flag       = $model::OTHER_FLAG_DONE;
+        $user->country_id       = !empty($data['country_id']) ? $data['country_id'] : NULL;
+        $user->city_id          = !empty($data['city_id']) ? $data['city_id'] : NULL;
 
         if ($user->save()) {
             $user->refresh();
