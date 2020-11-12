@@ -8,6 +8,7 @@ use Illuminate\Notifications\Notifiable;
 use App\School;
 use App\Country;
 use App\City;
+use App\UserSetting;
 use Illuminate\Support\Facades\Validator;
 
 class User extends Authenticatable
@@ -30,7 +31,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token', 'personal_flag', 'school_flag', 'other_flag',
+        'password', 'remember_token', 'personal_flag', 'school_flag', 'other_flag', 'user_name', 'email',
     ];
 
     /**
@@ -74,6 +75,32 @@ class User extends Authenticatable
         self::OTHER_FLAG_PENDING => 'Pending'
     ];
 
+    public function __construct(array $attributes = array())
+    {
+        parent::__construct($attributes);
+
+        // Hidden fields.
+        if (request()->has('user_id') && request()->get('user_id', false)) {
+            $userId = (int)request()->get('user_id');
+
+            $getSettings = UserSetting::where('user_id', $userId)->first();
+
+            if (!empty($getSettings)) {
+                if (in_array('user_name', $this->hidden) && $getSettings->user_name == UserSetting::CONSTS_PUBLIC) {
+                    $key = array_search($getSettings->user_name, $this->hidden);
+
+                    $this->makeVisible('user_name');
+                }
+
+                if (in_array('email', $this->hidden) && $getSettings->email == UserSetting::CONSTS_PUBLIC) {
+                    $key = array_search($getSettings->email, $this->hidden);
+
+                    $this->makeVisible('email');
+                }
+            }
+        }
+    }
+
     public function getTableName()
     {
         return with(new static)->getTable();
@@ -84,7 +111,7 @@ class User extends Authenticatable
         $validator = Validator::make($data, array_merge([
             'name'             => array_merge(['string', 'max:255'], !empty($requiredFileds['name']) ? $requiredFileds['name'] : ['required']),
             'user_name'        => array_merge(['string', 'max:255'], !empty($requiredFileds['user_name']) ? $requiredFileds['user_name'] : ['nullable']),
-            'password'         => array_merge(['string', 'min:6'], !empty($requiredFileds['password']) ? $requiredFileds['password'] : ['required']),
+            'password'         => array_merge(['min:6'], !empty($requiredFileds['password']) ? $requiredFileds['password'] : ['required']),
             'email'            => array_merge(['email', 'unique:' . $this->getTableName()], !empty($requiredFileds['email']) ? $requiredFileds['email'] : ['required']),
             'referral_code'    => array_merge(['string', 'max:255'], !empty($requiredFileds['referral_code']) ? $requiredFileds['referral_code'] : ['nullable']),
             'current_location' => array_merge(['string'], !empty($requiredFileds['current_location']) ? $requiredFileds['current_location'] : ['nullable']),

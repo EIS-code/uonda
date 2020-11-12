@@ -6,6 +6,7 @@ use App\Http\Controllers\BaseController;
 use Illuminate\Http\Request;
 use App\User;
 use App\UserDocument;
+use App\UserSetting;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\UploadedFile;
 
@@ -111,7 +112,6 @@ class UserController extends BaseController
         $data  = $request->all();
         $model = new User();
 
-        $data['password']      = !empty($data['password']) ? Hash::make($data['password']) : NULL;
         $data['personal_flag'] = $model::PERSONAL_FLAG_DONE;
 
         $validator = $model->validator($data);
@@ -120,10 +120,19 @@ class UserController extends BaseController
             return $this->returnError($validator->errors()->first());
         }
 
+        $data['password'] = !empty($data['password']) ? Hash::make($data['password']) : NULL;
+
         $create = $model->create($data);
 
         if ($create) {
-            return $this->returnSuccess(__('User personal details saved successfully!'), $create);
+            $userId = $create->id;
+
+            // Privacy
+            UserSetting::create(['user_id' => $userId, 'user_name' => UserSetting::CONSTS_PRIVATE, 'email' => UserSetting::CONSTS_PRIVATE, 'notification' => UserSetting::NOTIFICATION_ON]);
+
+            $user = $model::find($userId);
+
+            return $this->returnSuccess(__('User personal details saved successfully!'), $user);
         }
 
         return $this->returnError(__('Something went wrong!'));
