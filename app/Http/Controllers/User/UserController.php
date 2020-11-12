@@ -227,6 +227,57 @@ class UserController extends BaseController
         return $this->returnError(__('Something went wrong!'));
     }
 
+    public function registrationDocument(Request $request)
+    {
+        $data  = $request->all();
+        $model = new UserDocument();
+
+        $validator = $model->validator($data);
+
+        if ($validator->fails()) {
+            return $this->returnError($validator->errors()->first());
+        }
+
+        $userId = (int)$data['user_id'];
+
+        $document = $data['document'];
+
+        if ($document instanceof UploadedFile) {
+            $pathInfos = pathinfo($document->getClientOriginalName());
+
+            if (!empty($pathInfos['extension'])) {
+                $folder = false;
+
+                if ($data['document_type'] == $model::GRADUATION_CERTIFICATE) {
+                    $folder = $model->graduation;
+                } elseif ($data['document_type'] == $model::STUDENT_ID_CARD) {
+                    $folder = $model->studentIdCard;
+                } elseif ($data['document_type'] == $model::PHOTO_IN_UNIFORM) {
+                    $folder = $model->photoInUniform;
+                } elseif ($data['document_type'] == $model::CLASS_PHOTO) {
+                    $folder = $model->classPhoto;
+                }
+
+                if (!empty($folder)) {
+                    $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                    $storeFile = $document->storeAs($folder, $fileName, $model->fileSystem);
+
+                    if ($storeFile) {
+                        $save = $model->updateOrCreate(['document_type' => $data['document_type'], 'user_id' => $userId], ['document_type' => $data['document_type'], 'document' => $fileName, 'user_id' => $userId]);
+
+                        if ($save) {
+                            $user = User::find($userId);
+
+                            return $this->returnSuccess(__('User document saved successfully!'), $user);
+                        }
+                    }
+                }
+            }
+        }
+
+        return $this->returnError(__('Something went wrong!'));
+    }
+
     public function doLogin(Request $request)
     {
         $model = new User();

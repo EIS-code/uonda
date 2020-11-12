@@ -3,6 +3,7 @@
 namespace App;
 
 use App\User;
+use Illuminate\Support\Facades\Validator;
 
 class UserDocument extends BaseModel
 {
@@ -26,7 +27,7 @@ class UserDocument extends BaseModel
         self::CLASS_PHOTO            => 'Class Photo'
     ];
 
-    public $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+    public $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'txt', 'pdf', 'docx'];
 
     public $fileSystem     = 'public';
     public $graduation     = 'user\\document\\graduation';
@@ -38,8 +39,8 @@ class UserDocument extends BaseModel
     {
         $validator = Validator::make($data, [
             'document_type' => ['required', 'in:' . implode(",", array_keys($this->documentTypes))],
-            'document'      => ['required', 'string', 'mimes:' . implode(",", $this->allowedExtensions), 'max:255'],
-            'user_id'       => ['required', 'integer', 'exists:' . User::getTableName() . ',id']
+            'document'      => ['required', 'mimes:' . implode(",", $this->allowedExtensions), 'max:255'],
+            'user_id'       => ['required', 'integer', 'exists:' . (new User())->getTableName() . ',id']
         ]);
 
         if ($returnBoolsOnly === true) {

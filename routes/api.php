@@ -36,6 +36,7 @@ Route::group(['prefix' => 'user', 'namespace' => 'User'], function () {
         Route::post('/personal', 'UserController@registrationPersonal')->name('user.registration.personal');
         Route::post('/school', 'UserController@registrationSchool')->name('user.registration.school');
         Route::post('/other', 'UserController@registrationOther')->name('user.registration.Other');
+        Route::post('/document', 'UserController@registrationDocument')->name('user.registration.document');
         Route::post('/status', 'UserController@getStatus')->name('user.get.status');
     });
 
