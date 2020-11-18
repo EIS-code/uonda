@@ -340,12 +340,12 @@ class UserController extends BaseController
 
         $userId = (int)$data['user_id'];
 
-        $user = $model::select('personal_flag', 'school_flag', 'other_flag')->find($userId);
+        $user = $model::select('personal_flag', 'school_flag', 'other_flag')->with('userDocuments')->find($userId);
 
         if (!empty($user)) {
             $user->makeVisible(['personal_flag', 'school_flag', 'other_flag']);
 
-            return $this->returnSuccess(__('User details get successfully!'), $this->getDetails($userId));
+            return $this->returnSuccess(__('User details get successfully!'), $user);
 
             $user->makeHidden(['personal_flag', 'school_flag', 'other_flag']);
         }
