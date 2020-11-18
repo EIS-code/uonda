@@ -29,7 +29,11 @@ Route::group(['prefix' => 'location', 'namespace' => 'Location'], function () {
 });
 
 Route::group(['prefix' => 'user', 'namespace' => 'User'], function () {
-    Route::post('/details', 'UserController@getDetails')->name('user.get.details');
+    Route::post('/details', function() {
+        $userId = request()->get('user_id', false);
+
+        return App::make('App\Http\Controllers\User\UserController')->getDetails($userId, true);
+    })->name('user.get.details');
 
     Route::group(['prefix' => 'registration'], function () {
         // Route::post('/', 'UserController@registration')->name('user.registration');
@@ -59,7 +63,7 @@ Route::group(['prefix' => 'constant', 'namespace' => 'Constant'], function () {
 });
 
 Route::group(['prefix' => 'school', 'namespace' => 'School'], function () {
-    Route::get('/get', 'SchoolController@getSchool')->name('getSchool');
+    Route::any('/get', 'SchoolController@getSchool')->name('getSchool');
     Route::post('/save', 'SchoolController@saveSchool')->name('saveSchool');
     Route::post('/update', 'SchoolController@updateSchool')->name('updateSchool');
 });

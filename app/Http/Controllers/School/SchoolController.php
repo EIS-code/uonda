@@ -10,10 +10,22 @@ class SchoolController extends BaseController
 {
     public function getSchool(Request $request)
     {
-        $data  = $request->all();
-        $model = new School();
+        $data   = $request->all();
+        $model  = new School();
+        $method = $request->method();
 
-        $schools = $model::orderBy('name', 'ASC')->get();
+        switch ($method) {
+            case 'GET':
+                $schools = $model::orderBy('name', 'ASC')->get();
+                break;
+            case 'POST':
+            case 'PUT':
+                $schoolId = $request->get('school_id', false);
+                $schools  = $model::where('id', (int)$schoolId)->orderBy('name', 'ASC')->get();
+                break;
+            default:
+                $schools = [];
+        }
 
         if (!empty($schools) && !$schools->isEmpty()) {
             return $this->returnSuccess(__('Schools found successfully!'), $schools);

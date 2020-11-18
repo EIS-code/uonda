@@ -101,7 +101,7 @@ class UserController extends BaseController
                 }
             }
 
-            return $this->returnSuccess(__('User registration done successfully!'), $create);
+            return $this->returnSuccess(__('User registration done successfully!'), $this->getDetails($create->id));
         }
 
         return $this->returnNull();
@@ -130,9 +130,7 @@ class UserController extends BaseController
             // Privacy
             UserSetting::create(['user_id' => $userId, 'user_name' => UserSetting::CONSTS_PRIVATE, 'email' => UserSetting::CONSTS_PRIVATE, 'notification' => UserSetting::NOTIFICATION_ON]);
 
-            $user = $model::find($userId);
-
-            return $this->returnSuccess(__('User personal details saved successfully!'), $user);
+            return $this->returnSuccess(__('User personal details saved successfully!'), $this->getDetails($userId));
         }
 
         return $this->returnError(__('Something went wrong!'));
@@ -166,9 +164,7 @@ class UserController extends BaseController
         $user->school_flag = $model::SCHOOL_FLAG_DONE;
 
         if ($user->save()) {
-            $user->refresh();
-
-            return $this->returnSuccess(__('User school details saved successfully!'), $user);
+            return $this->returnSuccess(__('User school details saved successfully!'), $this->getDetails($user->id));
         }
 
         return $this->returnError(__('Something went wrong!'));
@@ -232,9 +228,7 @@ class UserController extends BaseController
         $user->city_id          = !empty($data['city_id']) ? $data['city_id'] : NULL;
 
         if ($user->save()) {
-            $user->refresh();
-
-            return $this->returnSuccess(__('User other details saved successfully!'), $user);
+            return $this->returnSuccess(__('User other details saved successfully!'), $this->getDetails($user->id));
         }
 
         return $this->returnError(__('Something went wrong!'));
@@ -279,9 +273,7 @@ class UserController extends BaseController
                         $save = $model->updateOrCreate(['document_type' => $data['document_type'], 'user_id' => $userId], ['document_type' => $data['document_type'], 'document' => $fileName, 'user_id' => $userId]);
 
                         if ($save) {
-                            $user = User::find($userId);
-
-                            return $this->returnSuccess(__('User document saved successfully!'), $user);
+                            return $this->returnSuccess(__('User document saved successfully!'), $this->getDetails($userId));
                         }
                     }
                 }
@@ -306,30 +298,35 @@ class UserController extends BaseController
         $user = $model->where('email', $userName)->first();
 
         if (!empty($user) && Hash::check($password, $user->password)) {
-            return $this->returnSuccess(__('Logged in successfully!'), $user);
+            return $this->returnSuccess(__('Logged in successfully!'), $this->getDetails($user->id));
         }
 
         return $this->returnError(__('Username or Password is incorrect.'));
     }
 
-    public function getDetails(Request $request)
+    public function getDetails(int $userId, $isApi = false)
     {
         $model = new User();
-        $data  = $request->all();
 
-        if (empty($data['user_id']) || !is_numeric($data['user_id'])) {
+        if (empty($userId) || !is_numeric($userId)) {
             return $this->returnError(__('User id seems incorrect.'));
         }
 
-        $userId = (int)$data['user_id'];
-
-        $user   = $model::find($userId);
+        $user = $model::with('userDocuments')->find($userId);
 
         if (!empty($user)) {
-            return $this->returnSuccess(__('User details get successfully!'), $user);
+            if ($isApi) {
+                return $this->returnSuccess(__('User details get successfully!'), $user);
+            }
+
+            return $user;
         }
 
-        return $this->returnNull();
+        if ($isApi) {
+            return $this->returnNull();
+        }
+
+        return $user;
     }
 
     public function getStatus(Request $request)
@@ -348,7 +345,7 @@ class UserController extends BaseController
         if (!empty($user)) {
             $user->makeVisible(['personal_flag', 'school_flag', 'other_flag']);
 
-            return $this->returnSuccess(__('User details get successfully!'), $user);
+            return $this->returnSuccess(__('User details get successfully!'), $this->getDetails($userId));
 
             $user->makeHidden(['personal_flag', 'school_flag', 'other_flag']);
         }
@@ -403,9 +400,7 @@ class UserController extends BaseController
             }
 
             if ($user->save()) {
-                $user->refresh();
-
-                return $this->returnSuccess(__('User profile details updated successfully!'), $user);
+                return $this->returnSuccess(__('User profile details updated successfully!'), $this->getDetails($user->id));
             }
         }
 

@@ -4,6 +4,7 @@ namespace App;
 
 use App\User;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class UserDocument extends BaseModel
 {
@@ -52,5 +53,30 @@ class UserDocument extends BaseModel
         }
 
         return $validator;
+    }
+
+    public function getDocumentAttribute($value)
+    {
+        if (empty($value)) {
+            return $value;
+        }
+
+        $storageFolderName = false;
+
+        if ($this->document_type == self::GRADUATION_CERTIFICATE) {
+            $storageFolderName = (str_ireplace("\\", "/", $this->graduation));
+        } elseif ($this->document_type == self::STUDENT_ID_CARD) {
+            $storageFolderName = (str_ireplace("\\", "/", $this->studentIdCard));
+        } elseif ($this->document_type == self::PHOTO_IN_UNIFORM) {
+            $storageFolderName = (str_ireplace("\\", "/", $this->photoInUniform));
+        } elseif ($this->document_type == self::CLASS_PHOTO) {
+            $storageFolderName = (str_ireplace("\\", "/", $this->classPhoto));
+        }
+
+        if (!empty($storageFolderName)) {
+            return Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $value);
+        }
+
+        return $value;
     }
 }

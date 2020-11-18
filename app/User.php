@@ -146,4 +146,9 @@ class User extends Authenticatable
     {
         return !empty($this->genders[$value]) ? $this->genders[$value] : $value;
     }
+
+    public function userDocuments()
+    {
+        return $this->hasMany('App\UserDocument', 'user_id', 'id');
+    }
 }
