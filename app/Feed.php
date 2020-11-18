@@ -38,6 +38,13 @@ class Feed extends BaseModel
     public $fileSystem        = 'public';
     public $storageFolderName = 'feed';
 
+    public function __construct(array $attributes = array())
+    {
+        parent::__construct($attributes);
+
+        $this->makeVisible('created_at');
+    }
+
     public function validator(array $data, $returnBoolsOnly = false)
     {
         $validator = Validator::make($data, [
@@ -66,5 +73,14 @@ class Feed extends BaseModel
 
         $storageFolderName = (str_ireplace("\\", "/", $this->storageFolderName));
         return Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $this->id . '/' . $value);
+    }
+
+    public function getCreatedAtAttribute($value)
+    {
+        if (strtotime($value) <= 0) {
+            return $value;
+        }
+
+        return strtotime($value) * 1000;
     }
 }
