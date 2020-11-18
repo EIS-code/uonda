@@ -67,3 +67,7 @@ Route::group(['prefix' => 'school', 'namespace' => 'School'], function () {
     Route::post('/save', 'SchoolController@saveSchool')->name('saveSchool');
     Route::post('/update', 'SchoolController@updateSchool')->name('updateSchool');
 });
+
+Route::group(['prefix' => 'feed', 'namespace' => 'Feed'], function () {
+    Route::get('/get', 'FeedController@getFeed')->name('getFeed');
+});

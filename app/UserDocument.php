@@ -28,7 +28,7 @@ class UserDocument extends BaseModel
         self::CLASS_PHOTO            => 'Class Photo'
     ];
 
-    public $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'txt', 'pdf', 'docx'];
+    public $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'txt', 'doc', 'pdf', 'docx'];
 
     public $fileSystem     = 'public';
     public $graduation     = 'user\\document\\graduation';
