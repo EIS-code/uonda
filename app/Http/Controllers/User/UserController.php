@@ -9,6 +9,7 @@ use App\UserDocument;
 use App\UserSetting;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\UploadedFile;
+use Log;
 
 class UserController extends BaseController
 {
@@ -243,6 +244,7 @@ class UserController extends BaseController
     public function registrationDocument(Request $request)
     {
         $data  = $request->all();
+        Log::info($data);
         $model = new UserDocument();
 
         $validator = $model->validator($data);
@@ -255,8 +257,11 @@ class UserController extends BaseController
 
         $document = $data['document'];
 
+        Log::info($document);
+
         if ($document instanceof UploadedFile) {
             $pathInfos = pathinfo($document->getClientOriginalName());
+            Log::info($pathInfos);
 
             if (!empty($pathInfos['extension'])) {
                 $folder = false;
@@ -270,6 +275,8 @@ class UserController extends BaseController
                 } elseif ($data['document_type'] == $model::CLASS_PHOTO) {
                     $folder = $model->classPhoto;
                 }
+
+                Log::info($folder);
 
                 if (!empty($folder)) {
                     $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
