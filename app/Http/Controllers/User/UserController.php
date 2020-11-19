@@ -9,6 +9,7 @@ use App\UserDocument;
 use App\UserSetting;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\UploadedFile;
+use Carbon\Carbon;
 
 class UserController extends BaseController
 {
@@ -212,12 +213,16 @@ class UserController extends BaseController
             return $this->returnError($validator->errors()->first());
         }
 
+        if (!empty($data['birthday']) && strlen($data['birthday']) >= 13) {
+            $data['birthday'] = $data['birthday'] / 1000;
+        }
+
         $user = $model::find($data['user_id']);
 
         $user->current_location = $data['current_location'];
         $user->nation           = $data['nation'];
         $user->gender           = $data['gender'];
-        $user->birthday         = !empty($data['birthday']) ? $data['birthday'] : NULL;
+        $user->birthday         = !empty($data['birthday']) ? Carbon::createFromTimestamp($data['birthday'])->toDateTime() : NULL;
         $user->current_status   = isset($data['current_status']) ? (int)$data['current_status'] : 0;
         $user->company          = !empty($data['company']) ? $data['company'] : NULL;
         $user->job_position     = !empty($data['job_position']) ? $data['job_position'] : NULL;

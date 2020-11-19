@@ -31,7 +31,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token', 'personal_flag', 'school_flag', 'other_flag', 'user_name', 'email',
+        'password', 'remember_token', 'personal_flag', 'school_flag', 'other_flag', 'user_name', 'email', 'created_at', 'updated_at',
     ];
 
     /**
@@ -145,6 +145,15 @@ class User extends Authenticatable
     public function getGenderAttribute($value)
     {
         return !empty($this->genders[$value]) ? $this->genders[$value] : $value;
+    }
+
+    public function getBirthdayAttribute($value)
+    {
+        if (empty($value)) {
+            return $value;
+        }
+
+        return strtotime($value) * 1000;
     }
 
     public function userDocuments()
