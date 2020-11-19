@@ -51,6 +51,7 @@ Route::group(['prefix' => 'user', 'namespace' => 'User'], function () {
     });
 
     Route::group(['prefix' => 'setting'], function () {
+         Route::post('/get/privacy', 'UserSettingController@getPrivacy')->name('user.get.privacy');
          Route::post('/privacy', 'UserSettingController@accountPrivacy')->name('user.setting.privacy');
          Route::post('/notification', 'UserSettingController@userNotification')->name('user.setting.notification');
          Route::post('/change/password', 'UserSettingController@changePassword')->name('user.setting.change.password');

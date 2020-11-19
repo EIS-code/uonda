@@ -158,4 +158,24 @@ class UserSettingController extends BaseController
 
         return $this->returnError(__('Something went wrong!'));
     }
+
+    public function getPrivacy(Request $request)
+    {
+        $data  = $request->all();
+        $model = new UserSetting();
+
+        if (empty($data['user_id']) || !is_numeric($data['user_id'])) {
+            return $this->returnError(__('User id seems incorrect.'));
+        }
+
+        $userId = (int)$data['user_id'];
+
+        $userSetting = $model::select('user_name', 'email', 'notification', 'user_id')->where('user_id', $userId)->first();
+
+        if ($userSetting) {
+            return $this->returnSuccess(__('User privacy get successfully!'), $userSetting);
+        }
+
+        return $this->returnNull(__('User not found!'));
+    }
 }
