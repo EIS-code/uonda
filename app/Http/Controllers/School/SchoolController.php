@@ -16,18 +16,32 @@ class SchoolController extends BaseController
 
         switch ($method) {
             case 'GET':
-                $schools = $model::orderBy('name', 'ASC')->get();
+                $schools = $model::with('country', 'city')->orderBy($model::getTableName() . '.name', 'ASC')->get();
                 break;
             case 'POST':
             case 'PUT':
                 $schoolId = $request->get('school_id', false);
-                $schools  = $model::where('id', (int)$schoolId)->orderBy('name', 'ASC')->get();
+                $schools  = $model::with('country', 'city')->where($model::getTableName() . '.id', (int)$schoolId)->orderBy($model::getTableName() . '.name', 'ASC')->get();
                 break;
             default:
                 $schools = [];
         }
 
         if (!empty($schools) && !$schools->isEmpty()) {
+            $schools->map(function($data) {
+                if (!empty($data->country)) {
+                    $data->country_name = $data->country->name;
+                }
+
+                unset($data->country);
+
+                if (!empty($data->city)) {
+                    $data->city_name = $data->city->name;
+                }
+
+                unset($data->city);
+            });
+
             return $this->returnSuccess(__('Schools found successfully!'), $schools);
         }
 
@@ -70,7 +84,7 @@ class SchoolController extends BaseController
             return $this->returnError(__('School not found!'));
         }
 
-        $validator = $model->validator($data);
+        $validator = $model->validator($data, $record->id);
 
         if ($validator->fails()) {
             return $this->returnError($validator->errors()->first());

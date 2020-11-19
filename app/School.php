@@ -12,10 +12,16 @@ class School extends BaseModel
         'name', 'city_id', 'country_id'
     ];
 
-    public function validator(array $data, $returnBoolsOnly = false)
+    public function validator(array $data, $id = false, $returnBoolsOnly = false)
     {
+        $name = ['unique:' . $this->getTableName()];
+
+        if (!empty($id)) {
+            $name = ['unique:' . $this->getTableName() . ',name,' . $id];
+        }
+
         $validator = Validator::make($data, [
-            'name'       => ['required', 'string', 'unique:' . $this->getTableName(), 'max:255'],
+            'name'       => array_merge(['required', 'string', 'max:255'], $name),
             'city_id'    => ['required', 'integer', 'exists:' . City::getTableName() . ',id'],
             'country_id' => ['required', 'integer', 'exists:' . Country::getTableName() . ',id']
         ]);
@@ -29,5 +35,15 @@ class School extends BaseModel
         }
 
         return $validator;
+    }
+
+    public function country()
+    {
+        return $this->hasOne('App\Country', 'id', 'country_id');
+    }
+
+    public function city()
+    {
+        return $this->hasOne('App\City', 'id', 'city_id');
     }
 }
