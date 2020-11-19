@@ -56,6 +56,8 @@ Route::group(['prefix' => 'user', 'namespace' => 'User'], function () {
          Route::post('/notification', 'UserSettingController@userNotification')->name('user.setting.notification');
          Route::post('/change/password', 'UserSettingController@changePassword')->name('user.setting.change.password');
     });
+
+    Route::post('/forgot/password', 'Auth\ForgotPasswordController@sendResetLinkEmail')->name('user.password.email');
 });
 
 Route::group(['prefix' => 'constant', 'namespace' => 'Constant'], function () {

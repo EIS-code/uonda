@@ -411,4 +411,27 @@ class UserController extends BaseController
 
         return $this->returnNull();
     }
+
+    /*public function forgotPassword(Request $request)
+    {
+        $model = new User();
+        $data  = $request->all();
+        $email = $request->get('email', false);
+
+        if ($email) {
+            $user = $model::where('email', $email)->first();
+
+            if (!empty($user)) {
+                $subject = 'Reset password for ' . env('APP_NAME', 'UONDA');
+
+                $return = $this->sendMail('forgotPassword', $email, $subject, $user);
+
+                dd($return);
+            } else {
+                return $this->returnError(__('Given email doesn\'t exists!'));
+            }
+        }
+
+        return $this->returnError(__('Please provide email!'));
+    }*/
 }
