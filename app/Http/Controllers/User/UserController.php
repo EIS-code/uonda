@@ -7,9 +7,11 @@ use Illuminate\Http\Request;
 use App\User;
 use App\UserDocument;
 use App\UserSetting;
+use App\City;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\UploadedFile;
 use Carbon\Carbon;
+use DB;
 
 class UserController extends BaseController
 {
@@ -434,4 +436,22 @@ class UserController extends BaseController
 
         return $this->returnError(__('Please provide email!'));
     }*/
+
+    public function getExplore(Request $request)
+    {
+        $model     = new User();
+        $cityModel = new City();
+        $data      = $request->all();
+
+        $records = $model::select(DB::RAW($cityModel::getTableName() . '.name, ' . 'COUNT('.$cityModel::getTableName().'.id) as total_users'))
+                         ->join($cityModel::getTableName(), $model->getTableName() . '.city_id', '=', $cityModel::getTableName() . '.id')
+                         ->groupBy($model->getTableName() . '.city_id')
+                         ->get();
+
+        if (!empty($records) && !$records->isEmpty()) {
+            return $this->returnSuccess(__('Users found successfully!'), $records);
+        }
+
+        return $this->returnNull();
+    }
 }

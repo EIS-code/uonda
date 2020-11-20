@@ -63,6 +63,10 @@ Route::group(['prefix' => 'user', 'namespace' => 'User'], function () {
         Route::any('/questions/get', 'UserReportQuestionController@getQuestions')->name('user.report.questions');
         Route::post('/', 'UserReportController@postAnswer')->name('user.report.answer');
     });
+
+    Route::group(['prefix' => 'explore'], function () {
+        Route::get('/', 'UserController@getExplore')->name('user.explore.get');
+    });
 });
 
 Route::group(['prefix' => 'constant', 'namespace' => 'Constant'], function () {
