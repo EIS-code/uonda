@@ -58,6 +58,11 @@ Route::group(['prefix' => 'user', 'namespace' => 'User'], function () {
     });
 
     Route::post('/forgot/password', 'Auth\ForgotPasswordController@sendResetLinkEmail')->name('user.password.email');
+
+    Route::group(['prefix' => 'report', 'namespace' => 'Report'], function () {
+        Route::get('/questions/get', 'UserReportQuestionController@getQuestions')->name('user.report.questions');
+        Route::post('/', 'UserReportController@postAnswer')->name('user.report.answer');
+    });
 });
 
 Route::group(['prefix' => 'constant', 'namespace' => 'Constant'], function () {
