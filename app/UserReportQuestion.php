@@ -37,8 +37,13 @@ class UserReportQuestion extends BaseModel
         ]);
     }
 
-    public function states()
+    public function reports()
     {
-        return $this->belongsToMany('App\State');
+        return $this->hasMany('App\UserReport', 'user_report_question_id', 'id');
+    }
+
+    public function report(int $userId)
+    {
+        return $this->hasOne('App\UserReport', 'user_report_question_id', 'id')->where('user_id', $userId);
     }
 }
