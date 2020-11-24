@@ -471,10 +471,15 @@ class UserController extends BaseController
             $query->having('miles', '<=', $distance);
         }
 
-        $schoolName = $request->get('school_name', false);
+        /*$schoolName = $request->get('school_name', false);
         if (!empty($schoolName)) {
             $query->join($schoolModel::getTableName(), $model->getTableName() . '.school_id', '=', $schoolModel::getTableName() . '.id');
             $query->where($schoolModel::getTableName() . '.name', 'LIKE', '%' . $schoolName . '%');
+        }*/
+
+        $schoolId = $request->get('school_id', false);
+        if (!empty($schoolId)) {
+            $query->where($model->getTableName() . '.school_id', $schoolId);
         }
 
         $fieldOfStudy = $request->get('field_of_study', false);
