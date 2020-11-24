@@ -46,4 +46,9 @@ class School extends BaseModel
     {
         return $this->hasOne('App\City', 'id', 'city_id');
     }
+
+    public function users()
+    {
+        return $this->hasMany('App\User', 'school_id', 'id');
+    }
 }

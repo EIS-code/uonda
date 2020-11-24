@@ -65,8 +65,10 @@ Route::group(['prefix' => 'user', 'namespace' => 'User'], function () {
     });
 
     Route::group(['prefix' => 'explore'], function () {
-        Route::get('/', 'UserController@getExplore')->name('user.explore.get');
+        Route::post('/', 'UserController@getExplore')->name('user.explore.get');
     });
+
+    Route::post('/location', 'UserController@updateLocation')->name('user.location.update');
 });
 
 Route::group(['prefix' => 'constant', 'namespace' => 'Constant'], function () {

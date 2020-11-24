@@ -26,7 +26,7 @@ class CreateUsersTable extends Migration
             $table->enum('gender', ['m', 'f'])->nullable()->comment('m: Male, f: Female');
             $table->timestamp('birthday')->nullable();
             $table->bigInteger('school_id')->unsigned()->nullable();
-            $table->foreign('school_id')->references('id')->on('states')->onDelete('cascade');
+            $table->foreign('school_id')->references('id')->on('schools')->onDelete('cascade');
             $table->bigInteger('country_id')->unsigned()->nullable();
             $table->foreign('country_id')->references('id')->on('countries')->onDelete('cascade');
             $table->bigInteger('city_id')->unsigned()->nullable();
@@ -39,6 +39,8 @@ class CreateUsersTable extends Migration
             $table->enum('personal_flag', ['0', '1'])->nullable()->default('0')->comment('0: Nope, 1: Done');
             $table->enum('school_flag', ['0', '1'])->nullable()->default('0')->comment('0: Nope, 1: Done');
             $table->enum('other_flag', ['0', '1'])->nullable()->default('0')->comment('0: Nope, 1: Done');
+            $table->decimal('longitude', 11, 8)->nullable();
+            $table->decimal('latitude', 11, 8)->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

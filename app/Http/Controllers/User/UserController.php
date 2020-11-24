@@ -8,6 +8,7 @@ use App\User;
 use App\UserDocument;
 use App\UserSetting;
 use App\City;
+use App\School;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\UploadedFile;
 use Carbon\Carbon;
@@ -441,17 +442,83 @@ class UserController extends BaseController
     {
         $model     = new User();
         $cityModel = new City();
+        $schoolModel = new School();
         $data      = $request->all();
 
-        $records = $model::select(DB::RAW($cityModel::getTableName() . '.name, ' . 'COUNT('.$cityModel::getTableName().'.id) as total_users'))
+        // Check proper latitude & longitude
+        $latitude = false;
+        if (!empty($data['latitude']) && preg_match('/^[-]?(([0-8]?[0-9])\.(\d+))|(90(\.0+)?)$/', $data['latitude'])) {
+            $latitude = $data['latitude'];
+        }
+
+        $longitude = false;
+        if (!empty($data['longitude']) && preg_match('/^[-]?((((1[0-7][0-9])|([0-9]?[0-9]))\.(\d+))|180(\.0+)?)$/', $data['longitude'])) {
+            $longitude = $data['longitude'];
+        }
+
+        $query = $model::query();
+
+        // 1609 for convert to miles.
+        $distance  = (int)(defined('EXPLORE_DISTANCE') ? EXPLORE_DISTANCE : 500) / 1;
+        $selectStatements = "
+            *, SQRT(
+            POW(69.1 * (latitude - {$latitude}), 2) +
+            POW(69.1 * ({$longitude} - longitude) * COS(latitude / 57.3), 2)) AS distance
+        ";
+
+        // (6367 * acos(cos(radians('.$latitude.')) * cos(radians(latitude)) * cos(radians(longitude) - radians('.$longitude.') ) + sin( radians('.$latitude.') ) * sin( radians( latitude ) ) ) ) AS distance
+
+        $query->selectRaw($selectStatements);
+
+        if ($latitude && $longitude) {
+            $query->having('distance', '<=', $distance);
+        }
+
+        $records = $query->get();
+        /*$records = $model::select(DB::RAW($cityModel::getTableName() . '.name, ' . 'COUNT('.$cityModel::getTableName().'.id) as total_users'))
                          ->join($cityModel::getTableName(), $model->getTableName() . '.city_id', '=', $cityModel::getTableName() . '.id')
                          ->groupBy($model->getTableName() . '.city_id')
-                         ->get();
+                         ->get();*/
 
         if (!empty($records) && !$records->isEmpty()) {
-            return $this->returnSuccess(__('Users found successfully!'), $records);
+            return $this->returnSuccess(__('Nearest users found successfully under ' . $distance . ' meter area!'), $records);
         }
 
         return $this->returnNull();
+    }
+
+    public function updateLocation(Request $request)
+    {
+        $model = new User();
+        $data  = $request->all();
+
+        $requiredFileds = [
+            'name'      => ['nullable'],
+            'password'  => ['nullable'],
+            'email'     => ['nullable'],
+            'latitude'  => ['required'],
+            'longitude' => ['required']
+        ];
+
+        $extraFields = [
+            'user_id' => ['required', 'integer', 'exists:' . $model->getTableName() . ',id']
+        ];
+
+        $validator = $model->validator($data, $requiredFileds, $extraFields);
+
+        if ($validator->fails()) {
+            return $this->returnError($validator->errors()->first());
+        }
+
+        $user = $model::find($data['user_id']);
+
+        $user->latitude  = $data['latitude'];
+        $user->longitude = $data['longitude'];
+
+        if ($user->save()) {
+            return $this->returnSuccess(__('User locations saved successfully!'), $this->getDetails($user->id));
+        }
+
+        return $this->returnError(__('Something went wrong!'));
     }
 }
