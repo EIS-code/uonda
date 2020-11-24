@@ -440,10 +440,9 @@ class UserController extends BaseController
 
     public function getExplore(Request $request)
     {
-        $model     = new User();
-        $cityModel = new City();
+        $model       = new User();
         $schoolModel = new School();
-        $data      = $request->all();
+        $data        = $request->all();
 
         // Check proper latitude & longitude
         $latitude = false;
@@ -456,32 +455,52 @@ class UserController extends BaseController
             $longitude = $data['longitude'];
         }
 
-        $query = $model::query();
+        $query            = $model::query();
+        $selectStatements = $model->getTableName() . '.*';
 
         // 1609 for convert to miles.
-        $distance  = (int)(defined('EXPLORE_DISTANCE') ? EXPLORE_DISTANCE : 500) / 1;
-        $selectStatements = "
-            *, SQRT(
-            POW(69.1 * (latitude - {$latitude}), 2) +
-            POW(69.1 * ({$longitude} - longitude) * COS(latitude / 57.3), 2)) AS distance
-        ";
-
-        // (6367 * acos(cos(radians('.$latitude.')) * cos(radians(latitude)) * cos(radians(longitude) - radians('.$longitude.') ) + sin( radians('.$latitude.') ) * sin( radians( latitude ) ) ) ) AS distance
-
-        $query->selectRaw($selectStatements);
+        $distance  = (int)(defined('EXPLORE_DISTANCE') ? EXPLORE_DISTANCE : 500) / 1609;
 
         if ($latitude && $longitude) {
-            $query->having('distance', '<=', $distance);
+            $selectStatements = "
+                {$model->getTableName()}.*, SQRT(
+                POW(69.1 * (latitude - {$latitude}), 2) +
+                POW(69.1 * ({$longitude} - longitude) * COS(latitude / 57.3), 2)) AS miles
+            ";
+
+            $query->having('miles', '<=', $distance);
         }
 
-        $records = $query->get();
-        /*$records = $model::select(DB::RAW($cityModel::getTableName() . '.name, ' . 'COUNT('.$cityModel::getTableName().'.id) as total_users'))
-                         ->join($cityModel::getTableName(), $model->getTableName() . '.city_id', '=', $cityModel::getTableName() . '.id')
-                         ->groupBy($model->getTableName() . '.city_id')
-                         ->get();*/
+        $schoolName = $request->get('school_name', false);
+        if (!empty($schoolName)) {
+            $query->join($schoolModel::getTableName(), $model->getTableName() . '.school_id', '=', $schoolModel::getTableName() . '.id');
+            $query->where($schoolModel::getTableName() . '.name', 'LIKE', '%' . $schoolName . '%');
+        }
+
+        $fieldOfStudy = $request->get('field_of_study', false);
+        if (!empty($fieldOfStudy)) {
+            $query->where($model->getTableName() . '.field_of_study', 'LIKE', '%' . $fieldOfStudy . '%');
+        }
+
+        $jobPosition = $request->get('job_position', false);
+        if (!empty($jobPosition)) {
+            $query->where($model->getTableName() . '.job_position', 'LIKE', '%' . $jobPosition . '%');
+        }
+
+        $company = $request->get('company', false);
+        if (!empty($company)) {
+            $query->where($model->getTableName() . '.company', 'LIKE', '%' . $company . '%');
+        }
+
+        $university = $request->get('university', false);
+        if (!empty($university)) {
+            $query->where($model->getTableName() . '.university', 'LIKE', '%' . $university . '%');
+        }
+
+        $records = $query->selectRaw($selectStatements)->get();
 
         if (!empty($records) && !$records->isEmpty()) {
-            return $this->returnSuccess(__('Nearest users found successfully under ' . $distance . ' meter area!'), $records);
+            return $this->returnSuccess(__('Users found successfully!'), $records);
         }
 
         return $this->returnNull();
