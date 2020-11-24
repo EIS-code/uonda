@@ -28,6 +28,11 @@ class ConstantsSeeder extends Seeder
                 'key'   => 'ABOUT_US',
                 'value' => ''
             ]);
+
+            Constant::create([
+                'key'   => 'EXPLORE_DISTANCE',
+                'value' => '500'
+            ]);
         }
     }
 }
