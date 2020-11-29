@@ -13,10 +13,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+Auth::routes(['register' => false, 'reset' => false]);
+
+Route::group(['middleware' => ['auth']], function(){
+    Route::get('/', 'DashboardController@index')->name('dashboard');
 });
 
-Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
