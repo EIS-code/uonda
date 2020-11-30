@@ -216,7 +216,7 @@ class UserController extends BaseController
             return $this->returnError($validator->errors()->first());
         }
 
-        if (!empty($data['birthday']) && strlen($data['birthday']) >= 13) {
+        if (!empty($data['birthday']) && strlen($data['birthday']) > 10) {
             $data['birthday'] = $data['birthday'] / 1000;
         }
 
