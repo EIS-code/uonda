@@ -35,6 +35,13 @@ class Feed extends BaseModel
         'wmv'
     ];
 
+    /**
+     * The attributes that should be appends to model object.
+     *
+     * @var array
+     */
+    protected $appends = ['encrypted_feed_id'];
+
     public $fileSystem        = 'public';
     public $storageFolderName = 'feed';
 
@@ -72,7 +79,8 @@ class Feed extends BaseModel
         }
 
         $storageFolderName = (str_ireplace("\\", "/", $this->storageFolderName));
-        return Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $this->id . '/' . $value);
+        // return Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $this->id . '/' . $value);
+        return Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $value);
     }
 
     public function getCreatedAtAttribute($value)
@@ -82,5 +90,11 @@ class Feed extends BaseModel
         }
 
         return strtotime($value) * 1000;
+    }
+
+    //get encrypted feed id
+    public function getEncryptedFeedIdAttribute()
+    {
+        return encrypt($this->id);
     }
 }

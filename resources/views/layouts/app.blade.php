@@ -13,6 +13,7 @@
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
+    <link type="text/css" href="https://cdn.materialdesignicons.com/5.4.55/css/materialdesignicons.min.css" rel="stylesheet">
 
     <!-- Styles -->
     <link href="{{ asset('css/main.css') }}" rel="stylesheet">
@@ -853,7 +854,7 @@
                     <ul class="vertical-nav-menu">
                         <li class="app-sidebar__heading">Menu</li>
                             <li>
-                                <a href="javscript::void(0);" >
+                                <a href="{{ route('users.index') }}" >
                                     <i class="metismenu-icon pe-7s-graph2"></i>Users
                                 </a>
                             </li>
@@ -865,6 +866,11 @@
                             <li>
                                 <a href="javscript::void(0);" >
                                     <i class="metismenu-icon pe-7s-graph1"></i>Promocodes
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('feeds.index') }}" >
+                                    <i class="metismenu-icon pe-7s-graph1"></i>Feeds
                                 </a>
                             </li>
                         </li>
