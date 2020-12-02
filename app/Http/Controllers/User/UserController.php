@@ -348,7 +348,7 @@ class UserController extends BaseController
 
         $userId = (int)$data['user_id'];
 
-        $user = $model::select('personal_flag', 'school_flag', 'other_flag')->with('userDocuments')->find($userId);
+        $user = $model::select('id', 'personal_flag', 'school_flag', 'other_flag')->with('userDocuments')->find($userId);
 
         if (!empty($user)) {
             $user->makeVisible(['personal_flag', 'school_flag', 'other_flag']);
