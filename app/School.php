@@ -8,6 +8,9 @@ use App\Country;
 
 class School extends BaseModel
 {
+
+    protected $appends = ['encrypted_school_id'];
+
     protected $fillable = [
         'name', 'city_id', 'country_id'
     ];
@@ -50,5 +53,11 @@ class School extends BaseModel
     public function users()
     {
         return $this->hasMany('App\User', 'school_id', 'id');
+    }
+
+    //get encrypted feed id
+    public function getEncryptedFeedIdAttribute()
+    {
+        return encrypt($this->id);
     }
 }
