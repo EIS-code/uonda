@@ -153,8 +153,8 @@
                                     <i class="metismenu-icon pe-7s-id"></i>Users
                                 </a>
                             </li>
-                            <li>
-                                <a href="javscript::void(0);" >
+                            <li class="{{ Request::is('schools*') ? 'mm-active' : '' }}">
+                                <a href="{{ route('schools.index') }}" >
                                     <i class="metismenu-icon pe-7s-display2"></i>Schools
                                 </a>
                             </li>
@@ -171,11 +171,6 @@
                             <li class="{{ Request::is('subscription_plan*') ? 'mm-active' : '' }}">
                                 <a href="{{ route('subscription_plan.index') }}" >
                                     <i class="metismenu-icon pe-7s-way"></i>Subscription Plans
-                                </a>
-                            </li>
-                            <li class="{{ Request::is('schools*') ? 'mm-active' : '' }}">
-                                <a href="{{ route('schools.index') }}" >
-                                    <i class="metismenu-icon pe-7s-graph"></i>Schools
                                 </a>
                             </li>
                             <li class="{{ Request::is('groups*') ? 'mm-active' : '' }}">
