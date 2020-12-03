@@ -7,18 +7,18 @@
             <div class="page-title-icon">
                 <i class="pe-7s-medal icon-gradient bg-tempting-azure"></i>
             </div>
-            <div>Feeds
+            <div>Subscription Plans
             </div>
         </div>
         
         <div class="page-title-actions">
             <div class="d-inline-block dropdown">
-                <a href="{{ route('feeds.create') }}">
+                <a href="{{ route('subscription_plan.create') }}">
                 <button type="button" class="btn-shadow btn btn-info">
                     <span class="btn-icon-wrapper pr-2 opacity-7">
                         <i class="fa fa-business-time fa-w-20"></i>
                     </span>
-                    Add Feeds
+                    Add Subscription Plan
                 </button>
                 </a>
             </div>
@@ -39,23 +39,23 @@
             <thead>
             <tr>
                 <th>No</th>
-                <th>Title</th>
-                <th>Sub title</th>
+                <th>name</th>
+                <th>price</th>
                 <th>Created On</th>
                 <th>Action</th>
             </tr>
             </thead>
             <tbody>
-                @foreach($feeds as $key => $feed)
+                @foreach($plans as $key => $plan)
                     <tr>
                         <td>{{ $key  + 1}}</td>
-                        <td>{{ ucfirst($feed->title) }}</td>
-                        <td>{{ $feed->sub_title }}</td>
-                        <td>{{ Carbon\Carbon::parse($feed->created_at)->format('jS M Y') }}</td>
+                        <td>{{ ucfirst($plan->name) }}</td>
+                        <td>{{ $plan->price }}</td>
+                        <td>{{ Carbon\Carbon::parse($plan->created_at)->format('jS M Y') }}</td>
                         <td class="icons_list">
-                            <a href="{{ route('feeds.edit', $feed->encrypted_feed_id) }}" title="Edit Feed"><i class="faicons mdi mdi-lead-pencil"></i></a> 
-                            <a data-type="user" data-id="" class="remove-button" title="Delete Feed"><i class="faicons mdi mdi-delete delete-button"></i></a>
-                            <a href="{{ route('feeds.show', $feed->encrypted_feed_id)}}" title="Show Feed Details"><i class="faicons mdi mdi-eye"></i></a>
+                            <a href="{{ route('subscription_plan.edit', $plan->encrypted_plan_id) }}" title="Edit Subscription Plan"><i class="faicons mdi mdi-lead-pencil"></i></a> 
+                            <a data-type="user" data-id="" class="remove-button" title="Delete Subscription Plan"><i class="faicons mdi mdi-delete delete-button"></i></a>
+                            <a href="{{ route('subscription_plan.show', $plan->encrypted_plan_id)}}" title="Show Plan Details"><i class="faicons mdi mdi-eye"></i></a>
                             
                         </td>
                     </tr>

@@ -7,18 +7,18 @@
             <div class="page-title-icon">
                 <i class="pe-7s-medal icon-gradient bg-tempting-azure"></i>
             </div>
-            <div>Feeds
+            <div>Promo Codes
             </div>
         </div>
         
         <div class="page-title-actions">
             <div class="d-inline-block dropdown">
-                <a href="{{ route('feeds.create') }}">
+                <a href="{{ route('promo-codes.create') }}">
                 <button type="button" class="btn-shadow btn btn-info">
                     <span class="btn-icon-wrapper pr-2 opacity-7">
                         <i class="fa fa-business-time fa-w-20"></i>
                     </span>
-                    Add Feeds
+                    Add Promo Code
                 </button>
                 </a>
             </div>
@@ -39,23 +39,27 @@
             <thead>
             <tr>
                 <th>No</th>
-                <th>Title</th>
-                <th>Sub title</th>
+                <th>Promo Code</th>
+                <th>Amount</th>
+                <th>Percentage</th>
+                <th>Status</th>
                 <th>Created On</th>
                 <th>Action</th>
             </tr>
             </thead>
             <tbody>
-                @foreach($feeds as $key => $feed)
+                @foreach($promo_codes as $key => $code)
                     <tr>
                         <td>{{ $key  + 1}}</td>
-                        <td>{{ ucfirst($feed->title) }}</td>
-                        <td>{{ $feed->sub_title }}</td>
-                        <td>{{ Carbon\Carbon::parse($feed->created_at)->format('jS M Y') }}</td>
+                        <td>{{ ucfirst($code->promo_code) }}</td>
+                        <td>{{ !empty($code->amount) ? $code->amount : '-' }}</td>
+                        <td>{{ !empty($code->percentage) ? $code->percentage : '-' }}</td>
+                        <td>{{ $code->status == 1 ? 'Enable' : 'Disable' }}</td>
+                        <td>{{ Carbon\Carbon::parse($code->created_at)->format('jS M Y') }}</td>
                         <td class="icons_list">
-                            <a href="{{ route('feeds.edit', $feed->encrypted_feed_id) }}" title="Edit Feed"><i class="faicons mdi mdi-lead-pencil"></i></a> 
-                            <a data-type="user" data-id="" class="remove-button" title="Delete Feed"><i class="faicons mdi mdi-delete delete-button"></i></a>
-                            <a href="{{ route('feeds.show', $feed->encrypted_feed_id)}}" title="Show Feed Details"><i class="faicons mdi mdi-eye"></i></a>
+                            <a href="{{ route('promo-codes.edit', $code->encrypted_code_id) }}" title="Edit Promo Code"><i class="faicons mdi mdi-lead-pencil"></i></a> 
+                            <a data-type="user" data-id="" class="remove-button" title="Delete Promo Code"><i class="faicons mdi mdi-delete delete-button"></i></a>
+                            <a href="{{ route('promo-codes.show', $code->encrypted_code_id)}}" title="Show Promo Code Details"><i class="faicons mdi mdi-eye"></i></a>
                             
                         </td>
                     </tr>

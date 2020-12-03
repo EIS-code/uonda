@@ -43,7 +43,7 @@
                         <td>{{ $user->email }}</td>
                         <td>{{ $user->gender == 'f' ? Female : ($user->gender == 'm') ? Male : '-'  }}</td>
                         <td>{{ Config::get('globalConstant.status')[$user->current_status] }}</td>
-                        <td>{{ Carbon\Carbon::parse($user->created_at)->format('M d Y') }}</td>
+                        <td>{{ Carbon\Carbon::parse($user->created_at)->format('jS M Y') }}</td>
                         <td>
                             <input type="checkbox" checked data-toggle="toggle" data-onstyle="success" data-offstyle="danger">
                         </td>

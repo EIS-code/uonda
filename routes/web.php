@@ -19,6 +19,8 @@ Route::group(['middleware' => ['auth']], function(){
     Route::get('/', 'DashboardController@index')->name('dashboard');
     Route::resource('users', 'Admin\UserController');
     Route::resource('feeds', 'Admin\FeedsController');
+    Route::resource('subscription_plan', 'Admin\SubscriptionController');
+    Route::resource('promo-codes', 'Admin\PromoCodeController');
 });
 
 
