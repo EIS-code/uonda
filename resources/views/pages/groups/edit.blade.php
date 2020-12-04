@@ -15,7 +15,7 @@
 <div class="main-card mb-3 card">
     <div class="card-body">
         <h5 class="card-title">Edit Groups</h5>
-        <form id="addFeedsForm" class="col-md-10 mx-auto" method="POST" action="{{ route('groups.update', $feed->encrypted_feed_id) }}" enctype="multipart/form-data">
+        <form id="addFeedsForm" class="col-md-10 mx-auto" method="POST" action="{{ route('groups.update', $feed->encrypted_group_id) }}" enctype="multipart/form-data">
         @csrf
         {{ method_field('PUT') }}
             <div class="form-group">
@@ -48,3 +48,11 @@
     </div>
 </div>
 @endsection
+@push('custom-scripts')
+<script type="text/javascript">
+    
+    $(document).ready(function() {
+        CKEDITOR.replace( 'description' );
+	});
+</script>
+@endpush

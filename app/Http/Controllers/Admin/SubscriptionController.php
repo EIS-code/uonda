@@ -121,8 +121,10 @@ class SubscriptionController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        //
+        SubscriptionPlan::where('id', decrypt($id))->delete();
+		$request->session()->flash('success','User deleted successfully');
+		return redirect(url()->previous());
     }
 }

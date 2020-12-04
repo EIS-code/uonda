@@ -18,8 +18,8 @@ class GroupsController extends Controller
      */
     public function index()
     {
-        $feeds = Group::get();
-        return view('pages.groups.index', compact('feeds'));
+        $groups = Group::get();
+        return view('pages.groups.index', compact('groups'));
     }
 
     /**
@@ -132,8 +132,10 @@ class GroupsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        //
+        Group::where('id', decrypt($id))->delete();
+		$request->session()->flash('success','Group deleted successfully');
+		return redirect(url()->previous());
     }
 }

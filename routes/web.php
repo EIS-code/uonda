@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 Auth::routes(['register' => false, 'reset' => false]);
+Route::get('/get-states/{id}', 'Admin\SchoolController@getStateDetails')->name('get-states');
+Route::get('/get-cities/{id}', 'Admin\SchoolController@getCitiesDetails')->name('get-cities');
 
 Route::group(['middleware' => ['auth']], function(){
     Route::get('/', 'DashboardController@index')->name('dashboard');

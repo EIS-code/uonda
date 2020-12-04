@@ -116,8 +116,10 @@ class PromoCodeController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        //
+        PromoCode::where('id', decrypt($id))->delete();
+		$request->session()->flash('success','Promo Code deleted successfully');
+		return redirect(url()->previous());
     }
 }

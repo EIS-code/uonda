@@ -28,18 +28,25 @@
                 <tbody>
                     <tr>
                         <th> School Name </th>
-                        <td> {{ ucfirst($feed->name) }} </td>
+                        <td> {{ ucfirst($school->name) }} </td>
                     </tr>
-                    
-                    <tr>
-                        <th> City </th>
-                        <td> {{ ucfirst($feed->city->name) }} </td>
-                    </tr>
-
                     <tr>
                         <th> Country </th>
-                        <td> {{ ucfirst($feed->country->name) }} </td>
+                        <td> {{ ucfirst($school->country->name) }} </td>
                     </tr>
+                    <tr>
+                        <th> State </th>
+                        <td> {{ ucfirst($school->state->name) }} </td>
+                    </tr>
+                    <tr>
+                        <th> City </th>
+                        <td> {{ ucfirst($school->city->name) }} </td>
+                    </tr>
+                    <tr>
+                        <th> Status </th>
+                        <td> {{ $school->is_active == 1 ? 'Enable' : 'Disable' }} </td>
+                    </tr>
+                    
                     
                 </tbody>
             </table>

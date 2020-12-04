@@ -10,18 +10,16 @@
             <div>Users
             </div>
         </div>
-        <div class="page-title-actions">
-            <div class="d-inline-block dropdown">
-                <button type="button" class="btn-shadow btn btn-info">
-                    <span class="btn-icon-wrapper pr-2 opacity-7">
-                        <i class="fa fa-business-time fa-w-20"></i>
-                    </span>
-                    Add User
-                </button>
-            </div>
-        </div>
     </div>
-</div>            
+</div>
+@foreach (['danger', 'warning', 'success', 'info'] as $msg)
+    @if(Session::has('alert-' . $msg))
+        <div class="alert alert-{{ $msg }} alert-dismissible fade show" role="alert">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            {!! Session::get('alert-' . $msg) !!}
+        </div>
+    @endif
+@endforeach        
 <div class="main-card mb-3 card">
     <div class="card-body">
         <table style="width: 100%;" id="example" class="table table-hover table-striped table-bordered">
@@ -49,45 +47,28 @@
                         </td>
                         <td class="icons_list">
                             <a href="" title="Edit User"><i class="faicons mdi mdi-lead-pencil"></i></a> 
-                            <a data-type="user" data-id="{{ $user->encrypted_user_id }}" class="remove-button" title="Delete User"><i class="faicons mdi mdi-delete delete-button"></i></a>
+                            <a href="javascript:void(0)" class="remove-button" title="Delete User"><i class="faicons mdi mdi-delete delete-button"></i></a>
                             <a href="" title="Show User Details"><i class="faicons mdi mdi-eye"></i></a>
-                            
+                            <form id="remove-form" action="{{ route('users.destroy', $user->encrypted_user_id) }}" method="POST" class="d-none">
+                            @csrf
+                            {{ method_field('DELETE') }}
+                            </form>
                         </td>
                     </tr>
                 @endforeach
             </tbody>
-            <tfoot>
-            <tr>
-                <th>Name</th>
-                <th>Position</th>
-                <th>Office</th>
-                <th>Age</th>
-                <th>Start date</th>
-                <th>Salary</th>
-            </tr>
-            </tfoot>
         </table>
     </div>
 </div>
-<div class="modal fade" id="remove-item-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p class="mb-0">Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an
-                    unknown printer took a galley of type and scrambled.</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Save changes</button>
-            </div>
-        </div>
-    </div>
-</div>
 @endsection
+@push('custom-scripts')
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('.remove-button').on('click', function() {
+    		if(confirm('Are you sure you want to delete this?')) {
+                $('#remove-form').submit();
+            }
+    	});
+    });
+</script>
+@endpush

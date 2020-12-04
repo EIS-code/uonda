@@ -45,15 +45,19 @@
             </tr>
             </thead>
             <tbody>
-                @foreach($feeds as $key => $feed)
+                @foreach($groups as $key => $group)
                     <tr>
                         <td>{{ $key  + 1}}</td>
-                        <td>{{ ucfirst($feed->title) }}</td>
-                        <td>{{ Carbon\Carbon::parse($feed->created_at)->format('jS M Y') }}</td>
+                        <td>{{ ucfirst($group->title) }}</td>
+                        <td>{{ Carbon\Carbon::parse($group->created_at)->format('jS M Y') }}</td>
                         <td class="icons_list">
-                            <a href="{{ route('groups.edit', $feed->encrypted_feed_id) }}" title="Edit Group"><i class="faicons mdi mdi-lead-pencil"></i></a> 
+                            <a href="{{ route('groups.edit', $group->encrypted_group_id) }}" title="Edit Group"><i class="faicons mdi mdi-lead-pencil"></i></a> 
                             <a data-type="user" data-id="" class="remove-button" title="Delete Group"><i class="faicons mdi mdi-delete delete-button"></i></a>
-                            <a href="{{ route('groups.show', $feed->encrypted_feed_id)}}" title="Show Group Details"><i class="faicons mdi mdi-eye"></i></a>
+                            <a href="{{ route('groups.show', $group->encrypted_group_id)}}" title="Show Group Details"><i class="faicons mdi mdi-eye"></i></a>
+                            <form id="remove-form" action="{{ route('groups.destroy', $group->encrypted_group_id) }}" method="POST" class="d-none">
+                            @csrf
+                            {{ method_field('DELETE') }}
+                            </form>
                         </td>
                     </tr>
                 @endforeach
@@ -62,3 +66,14 @@
     </div>
 </div>
 @endsection
+@push('custom-scripts')
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('.remove-button').on('click', function() {
+    		if(confirm('Are you sure you want to delete this?')) {
+                $('#remove-form').submit();
+            }
+    	});
+    });
+</script>
+@endpush

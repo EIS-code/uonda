@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\School;
+use App\Country;
+use App\State;
+use App\City;
 
 class SchoolController extends Controller
 {
@@ -16,8 +19,8 @@ class SchoolController extends Controller
     public function index()
     {
         $model  = new School();
-        $feeds = $model::with('country', 'city')->orderBy($model::getTableName() . '.name', 'ASC')->get();
-        return view('pages.schools.index', compact('feeds'));
+        $schools = $model::with('country', 'city', 'state')->orderBy($model::getTableName() . '.name', 'ASC')->get();
+        return view('pages.schools.index', compact('schools'));
     }
 
     /**
@@ -27,7 +30,8 @@ class SchoolController extends Controller
      */
     public function create()
     {
-        return view('pages.schools.add');
+        $countries = Country::get();
+        return view('pages.schools.add', compact('countries'));
     }
 
     /**
@@ -38,25 +42,23 @@ class SchoolController extends Controller
      */
     public function store(Request $request)
     {
-        $feed = new School();
+        $school = new School();
         $data  = $request->all();
 
-        $validator = $feed->validator($data);
+        $validator = $school->validator($data);
         if ($validator->fails()) {
             return redirect()->back()
             ->withErrors($validator)
             ->withInput();
         }
-        
-        $fillableFields = $feed->getFillable();
 
-        foreach ($data as $field => $value) {
-            if (in_array($field, $fillableFields)) {
-                $feed->{$field} = $value;
-            }
-        }
-
-        $feed->save();
+        $school->name = $request->name;
+        $school->description = !empty($request->description) ? $request->description : '';
+        $school->country_id = $request->country_id;
+        $school->state_id = $request->state_id;
+        $school->city_id = $request->city_id;
+        $school->is_active = array_key_exists('is_active', $data) ? 1 : 0 ;
+        $school->save();
         $request->session()->flash('alert-success', 'School successfully created');
         return redirect()->route('schools.index');
     }
@@ -69,10 +71,10 @@ class SchoolController extends Controller
      */
     public function show($id)
     {
-        $model  = new School();
-        $feed = $model::with('country', 'city')->where("id",decrypt($id))->orderBy($model::getTableName() . '.name', 'ASC')->first();
+        $school  = new School();
+        $school = $school::with('country', 'city', 'state')->where("id",decrypt($id))->orderBy($school::getTableName() . '.name', 'ASC')->first();
         
-        return view('pages.schools.show', compact('feed'));
+        return view('pages.schools.show', compact('school'));
     }
 
     /**
@@ -83,8 +85,11 @@ class SchoolController extends Controller
      */
     public function edit($id)
     {
-        $feed = School::find(decrypt($id));
-        return view('pages.schools.edit', compact('feed'));
+        $school = School::with(['state', 'country', 'city'])->find(decrypt($id));
+        $countries = Country::all();
+        $states = State::where('country_id', $school->country_id)->get();
+        $cities = City::where('state_id', $school->state_id)->get();
+        return view('pages.schools.edit', compact('school', 'countries', 'states', 'cities'));
     }
 
     /**
@@ -96,26 +101,24 @@ class SchoolController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $feed = School::find(decrypt($id));
-        $prevAttachment = $feed->attachment;
+        $school = School::find(decrypt($id));
         $data  = $request->all();
 
-        $validator = $feed->validator($data);
+        $validator = $school->validator($data, decrypt($id));
         if ($validator->fails()) {
             return redirect()->back()
             ->withErrors($validator)
             ->withInput();
         }
         
-        $fillableFields = $feed->getFillable();
+        $school->name = $request->name;
+        $school->description = !empty($request->description) ? $request->description : '';
+        $school->country_id = $request->country_id;
+        $school->state_id = $request->state_id;
+        $school->city_id = $request->city_id;
+        $school->is_active = array_key_exists('is_active', $data) ? 1 : 0 ;
 
-        foreach ($data as $field => $value) {
-            if (in_array($field, $fillableFields)) {
-                $feed->{$field} = $value;
-            }
-        }
-
-        $feed->save();
+        $school->save();
         $request->session()->flash('alert-success', 'School successfully updated');
         return redirect()->route('schools.index');
     }
@@ -126,8 +129,22 @@ class SchoolController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        //
+        School::where('id', decrypt($id))->delete();
+		$request->session()->flash('success','School deleted successfully');
+		return redirect(url()->previous());
+    }
+
+    //function to get the states details from the country
+    public function getStateDetails(Request $request, $id) {
+        $states = State::where('country_id', $id)->get();
+        return response()->json(['data' => $states, 'status' => 200], 200);
+    }
+
+    //function to get the cities details from the state
+    public function getCitiesDetails(Request $request, $id) {
+        $cities = City::where('state_id', $id)->get();
+        return response()->json(['data' => $cities, 'status' => 200], 200);
     }
 }

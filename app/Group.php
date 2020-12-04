@@ -50,7 +50,7 @@ class Group extends BaseModel
     }
 
     //get encrypted feed id
-    public function getEncryptedFeedIdAttribute()
+    public function getEncryptedGroupIdAttribute()
     {
         return encrypt($this->id);
     }

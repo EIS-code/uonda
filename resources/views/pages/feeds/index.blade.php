@@ -54,9 +54,12 @@
                         <td>{{ Carbon\Carbon::parse($feed->created_at)->format('jS M Y') }}</td>
                         <td class="icons_list">
                             <a href="{{ route('feeds.edit', $feed->encrypted_feed_id) }}" title="Edit Feed"><i class="faicons mdi mdi-lead-pencil"></i></a> 
-                            <a data-type="user" data-id="" class="remove-button" title="Delete Feed"><i class="faicons mdi mdi-delete delete-button"></i></a>
+                            <a href="javascript:void(0);" class="remove-button" title="Delete Feed"><i class="faicons mdi mdi-delete delete-button"></i></a>
                             <a href="{{ route('feeds.show', $feed->encrypted_feed_id)}}" title="Show Feed Details"><i class="faicons mdi mdi-eye"></i></a>
-                            
+                            <form id="remove-form" action="{{ route('feeds.destroy', $feed->encrypted_feed_id) }}" method="POST" class="d-none">
+                            @csrf
+                            {{ method_field('DELETE') }}
+                            </form>
                         </td>
                     </tr>
                 @endforeach
@@ -65,3 +68,14 @@
     </div>
 </div>
 @endsection
+@push('custom-scripts')
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('.remove-button').on('click', function() {
+    		if(confirm('Are you sure you want to delete this?')) {
+                $('#remove-form').submit();
+            }
+    	});
+    });
+</script>
+@endpush

@@ -198,6 +198,9 @@
 </div>
 <div class="app-drawer-overlay d-none animated fadeIn"></div>
 <script type="text/javascript" src="{{ asset('js/main.js') }}"></script>
+<script type="text/javascript" src="{{ asset('js/jquery.min.js') }}"></script>
+<script src="https://cdn.ckeditor.com/4.15.1/standard/ckeditor.js"></script>
+<script src="https://cdn.ckeditor.com/ckeditor5/21.0.0/decoupled-document/ckeditor.js"></script>
 @stack('custom-scripts')
 </body>
 </html>

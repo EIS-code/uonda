@@ -32,7 +32,7 @@
             {!! Session::get('alert-' . $msg) !!}
         </div>
     @endif
-@endforeach    
+@endforeach   
 <div class="main-card mb-3 card">
     <div class="card-body">
         <table style="width: 100%;" id="example" class="table table-hover table-striped table-bordered">
@@ -40,22 +40,28 @@
             <tr>
                 <th>No</th>
                 <th>Name</th>
-                <th>City</th>
                 <th>Country</th>
+                <th>State</th>
+                <th>City</th>
                 <th>Action</th>
             </tr>
             </thead>
             <tbody>
-                @foreach($feeds as $key => $feed)
+                @foreach($schools as $key => $school)
                     <tr>
                         <td>{{ $key  + 1}}</td>
-                        <td>{{ ucfirst($feed->name) }}</td>
-                        <td>{{ ucfirst($feed->country->name) }}</td>
-                        <td>{{ ucfirst($feed->city->name) }}</td>
+                        <td>{{ ucfirst($school->name) }}</td>
+                        <td>{{ ucfirst($school->country->name) }}</td>
+                        <td>{{ ucfirst($school->state->name) }}</td>
+                        <td>{{ ucfirst($school->city->name) }}</td>
                         <td class="icons_list">
-                            <a href="{{ route('schools.edit', $feed->encrypted_feed_id) }}" title="Edit School"><i class="faicons mdi mdi-lead-pencil"></i></a> 
-                            <a data-type="user" data-id="" class="remove-button" title="Delete School"><i class="faicons mdi mdi-delete delete-button"></i></a>
-                            <a href="{{ route('schools.show', $feed->encrypted_feed_id)}}" title="Show School Details"><i class="faicons mdi mdi-eye"></i></a>
+                            <a href="{{ route('schools.edit', $school->encrypted_school_id) }}" title="Edit School"><i class="faicons mdi mdi-lead-pencil"></i></a> 
+                            <a href="javascript:void(0)" class="remove-button" title="Delete School"><i class="faicons mdi mdi-delete delete-button"></i></a>
+                            <a href="{{ route('schools.show', $school->encrypted_school_id)}}" title="Show School Details"><i class="faicons mdi mdi-eye"></i></a>
+                            <form id="remove-form" action="{{ route('schools.destroy', $school->encrypted_school_id) }}" method="POST" class="d-none">
+                            @csrf
+                            {{ method_field('DELETE') }}
+                            </form>
                         </td>
                     </tr>
                 @endforeach
@@ -64,3 +70,14 @@
     </div>
 </div>
 @endsection
+@push('custom-scripts')
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('.remove-button').on('click', function() {
+    		if(confirm('Are you sure you want to delete this?')) {
+                $('#remove-form').submit();
+            }
+    	});
+    });
+</script>
+@endpush

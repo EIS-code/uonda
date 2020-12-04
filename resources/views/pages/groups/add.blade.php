@@ -48,3 +48,11 @@
     </div>
 </div>
 @endsection
+@push('custom-scripts')
+<script type="text/javascript">
+    
+    $(document).ready(function() {
+        CKEDITOR.replace( 'description' );
+	});
+</script>
+@endpush

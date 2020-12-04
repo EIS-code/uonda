@@ -165,8 +165,10 @@ class FeedsController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        //
+        Feed::where('id', decrypt($id))->delete();
+		$request->session()->flash('alert-success', 'Feed successfully removed');
+		return redirect(url()->previous());
     }
 }

@@ -58,9 +58,12 @@
                         <td>{{ Carbon\Carbon::parse($code->created_at)->format('jS M Y') }}</td>
                         <td class="icons_list">
                             <a href="{{ route('promo-codes.edit', $code->encrypted_code_id) }}" title="Edit Promo Code"><i class="faicons mdi mdi-lead-pencil"></i></a> 
-                            <a data-type="user" data-id="" class="remove-button" title="Delete Promo Code"><i class="faicons mdi mdi-delete delete-button"></i></a>
+                            <a href="javascript:void(0)" class="remove-button" title="Delete Promo Code"><i class="faicons mdi mdi-delete delete-button"></i></a>
                             <a href="{{ route('promo-codes.show', $code->encrypted_code_id)}}" title="Show Promo Code Details"><i class="faicons mdi mdi-eye"></i></a>
-                            
+                            <form id="remove-form" action="{{ route('promo-codes.destroy', $code->encrypted_code_id) }}" method="POST" class="d-none">
+                            @csrf
+                            {{ method_field('DELETE') }}
+                            </form>
                         </td>
                     </tr>
                 @endforeach
@@ -69,3 +72,14 @@
     </div>
 </div>
 @endsection
+@push('custom-scripts')
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('.remove-button').on('click', function() {
+    		if(confirm('Are you sure you want to delete this?')) {
+                $('#remove-form').submit();
+            }
+    	});
+    });
+</script>
+@endpush
