@@ -43,12 +43,16 @@
                         <td>{{ Config::get('globalConstant.status')[$user->current_status] }}</td>
                         <td>{{ Carbon\Carbon::parse($user->created_at)->format('jS M Y') }}</td>
                         <td>
-                            <input type="checkbox" checked data-toggle="toggle" data-onstyle="success" data-offstyle="danger">
+                            <input type="checkbox" {{ $user->is_enable == 1 ? 'checked' : ''}} data-id="{{ $user->encrypted_user_id }}" class="user_status" value="{{ $user->is_enable }}" data-toggle="toggle" data-onstyle="success" data-offstyle="danger">
                         </td>
                         <td class="icons_list">
-                            <a href="" title="Edit User"><i class="faicons mdi mdi-lead-pencil"></i></a> 
+                            @if($user->is_accepted)
+                                <a href="javascript:void(0)" class="rejectModal" data-id="{{ $user->encrypted_user_id }}" title="Reject User"><i class="fa fa-times" aria-hidden="true"></i></a> 
+                            @else 
+                                <a href="javascript:void(0)" class="acceptUser" data-id="{{ $user->encrypted_user_id }}" title="Accept User"><i class="fa fa-check" aria-hidden="true"></i></a> 
+                            @endif
                             <a href="javascript:void(0)" class="remove-button" title="Delete User"><i class="faicons mdi mdi-delete delete-button"></i></a>
-                            <a href="" title="Show User Details"><i class="faicons mdi mdi-eye"></i></a>
+                            <a href="{{ route('users.show', $user->encrypted_user_id) }}" title="Show User Details"><i class="faicons mdi mdi-eye"></i></a>
                             <form id="remove-form" action="{{ route('users.destroy', $user->encrypted_user_id) }}" method="POST" class="d-none">
                             @csrf
                             {{ method_field('DELETE') }}
@@ -69,6 +73,66 @@
                 $('#remove-form').submit();
             }
     	});
+        $('.rejectModal').on('click', function() {
+    		$('#rejectionModal').attr('data-id', $(this).attr('data-id'));
+    		$('#rejectionModal').show();
+        });
+        $('.toggle').on('click', function() {
+            var attr = $(this).children('.user_status').attr('checked');
+            if(typeof attr !== typeof undefined && attr !== false) {
+                $(this).children('.user_status').attr('checked', false); ;
+                $(this).children('.user_status').val('0');
+                $(this).children('.user_status').trigger('change');
+            } else {
+                $(this).children('.user_status').attr('checked', true); ;
+                $(this).children('.user_status').val('1');
+                $(this).children('.user_status').trigger('change');
+            }
+        });
+        $('.user_status').on('change', function() {
+            var user_id = $(this).attr('data-id');
+            if(user_id) {
+                var url = " {{ url('users') }}/" + user_id;
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    data: { 'user_status' : $(this).val(), '_method' : "PUT"}, 
+                    success: function(data) {
+                        if(data.status == 200) {
+                            location.reload();
+                        }
+                    },
+                    error: function(error) {
+                        if(error.status == 400) {
+                            alert(error.responseJSON.error);
+                        }
+                    }
+                });
+            }
+        })
+        $('.acceptUser').on('click', function() {
+            var user_id = $(this).attr('data-id');
+            if(user_id) {
+                var url = " {{ url('users') }}/" + user_id;
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    data: { 'ís_accepted' : 1, '_method' : "PUT"}, 
+                    success: function(data) {
+                        if(data.status == 200) {
+                            location.reload();
+                        }
+                    },
+                    error: function(error) {
+                        if(error.status == 400) {
+                            alert(error.responseJSON.error);
+                        }
+                    }
+                });
+            }
+        })
     });
 </script>
 @endpush

@@ -76,8 +76,6 @@ class GroupsController extends Controller
         if(!empty($feed)) {
             $feed['users'] = UserGroup::with("group", "user")->where("group_id",decrypt($id))->get();
         }
-        // echo "<pre>";
-        // print_r($feed);exit;
         return view('pages.groups.show', compact('feed'));
     }
 

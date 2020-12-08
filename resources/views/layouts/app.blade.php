@@ -204,6 +204,63 @@
 @stack('custom-scripts')
 </body>
 </html>
+<div class="modal" id="rejectionModal" tabindex="-1" role="dialog" aria-labelledby="rejectionModal"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">Reject User </h4>
+        <button type="button" class="close close-modal">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+            <label data-error="wrong" data-success="right" for="defaultForm-email">Description for Rejection</label>
+            <textarea id="description-for-rejection" class="form-control validate rejection-description"></textarea>
+            <span class="rejection-description-err" style="display:none; color:red">Description is required</span>
+        </div>
+      </div>
+      <div class="modal-footer d-flex justify-content-center">
+        <button class="btn btn-default reject-btn">Reject</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+    $('.close-modal').on('click', function() {
+        $('.rejection-description').val('');
+        $('.rejection-description-err').hide();
+        $('#rejectionModal').removeAttr('data-id');
+        $('#rejectionModal').hide();
+    })
+    $('.reject-btn').on('click', function() {
+        var desc = $('#description-for-rejection').val();
+        var user_id = $('#rejectionModal').attr('data-id');
+        if(desc && user_id) {
+            var url = " {{ url('users') }}/" + user_id;
+            console.log(url);
+            $.ajax({
+                url: url,
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                data: { description : desc, '_method' : "PUT"}, 
+                success: function(data) {
+                    if(data.status == 200) {
+                        location.reload();
+                    }
+                },
+                error: function(error) {
+                    if(error.responseJSON != '' && error.status == 400) {
+                        alert(error.responseJSON.error);
+                    }
+                }
+            });
+        } else {
+            $('.rejection-description-err').show();
+        }
+    })
+</script>
 
 
 

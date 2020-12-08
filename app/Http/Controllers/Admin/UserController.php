@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\User;
+use App\School;
+use App\Country;
+use App\City;
 
 class UserController extends Controller
 {
@@ -48,7 +51,18 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        //
+        $user = User::find(decrypt($id));
+        $data = array();
+        if(!empty($user->school_id)) {
+            $data['school_name'] = School::select('name')->where('id', $user->school_id)->first();
+        }
+        if(!empty($user->country_id)) {
+            $data['country_name'] = Country::select('name')->where('id', $user->country_id)->first();
+        }
+        if(!empty($user->city_id)) {
+            $data['city_name'] = City::select('name')->where('id', $user->city_id)->first();
+        }
+        return view('pages.users.show', compact('user', 'data'));
     }
 
     /**
@@ -71,7 +85,28 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $user = User::find(decrypt($id));
+        if(!empty($user)) {
+            $data  = $request->all();
+        
+            if($request->has('description')) {
+                $user->reason_for_rejection = $request->description;
+                $user->is_accepted = 0;
+            }
+            if($request->has('ís_accepted')) {
+                $user->reason_for_rejection = NULL;
+                $user->is_accepted = 1;
+            }
+            if($request->has('user_status')) {
+                $user->is_enable = $request->user_status;
+            }
+            $user->save();
+            $request->session()->flash('alert-success', 'User successfully updated');
+            return response()->json(['success' => true, 'status' => 200], 200);
+        } else {
+            return response()->json(['success' => false, 'status' => 400], 400);
+        }
+        
     }
 
     /**
