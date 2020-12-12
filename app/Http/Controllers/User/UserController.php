@@ -9,6 +9,7 @@ use App\UserDocument;
 use App\UserSetting;
 use App\City;
 use App\School;
+use App\ApiKey;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\UploadedFile;
 use Carbon\Carbon;
@@ -306,13 +307,17 @@ class UserController extends BaseController
         $user = $model->where('email', $userName)->first();
 
         if (!empty($user) && Hash::check($password, $user->password)) {
-            return $this->returnSuccess(__('Logged in successfully!'), $this->getDetails($user->id));
+            // Generate API key.
+            $key = ApiKey::generateKey();
+            ApiKey::updateOrCreate(['user_id' => $user->id], ['key' => $key, 'user_id' => $user->id]);
+
+            return $this->returnSuccess(__('Logged in successfully!'), $this->getDetails($user->id, false, true));
         }
 
         return $this->returnError(__('Username or Password is incorrect.'));
     }
 
-    public function getDetails(int $userId, $isApi = false)
+    public function getDetails(int $userId, $isApi = false, $apiKey = false)
     {
         $model = new User();
 
@@ -323,6 +328,10 @@ class UserController extends BaseController
         $user = $model::with('userDocuments')->find($userId);
 
         if (!empty($user)) {
+            if ($apiKey) {
+                array_push($user->appends, 'api_key');
+            }
+
             if ($isApi) {
                 return $this->returnSuccess(__('User details get successfully!'), $user);
             }
@@ -408,7 +417,63 @@ class UserController extends BaseController
             }
 
             if ($user->save()) {
-                return $this->returnSuccess(__('User profile details updated successfully!'), $this->getDetails($user->id));
+                $msg = NULL;
+                $modelDocument = new UserDocument();
+
+                if (isset($data['document_type']) && array_key_exists($data['document_type'], $modelDocument->documentTypes)) {
+                    $document = $data['document'];
+
+                    if ($document instanceof UploadedFile) {
+                        $pathInfos = pathinfo($document->getClientOriginalName());
+
+                        if (!empty($pathInfos['extension'])) {
+                            $folder = false;
+
+                            if ($data['document_type'] == $modelDocument::GRADUATION_CERTIFICATE) {
+                                $folder = $modelDocument->graduation;
+                            } elseif ($data['document_type'] == $modelDocument::STUDENT_ID_CARD) {
+                                $folder = $modelDocument->studentIdCard;
+                            } elseif ($data['document_type'] == $modelDocument::PHOTO_IN_UNIFORM) {
+                                $folder = $modelDocument->photoInUniform;
+                            } elseif ($data['document_type'] == $modelDocument::CLASS_PHOTO) {
+                                $folder = $modelDocument->classPhoto;
+                            }
+
+                            if (!empty($folder)) {
+                                $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                                $storeFile = $document->storeAs($folder, $fileName, $modelDocument->fileSystem);
+
+                                if ($storeFile) {
+                                    $save = $modelDocument->updateOrCreate(['document_type' => $data['document_type'], 'user_id' => $userId], ['document_type' => $data['document_type'], 'document' => $fileName, 'user_id' => $userId]);
+
+                                    if ($save) {
+                                        $msg = __(' with user document');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (!empty($data['profile']) && $data['profile'] instanceof UploadedFile) {
+                    $profile   = $data['profile'];
+                    $pathInfos = pathinfo($profile->getClientOriginalName());
+
+                    if (!empty($pathInfos['extension'])) {
+                        $folder = $model->profile;
+
+                        if (!empty($folder)) {
+                            $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                            $storeFile = $profile->storeAs($folder, $fileName, $model->fileSystem);
+
+                            if ($storeFile) {
+                                $user->update(['profile' => $fileName]);
+                            }
+                        }
+                    }
+                }
+
+                return $this->returnSuccess(__('User profile details updated successfully') . $msg . '!', $this->getDetails($user->id));
             }
         }
 
@@ -500,6 +565,15 @@ class UserController extends BaseController
         $university = $request->get('university', false);
         if (!empty($university)) {
             $query->where($model->getTableName() . '.university', 'LIKE', '%' . $university . '%');
+        }
+
+        $keyword = $request->get('keyword', false);
+        if (!empty($keyword)) {
+            $query->where(function($query) use($model, $keyword) {
+                $query->where($model->getTableName() . '.name', 'LIKE', '%' . $keyword . '%')
+                      ->orWhere($model->getTableName() . '.email', 'LIKE', '%' . $keyword . '%')
+                      ->orWhere($model->getTableName() . '.user_name', 'LIKE', '%' . $keyword . '%');
+            });
         }
 
         $records = $query->selectRaw($selectStatements)->get();

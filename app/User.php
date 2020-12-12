@@ -9,7 +9,9 @@ use App\School;
 use App\Country;
 use App\City;
 use App\UserSetting;
+use App\ApiKey;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable
 {
@@ -22,7 +24,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name', 'user_name', 'email', 'password', 'referral_code', 'current_location', 'nation', 'gender', 'birthday', 'school_id', 'country_id', 'city_id',
-        'current_status', 'company', 'job_position', 'university', 'field_of_study', 'personal_flag', 'school_flag', 'other_flag', 'latitude', 'longitude'
+        'current_status', 'company', 'job_position', 'university', 'field_of_study', 'profile', 'personal_flag', 'school_flag', 'other_flag', 'latitude', 'longitude'
     ];
 
     /**
@@ -31,7 +33,10 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token', 'personal_flag', 'school_flag', 'other_flag', 'user_name', 'email', 'created_at', 'updated_at',
+        'password', 'remember_token', 'personal_flag', 'school_flag', 'other_flag',
+        // 'user_name',
+        // 'email',
+        'created_at', 'updated_at',
     ];
 
     /**
@@ -48,7 +53,7 @@ class User extends Authenticatable
      *
      * @var array
      */
-    protected $appends = ['encrypted_user_id'];
+    public $appends = ['encrypted_user_id', 'permissions'];
 
     const MALE = 'm';
     const FEMALE = 'f';
@@ -81,6 +86,10 @@ class User extends Authenticatable
         self::OTHER_FLAG_DONE => 'Done',
         self::OTHER_FLAG_PENDING => 'Pending'
     ];
+
+    public $allowedProfileExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+    public $fileSystem               = 'public';
+    public $profile                  = 'user\\profile';
 
     public function __construct(array $attributes = array())
     {
@@ -133,6 +142,7 @@ class User extends Authenticatable
             'job_position'     => array_merge(['string', 'max:255'], !empty($requiredFileds['job_position']) ? $requiredFileds['job_position'] : ['nullable']),
             'university'       => array_merge(['string', 'max:255'], !empty($requiredFileds['university']) ? $requiredFileds['university'] : ['nullable']),
             'field_of_study'   => array_merge(['string', 'max:255'], !empty($requiredFileds['field_of_study']) ? $requiredFileds['field_of_study'] : ['nullable']),
+            'profile'          => array_merge(['mimes:' . implode(",", $this->allowedProfileExtensions)], !empty($requiredFileds['profile']) ? $requiredFileds['profile'] : ['nullable']),
             'personal_flag'    => array_merge(['nullable', 'in:' . implode(",", array_keys($this->personalFlags))], !empty($requiredFileds['personal_flag']) ? $requiredFileds['personal_flag'] : ['nullable']),
             'school_flag'      => array_merge(['nullable', 'in:' . implode(",", array_keys($this->schoolFlags))], !empty($requiredFileds['school_flag']) ? $requiredFileds['school_flag'] : ['nullable']),
             'other_flag'       => array_merge(['nullable', 'in:' . implode(",", array_keys($this->otherFlags))], !empty($requiredFileds['other_flag']) ? $requiredFileds['other_flag'] : ['nullable']),
@@ -174,5 +184,35 @@ class User extends Authenticatable
     public function getEncryptedUserIdAttribute()
     {
         return encrypt($this->id);
+    }
+
+    public function getPermissionsAttribute()
+    {
+        if (request()->has('user_id') && request()->get('user_id', false)) {
+            $userId = (int)request()->get('user_id');
+
+            $getSettings = UserSetting::where('user_id', $userId)->first();
+
+            if (!empty($getSettings)) {
+                return $getSettings;
+            }
+        }
+
+        return [];
+    }
+
+    public function getApiKeyAttribute()
+    {
+        return ApiKey::getApiKey($this->id);
+    }
+
+    public function getProfileAttribute($value)
+    {
+        if (empty($value)) {
+            return $value;
+        }
+
+        $storageFolderName = (str_ireplace("\\", "/", $this->profile));
+        return Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $value);
     }
 }

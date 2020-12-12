@@ -13,7 +13,7 @@ class Feed extends BaseModel
      * @var array
      */
     protected $fillable = [
-        'title', 'sub_title', 'attachment', 'description'
+        'title', 'sub_title', 'attachment', 'description', 'type'
     ];
 
     public $allowedExtensions = [
@@ -45,6 +45,19 @@ class Feed extends BaseModel
     public $fileSystem        = 'public';
     public $storageFolderName = 'feed';
 
+    const TYPE_NULL  = '0';
+    const TYPE_IMAGE = '1';
+    const TYPE_URL   = '2';
+    const TYPE_VIDEO = '3';
+    const TYPE_GIF   = '4';
+    public $feedTypes = [
+        self::TYPE_NULL  => 'Null',
+        self::TYPE_IMAGE => 'Image',
+        self::TYPE_URL   => 'URL',
+        self::TYPE_VIDEO => 'Video',
+        self::TYPE_GIF   => 'GIF'
+    ];
+
     public function __construct(array $attributes = array())
     {
         parent::__construct($attributes);
@@ -58,7 +71,8 @@ class Feed extends BaseModel
             'title'       => ['required', 'string', 'max:255'],
             'sub_title'   => ['nullable', 'string', 'max:255'],
             'attachment'  => ['nullable', 'mimes:' . implode(",", $this->allowedExtensions), 'max:255'],
-            'description' => ['required', 'string']
+            'description' => ['required', 'string'],
+            'type'        => ['in:' . implode(",", array_keys($this->feedTypes))]
         ]);
 
         if ($returnBoolsOnly === true) {
@@ -96,5 +110,14 @@ class Feed extends BaseModel
     public function getEncryptedFeedIdAttribute()
     {
         return encrypt($this->id);
+    }
+
+    public function getTypeAttribute($value)
+    {
+        if (empty($value) || !array_key_exists($value, $this->feedTypes)) {
+            return $value;
+        }
+
+        return $this->feedTypes[$value];
     }
 }

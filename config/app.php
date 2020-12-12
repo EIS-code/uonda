@@ -134,6 +134,11 @@ return [
     |
     */
 
+    /**
+     * Allowed total logins of user via API.
+     */
+    'allowed_api_user_logins' => env('ALLOWED_API_USER_LOGINS', 1),
+
     'providers' => [
 
         /*
