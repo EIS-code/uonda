@@ -52,9 +52,9 @@
                         <td>{{ Carbon\Carbon::parse($group->created_at)->format('jS M Y') }}</td>
                         <td class="icons_list">
                             <a href="{{ route('groups.edit', $group->encrypted_group_id) }}" title="Edit Group"><i class="faicons mdi mdi-lead-pencil"></i></a> 
-                            <a data-type="user" data-id="" class="remove-button" title="Delete Group"><i class="faicons mdi mdi-delete delete-button"></i></a>
+                            <a data-type="user" data-id="{{ $group->id }}" class="remove-button" title="Delete Group"><i class="faicons mdi mdi-delete delete-button"></i></a>
                             <a href="{{ route('groups.show', $group->encrypted_group_id)}}" title="Show Group Details"><i class="faicons mdi mdi-eye"></i></a>
-                            <form id="remove-form" action="{{ route('groups.destroy', $group->encrypted_group_id) }}" method="POST" class="d-none">
+                            <form id="remove-form-{{ $group->id }}" action="{{ route('groups.destroy', $group->encrypted_group_id) }}" method="POST" class="d-none">
                             @csrf
                             {{ method_field('DELETE') }}
                             </form>
@@ -70,8 +70,9 @@
 <script type="text/javascript">
     $(document).ready(function() {
         $('.remove-button').on('click', function() {
+    		var delete_id = $(this).attr('data-id');
     		if(confirm('Are you sure you want to delete this?')) {
-                $('#remove-form').submit();
+                $('#remove-form-'+delete_id).submit();
             }
     	});
     });
