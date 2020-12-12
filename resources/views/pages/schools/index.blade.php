@@ -56,9 +56,9 @@
                         <td>{{ ucfirst($school->city->name) }}</td>
                         <td class="icons_list">
                             <a href="{{ route('schools.edit', $school->encrypted_school_id) }}" title="Edit School"><i class="faicons mdi mdi-lead-pencil"></i></a> 
-                            <a href="javascript:void(0)" class="remove-button" title="Delete School"><i class="faicons mdi mdi-delete delete-button"></i></a>
+                            <a href="javascript:void(0)" class="remove-button" data-id="{{ $school->id }}" title="Delete School"><i class="faicons mdi mdi-delete delete-button"></i></a>
                             <a href="{{ route('schools.show', $school->encrypted_school_id)}}" title="Show School Details"><i class="faicons mdi mdi-eye"></i></a>
-                            <form id="remove-form" action="{{ route('schools.destroy', $school->encrypted_school_id) }}" method="POST" class="d-none">
+                            <form id="remove-form-{{ $school->id }}" action="{{ route('schools.destroy', $school->encrypted_school_id) }}" method="POST" class="d-none">
                             @csrf
                             {{ method_field('DELETE') }}
                             </form>
@@ -74,8 +74,9 @@
 <script type="text/javascript">
     $(document).ready(function() {
         $('.remove-button').on('click', function() {
+            var delete_id = $(this).attr('data-id');
     		if(confirm('Are you sure you want to delete this?')) {
-                $('#remove-form').submit();
+                $('#remove-form-'+delete_id).submit();
             }
     	});
     });
