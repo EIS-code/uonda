@@ -43,6 +43,13 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    /**
+     * The attributes that should be appends to model object.
+     *
+     * @var array
+     */
+    protected $appends = ['encrypted_user_id'];
+
     const MALE = 'm';
     const FEMALE = 'f';
 
@@ -161,5 +168,11 @@ class User extends Authenticatable
     public function userDocuments()
     {
         return $this->hasMany('App\UserDocument', 'user_id', 'id');
+    }
+
+    //get encrypted user id
+    public function getEncryptedUserIdAttribute()
+    {
+        return encrypt($this->id);
     }
 }

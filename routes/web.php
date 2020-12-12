@@ -13,10 +13,18 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+Auth::routes(['register' => false, 'reset' => false]);
+Route::get('/get-states/{id}', 'Admin\SchoolController@getStateDetails')->name('get-states');
+Route::get('/get-cities/{id}', 'Admin\SchoolController@getCitiesDetails')->name('get-cities');
+
+Route::group(['middleware' => ['auth']], function(){
+    Route::get('/', 'DashboardController@index')->name('dashboard');
+    Route::resource('users', 'Admin\UserController');
+    Route::resource('feeds', 'Admin\FeedsController');
+    Route::resource('subscription_plan', 'Admin\SubscriptionController');
+    Route::resource('promo-codes', 'Admin\PromoCodeController');
+    Route::resource('groups', 'Admin\GroupsController');
+    Route::resource('schools', 'Admin\SchoolController');
 });
 
-Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
