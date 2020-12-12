@@ -207,7 +207,7 @@ class UserSettingController extends BaseController
         $create = $model->updateOrCreate(['user_id' => $userId], $createData);
 
         if ($create) {
-            return $this->returnSuccess(__('User screenshot turn ' . $model->screenshot[$create->screenshot] . ' successfully!'), $create);
+            return $this->returnSuccess(__('User screenshot turn ' . $model->screenshots[$create->screenshot] . ' successfully!'), $create);
         }
 
         return $this->returnError(__('Something went wrong!'));
