@@ -39,7 +39,7 @@
                     <tr>
                         <td>{{ ucfirst($user->name) }}</td>
                         <td>{{ $user->email }}</td>
-                        <td>{{ $user->gender == 'f' ? Female : ($user->gender == 'm') ? Male : '-'  }}</td>
+                        <td>{{ !empty($user->gender) ? $user->gender : '-' }}</td>
                         <td>{{ Config::get('globalConstant.status')[$user->current_status] }}</td>
                         <td>{{ Carbon\Carbon::parse($user->created_at)->format('jS M Y') }}</td>
                         <td>
@@ -51,9 +51,9 @@
                             @else 
                                 <a href="javascript:void(0)" class="acceptUser" data-id="{{ $user->encrypted_user_id }}" title="Accept User"><i class="fa fa-check" aria-hidden="true"></i></a> 
                             @endif
-                            <a href="javascript:void(0)" class="remove-button" title="Delete User"><i class="faicons mdi mdi-delete delete-button"></i></a>
+                            <a href="javascript:void(0)" class="remove-button" data-id="{{ $user->id }}" title="Delete User"><i class="faicons mdi mdi-delete delete-button"></i></a>
                             <a href="{{ route('users.show', $user->encrypted_user_id) }}" title="Show User Details"><i class="faicons mdi mdi-eye"></i></a>
-                            <form id="remove-form" action="{{ route('users.destroy', $user->encrypted_user_id) }}" method="POST" class="d-none">
+                            <form id="remove-form-{{ $user->id }}" action="{{ route('users.destroy', $user->encrypted_user_id) }}" method="POST" class="d-none">
                             @csrf
                             {{ method_field('DELETE') }}
                             </form>
@@ -69,8 +69,9 @@
 <script type="text/javascript">
     $(document).ready(function() {
         $('.remove-button').on('click', function() {
+            var delete_id = $(this).attr('data-id');
     		if(confirm('Are you sure you want to delete this?')) {
-                $('#remove-form').submit();
+                $('#remove-form-'+delete_id).submit();
             }
     	});
         $('.rejectModal').on('click', function() {
