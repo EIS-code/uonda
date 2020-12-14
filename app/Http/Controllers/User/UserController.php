@@ -308,8 +308,7 @@ class UserController extends BaseController
 
         if (!empty($user) && Hash::check($password, $user->password)) {
             // Generate API key.
-            $key = ApiKey::generateKey();
-            ApiKey::updateOrCreate(['user_id' => $user->id], ['key' => $key, 'user_id' => $user->id]);
+            ApiKey::generateKey($user->id);
 
             return $this->returnSuccess(__('Logged in successfully!'), $this->getDetails($user->id, false, true));
         }

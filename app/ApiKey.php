@@ -29,9 +29,19 @@ class ApiKey extends Model
         ]);
     }
 
-    public static function generateKey()
+    public static function generateKey(int $userId)
     {
-        return md5(uniqid(rand(), true));
+        $key = md5(uniqid(rand(), true));
+
+        // Check exists.
+        if (self::where('user_id', $userId)->where('is_valid', '1')->exists()) {
+            $record = self::where('user_id', $userId)->where('is_valid', '1')->first();
+            $key    = $record->key;
+        } else {
+            self::create(['user_id' => $userId], ['key' => $key, 'user_id' => $userId]);
+        }
+
+        return $key;
     }
 
     public static function getApiKey(int $userId)

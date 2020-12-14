@@ -37,6 +37,12 @@ Route::group(['middleware' => ['web.auth.api']], function () {
             return App::make('App\Http\Controllers\User\UserController')->getDetails($userId, true);
         })->name('user.get.details');
 
+        Route::post('/details/other', function() {
+            $userId = request()->get('user_id', false);
+
+            return App::make('App\Http\Controllers\User\UserController')->getDetails($userId, true, true);
+        })->name('user.get.details.other');
+
         Route::group(['prefix' => 'registration'], function () {
             // Route::post('/', 'UserController@registration')->name('user.registration');
             Route::post('/personal', 'UserController@registrationPersonal')->name('user.registration.personal');
