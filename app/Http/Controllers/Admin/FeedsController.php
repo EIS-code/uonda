@@ -57,25 +57,32 @@ class FeedsController extends Controller
             }
         }
 
-        if (array_key_exists('attachment', $data) && $data['attachment'] instanceof UploadedFile) {
+        $save = $feed->save();
+
+        if ($save && array_key_exists('attachment', $data) && $data['attachment'] instanceof UploadedFile) {
+            $id = $feed->id;
+
             $attachment = $data['attachment'];
             $pathInfos = pathinfo($attachment->getClientOriginalName());
 
             if (!empty($pathInfos['extension'])) {
-                $folder = $feed->storageFolderName;
+                $folder = $feed->storageFolderName . '/' . $id;
 
                 if (!empty($folder)) {
                     $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
                     $storeFile = $attachment->storeAs($folder, $fileName, $feed->fileSystem);
 
                     if ($storeFile) {
+                        $feed = $feed->find($id);
+
                         $feed->attachment = $fileName;
 
+                        $feed->save();
                     }
                 }
             }
         }
-        $feed->save();
+
         $request->session()->flash('alert-success', 'Feed successfully created');
         return redirect()->route('feeds.index');
     }

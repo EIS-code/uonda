@@ -93,8 +93,8 @@ class Feed extends BaseModel
         }
 
         $storageFolderName = (str_ireplace("\\", "/", $this->storageFolderName));
-        // return Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $this->id . '/' . $value);
-        return Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $value);
+        return Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $this->id . '/' . $value);
+        // return Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $value);
     }
 
     public function getCreatedAtAttribute($value)
