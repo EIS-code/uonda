@@ -51,11 +51,11 @@ class Feed extends BaseModel
     const TYPE_VIDEO = '3';
     const TYPE_GIF   = '4';
     public $feedTypes = [
-        self::TYPE_NULL  => 'Null',
-        self::TYPE_IMAGE => 'Image',
-        self::TYPE_URL   => 'URL',
-        self::TYPE_VIDEO => 'Video',
-        self::TYPE_GIF   => 'GIF'
+        self::TYPE_NULL  => '',
+        self::TYPE_IMAGE => 'image',
+        self::TYPE_URL   => 'url',
+        self::TYPE_VIDEO => 'video',
+        self::TYPE_GIF   => 'gif'
     ];
 
     public function __construct(array $attributes = array())
@@ -114,7 +114,7 @@ class Feed extends BaseModel
 
     public function getTypeAttribute($value)
     {
-        if (empty($value) || !array_key_exists($value, $this->feedTypes)) {
+        if (!isset($value) || !array_key_exists($value, $this->feedTypes)) {
             return $value;
         }
 
