@@ -40,6 +40,10 @@
                     </tr>
                     @if(!empty($feed->attachment))
                     <tr>
+                        <th> attachment Type </th>
+                        <td> {{ Config::get('globalConstant.types')[$feed->type] }} </td>
+                    </tr>
+                    <tr>
                         <th> Cover Image </th>
                         <td> 
                             <iframe frameborder="0" width="350" height="300"

@@ -13,7 +13,7 @@ class Feed extends BaseModel
      * @var array
      */
     protected $fillable = [
-        'title', 'sub_title', 'attachment', 'description'
+        'title', 'sub_title', 'attachment', 'description', 'type'
     ];
 
     public $allowedExtensions = [
@@ -54,11 +54,22 @@ class Feed extends BaseModel
 
     public function validator(array $data, $returnBoolsOnly = false)
     {
-        $validator = Validator::make($data, [
+        $rules = [
             'title'       => ['required', 'string', 'max:255'],
             'sub_title'   => ['nullable', 'string', 'max:255'],
             'attachment'  => ['nullable', 'mimes:' . implode(",", $this->allowedExtensions), 'max:255'],
-            'description' => ['required', 'string']
+            'description' => ['required', 'string'],
+            'type' => ['nullable'],
+        ];
+        if(!empty($data['type'])) {
+            $rules['attachment'] = ['required', 'mimes:' . implode(",", $this->allowedExtensions), 'max:255'];
+        }
+        if(!empty($data['attachment'])) {
+            $rules['type'] = ['required'];
+        }
+        $validator = Validator::make($data, $rules, [
+            'attachment.required' => 'Attachment and type both are mandatory.',
+            'type.required' => 'Attachment and type both are mandatory.'
         ]);
 
         if ($returnBoolsOnly === true) {
