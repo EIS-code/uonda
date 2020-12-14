@@ -331,6 +331,10 @@ class UserController extends BaseController
                 array_push($user->appends, 'api_key');
             }
 
+            array_push($user->appends, 'country_name');
+            array_push($user->appends, 'city_name');
+            array_push($user->appends, 'school_name');
+
             if ($isApi) {
                 return $this->returnSuccess(__('User details get successfully!'), $user);
             }

@@ -161,6 +161,21 @@ class User extends Authenticatable
         return $validator;
     }
 
+    public function country()
+    {
+        return $this->hasOne('App\Country', 'id', 'country_id');
+    }
+
+    public function city()
+    {
+        return $this->hasOne('App\City', 'id', 'city_id');
+    }
+
+    public function school()
+    {
+        return $this->hasOne('App\School', 'id', 'school_id');
+    }
+
     public function getGenderAttribute($value)
     {
         return !empty($this->genders[$value]) ? $this->genders[$value] : $value;
@@ -214,5 +229,26 @@ class User extends Authenticatable
 
         $storageFolderName = (str_ireplace("\\", "/", $this->profile));
         return Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $value);
+    }
+
+    public function getCountryNameAttribute()
+    {
+        $country = $this->country;
+
+        return !empty($country) ? $country->name : NULL;
+    }
+
+    public function getCityNameAttribute()
+    {
+        $city = $this->city;
+
+        return !empty($city) ? $city->name : NULL;
+    }
+
+    public function getSchoolNameAttribute()
+    {
+        $school = $this->school;
+
+        return !empty($school) ? $school->name : NULL;
     }
 }
