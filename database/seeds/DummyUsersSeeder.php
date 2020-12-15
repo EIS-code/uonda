@@ -5,7 +5,7 @@ use App\User;
 
 class DummyUsersSeeder extends Seeder
 {
-    private $totalUsers = 100000;
+    private $totalUsers = 1000;
 
     /**
      * Run the database seeds.
@@ -14,6 +14,7 @@ class DummyUsersSeeder extends Seeder
      */
     public function run()
     {
+        // $create = factory(App\User::class, $this->totalUsers)->raw();
         for ($i = 1; $i <= $this->totalUsers; $i++) {
             $create[] = [
                 'name'      => Str::random(10),
