@@ -42,13 +42,27 @@
             <div class="form-group">
                 <label for="description">Description</label>
                 <div>
-                    <textarea type="text" class="form-control @error('description') is-invalid @enderror" id="description" name="description" placeholder="Description" value="{{ old('description') }}"></textarea>
+                    <textarea type="text" class="form-control @error('description') is-invalid @enderror" id="description" name="description" placeholder="Description" value="{{ old('description') }}">{{ old('description') }}</textarea>
                     @error('description')
                         <em class="error invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
                         </em>
                     @enderror
                 </div>
+            </div>
+            <div class="position-relative form-group">
+                <label for="exampleSelect" class="">Type</label>
+                <select name="type" id="type" class="form-control @error('type') is-invalid @enderror">
+                    <option value="">Please select type</option>
+                    @foreach(Config::get('globalConstant.types') as $key => $type)
+                        <option value="{{ $key }}" {{ old('type') == $key ? "Selected='selected'" : ''}}>{{ $type }}</option>
+                    @endforeach
+                </select>
+                @error('type')
+                    <em class="error invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </em>
+                @enderror
             </div>
             <div class="form-group">
                 <label for="description">Attachment</label>
