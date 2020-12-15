@@ -101,4 +101,8 @@ Route::group(['middleware' => ['web.auth.api']], function () {
         });
     });
 
+    Route::group(['prefix' => 'contactus', 'namespace' => 'ContactUs'], function () {
+        Route::post('/', 'ContactUsController@store')->name('contactus.store');
+    });
+
 });
