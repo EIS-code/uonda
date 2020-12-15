@@ -570,7 +570,9 @@ class UserController extends BaseController
                     break;
                 case "location":
                 case "person":
-                    $latitude = $longitude = false;
+                    if ($type == "person") {
+                        $latitude = $longitude = false;
+                    }
 
                     $query->where(function($query) use($model, $keyword) {
                         $query->where($model->getTableName() . '.name', 'LIKE', '%' . $keyword . '%')
