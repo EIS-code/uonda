@@ -524,14 +524,14 @@ class UserController extends BaseController
         }
 
         $query            = $model::query();
-        $selectStatements = $model->getTableName() . '.*';
+        $selectStatements = "{$model->getTableName()}.id, {$model->getTableName()}.name, {$model->getTableName()}.user_name, {$model->getTableName()}.profile, {$schoolModel::getTableName()}.name as school, {$model->getTableName()}.latitude, {$model->getTableName()}.longitude";
 
         // 1609 for convert to miles.
         $distance  = (int)(defined('EXPLORE_DISTANCE') ? EXPLORE_DISTANCE : 500) / 1609;
 
         if ($latitude && $longitude) {
-            $selectStatements = "
-                {$model->getTableName()}.*, SQRT(
+            $selectStatements .= "
+                SQRT(
                 POW(69.1 * (latitude - {$latitude}), 2) +
                 POW(69.1 * ({$longitude} - longitude) * COS(latitude / 57.3), 2)) AS miles
             ";
@@ -570,18 +570,37 @@ class UserController extends BaseController
             $query->where($model->getTableName() . '.university', 'LIKE', '%' . $university . '%');
         }
 
-        $keyword = $request->get('keyword', false);
-        if (!empty($keyword)) {
-            $query->where(function($query) use($model, $keyword) {
-                $query->where($model->getTableName() . '.name', 'LIKE', '%' . $keyword . '%')
-                      ->orWhere($model->getTableName() . '.email', 'LIKE', '%' . $keyword . '%')
-                      ->orWhere($model->getTableName() . '.user_name', 'LIKE', '%' . $keyword . '%');
-            });
+        $type = $request->get('type', false);
+        if (!empty($type)) {
+            $keyword = $request->get('keyword', false);
+
+            // if (!empty($keyword)) {}
+            switch($type) {
+                case "school":
+                    $query->where($schoolModel::getTableName() . '.name', 'LIKE', '%' . $keyword . '%');
+                    break;
+                case "location":
+                    /* TODO */
+                    /* Idea not clear what to do as per talked with Prasangsir he told to postpone this one till next confirmations. */
+                    return $this->returnNull();
+                    break;
+                case "person":
+                    $query->where(function($query) use($model, $keyword) {
+                        $query->where($model->getTableName() . '.name', 'LIKE', '%' . $keyword . '%')
+                              ->orWhere($model->getTableName() . '.email', 'LIKE', '%' . $keyword . '%')
+                              ->orWhere($model->getTableName() . '.user_name', 'LIKE', '%' . $keyword . '%');
+                    });
+                    break;
+            }
         }
+
+        $query->join($schoolModel::getTableName(), $model->getTableName() . '.school_id', '=', $schoolModel::getTableName() . '.id');
 
         $records = $query->selectRaw($selectStatements)->get();
 
         if (!empty($records) && !$records->isEmpty()) {
+            $records->makeHidden(['permissions', 'encrypted_user_id']);
+
             return $this->returnSuccess(__('Users found successfully!'), $records);
         }
 
