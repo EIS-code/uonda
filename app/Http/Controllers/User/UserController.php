@@ -526,19 +526,6 @@ class UserController extends BaseController
         $query            = $model::query();
         $selectStatements = "{$model->getTableName()}.id, {$model->getTableName()}.name, {$model->getTableName()}.user_name, {$model->getTableName()}.profile, {$schoolModel::getTableName()}.name as school, {$model->getTableName()}.latitude, {$model->getTableName()}.longitude";
 
-        // 1609 for convert to miles.
-        $distance  = (int)(defined('EXPLORE_DISTANCE') ? EXPLORE_DISTANCE : 500) / 1609;
-
-        if ($latitude && $longitude) {
-            $selectStatements .= "
-                SQRT(
-                POW(69.1 * (latitude - {$latitude}), 2) +
-                POW(69.1 * ({$longitude} - longitude) * COS(latitude / 57.3), 2)) AS miles
-            ";
-
-            $query->having('miles', '<=', $distance);
-        }
-
         /*$schoolName = $request->get('school_name', false);
         if (!empty($schoolName)) {
             $query->join($schoolModel::getTableName(), $model->getTableName() . '.school_id', '=', $schoolModel::getTableName() . '.id');
@@ -577,14 +564,14 @@ class UserController extends BaseController
             // if (!empty($keyword)) {}
             switch($type) {
                 case "school":
+                    $latitude = $longitude = false;
+
                     $query->where($schoolModel::getTableName() . '.name', 'LIKE', '%' . $keyword . '%');
                     break;
                 case "location":
-                    /* TODO */
-                    /* Idea not clear what to do as per talked with Prasangsir he told to postpone this one till next confirmations. */
-                    return $this->returnNull();
-                    break;
                 case "person":
+                    $latitude = $longitude = false;
+
                     $query->where(function($query) use($model, $keyword) {
                         $query->where($model->getTableName() . '.name', 'LIKE', '%' . $keyword . '%')
                               ->orWhere($model->getTableName() . '.email', 'LIKE', '%' . $keyword . '%')
@@ -592,6 +579,19 @@ class UserController extends BaseController
                     });
                     break;
             }
+        }
+
+        // 1609 for convert to miles.
+        $distance  = (int)(defined('EXPLORE_DISTANCE') ? EXPLORE_DISTANCE : 500) / 1609;
+
+        if ($latitude && $longitude) {
+            $selectStatements .= "
+                , SQRT(
+                POW(69.1 * (latitude - {$latitude}), 2) +
+                POW(69.1 * ({$longitude} - longitude) * COS(latitude / 57.3), 2)) AS miles
+            ";
+
+            $query->having('miles', '<=', $distance);
         }
 
         $query->join($schoolModel::getTableName(), $model->getTableName() . '.school_id', '=', $schoolModel::getTableName() . '.id');
