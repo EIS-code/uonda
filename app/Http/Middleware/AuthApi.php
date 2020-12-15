@@ -49,7 +49,7 @@ class AuthApi
             ]);
         }
 
-        $getKeyInfo = $getKeyInfo->first();
+        // $getKeyInfo = $getKeyInfo->first();
 
         /*if (!$request->has('user_id')) {
             $request->merge(['is_own' => true]);

@@ -10,6 +10,7 @@ use App\Country;
 use App\City;
 use App\UserSetting;
 use App\ApiKey;
+use App\UserBlockProfile;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 
@@ -251,4 +252,23 @@ class User extends Authenticatable
 
         return !empty($school) ? $school->name : NULL;
     }
+
+    /*public function newQuery($excludeDeleted = true)
+    {
+        $userBlockProfilesModel = new UserBlockProfile();
+
+        $userId = request()->get('user_id', false);
+
+        if (!empty($userId)) {
+            // Check is blocked.
+            $checkBlocked = $userBlockProfilesModel::where('blocked_by', (int)$userId)->where('is_block', $userBlockProfilesModel::IS_BLOCK)->first();
+
+            if (!empty($checkBlocked)) {
+                return parent::newQuery($excludeDeleted)->leftJoin($userBlockProfilesModel::getTableName(), $this->getTableName() . '.id', '=', $userBlockProfilesModel::getTableName() . '.user_id')
+                             ->where($userBlockProfilesModel::getTableName() . '.is_block', '0');
+             }
+        }
+
+        return parent::newQuery($excludeDeleted);
+    }*/
 }
