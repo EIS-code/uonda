@@ -333,6 +333,9 @@ class UserController extends BaseController
 
         if (!empty($user)) {
             if ($apiKey) {
+                // Generate API key.
+                ApiKey::generateKey($userId);
+
                 array_push($user->appends, 'api_key');
             }
 
