@@ -38,7 +38,7 @@ Route::group(['middleware' => ['web.auth.api']], function () {
         })->name('user.get.details');
 
         Route::post('/details/other', function() {
-            $userId = request()->get('user_id', false);
+            $userId = request()->get('request_user_id', false);
 
             return App::make('App\Http\Controllers\User\UserController')->getDetails($userId, true, true);
         })->name('user.get.details.other');

@@ -253,22 +253,42 @@ class User extends Authenticatable
         return !empty($school) ? $school->name : NULL;
     }
 
-    /*public function newQuery($excludeDeleted = true)
+    public function newQuery($excludeDeleted = true)
     {
         $userBlockProfilesModel = new UserBlockProfile();
 
         $userId = request()->get('user_id', false);
+        $requestedUserId = request()->get('request_user_id', false);
 
         if (!empty($userId)) {
-            // Check is blocked.
-            $checkBlocked = $userBlockProfilesModel::where('blocked_by', (int)$userId)->where('is_block', $userBlockProfilesModel::IS_BLOCK)->first();
+            // Check is blocked first.
+            if ($this->isBlocked($userId, $requestedUserId)) {
+                /*return parent::newQuery($excludeDeleted)->leftJoin($userBlockProfilesModel::getTableName(), $this->getTableName() . '.id', '=', $userBlockProfilesModel::getTableName() . '.user_id')
+                             ->where($userBlockProfilesModel::getTableName() . '.is_block', '1')
+                             ->where($userBlockProfilesModel::getTableName() . '.blocked_by', $userId);*/
 
-            if (!empty($checkBlocked)) {
-                return parent::newQuery($excludeDeleted)->leftJoin($userBlockProfilesModel::getTableName(), $this->getTableName() . '.id', '=', $userBlockProfilesModel::getTableName() . '.user_id')
-                             ->where($userBlockProfilesModel::getTableName() . '.is_block', '0');
-             }
+                return parent::newQuery($excludeDeleted)->whereRaw("{$this->getTableName()}.id not in (select `user_id` from {$userBlockProfilesModel::getTableName()} where `blocked_by` = {$userId} and `is_block` = '".$userBlockProfilesModel::IS_BLOCK."') and {$this->getTableName()}.id not in (select `blocked_by` from {$userBlockProfilesModel::getTableName()} where `user_id` = {$userId} and `is_block` = '".$userBlockProfilesModel::IS_BLOCK."')");
+            }
         }
 
         return parent::newQuery($excludeDeleted);
-    }*/
+    }
+
+    public function isBlocked(int $userId, int $requestedUserId)
+    {
+        if (empty($requestedUserId)) {
+            return false;
+        }
+
+        $userBlockProfilesModel = new UserBlockProfile();
+
+        $checkBlocked = $userBlockProfilesModel::where(
+            function($query) use($userId) {
+                $query->where('blocked_by', (int)$userId)
+                      ->orWhere('user_id', (int)$userId);
+            }
+        )->where('is_block', $userBlockProfilesModel::IS_BLOCK)->first();
+
+        return !empty($checkBlocked);
+    }
 }

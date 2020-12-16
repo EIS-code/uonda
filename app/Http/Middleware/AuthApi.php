@@ -10,7 +10,7 @@ class AuthApi
 {
     private $excludedRoutes = [
         'api/user/login',
-        'api/user/details/other',
+        // 'api/user/details/other',
         'api/user/registration/school',
         'api/user/registration/other',
         'api/user/registration/personal',
@@ -56,6 +56,10 @@ class AuthApi
         } else {
             $request->merge(['is_own' => false]);
         }*/
+
+        if ($request->has('user_id')) {
+            $request->merge(['request_user_id' => $request->get('user_id')]);
+        }
 
         $request->merge(['user_id' => $getKeyInfo->user_id]);
 
