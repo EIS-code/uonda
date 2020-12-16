@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\UserBlockProfile;
 use App\User;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Storage;
 
 class UserBlockProfileController extends BaseController
 {
@@ -96,12 +97,19 @@ class UserBlockProfileController extends BaseController
             return $this->returnError(__('User id is required!'));
         }
 
-        $records = $model::select($model::getTableName() . '.id', $userModel->getTableName() . '.name', $userModel->getTableName() . '.user_name', $model::getTableName() . '.user_id')
+        $records = $model::select($model::getTableName() . '.id', $userModel->getTableName() . '.name', $userModel->getTableName() . '.user_name', $model::getTableName() . '.user_id', $userModel->getTableName() . '.profile')
                          ->where('blocked_by', $userId)->where('is_block', $model::IS_BLOCK)
                          ->join($userModel->getTableName(), $model::getTableName() . '.user_id', '=', $userModel->getTableName() . '.id')
                          ->get();
 
         if (!empty($records) && !$records->isEmpty()) {
+            $records->each(function($data) use($userModel) {
+                if (!empty($data->profile)) {
+                    $storageFolderName = (str_ireplace("\\", "/", $userModel->profile));
+                    $data->profile = Storage::disk($userModel->fileSystem)->url($storageFolderName . '/' . $data->profile);
+                }
+            });
+
             return $this->returnSuccess(__('Blocked users get successfully!'), $records);
         }
 

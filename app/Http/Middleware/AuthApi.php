@@ -15,7 +15,15 @@ class AuthApi
         'api/user/registration/other',
         'api/user/registration/personal',
         'api/user/registration/status',
-        'api/user/registration/document'
+        'api/user/registration/document',
+        'api/location/get/country',
+        'api/location/get/state',
+        'api/location/get/city',
+        'api/school/get',
+        'api/school/save',
+        'api/school/update',
+        'api/user/details',
+        'api/user/forgot/password'
     ];
 
     /**

@@ -38,7 +38,7 @@ class ApiKey extends Model
             $record = self::where('user_id', $userId)->where('is_valid', '1')->first();
             $key    = $record->key;
         } else {
-            self::create(['user_id' => $userId], ['key' => $key, 'user_id' => $userId]);
+            self::create(['key' => $key, 'user_id' => $userId]);
         }
 
         return $key;
