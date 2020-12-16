@@ -59,6 +59,7 @@ Route::group(['middleware' => ['web.auth.api']], function () {
 
              Route::post('/block', 'UserBlockProfileController@block')->name('user.profile.block');
              Route::post('/unblock', 'UserBlockProfileController@unBlock')->name('user.profile.unblock');
+             Route::get('/block/get', 'UserBlockProfileController@getBlock')->name('user.profile.get.block');
         });
 
         Route::group(['prefix' => 'setting'], function () {

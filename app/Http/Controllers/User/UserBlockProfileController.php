@@ -27,12 +27,12 @@ class UserBlockProfileController extends BaseController
 
         $userIds = (array)$data['user_ids'];
 
-        foreach ($userIds as $userId) {
+        foreach ($userIds as $index => $userId) {
             if ($data['blocked_by'] == $userId) {
                 continue;
             }
 
-            $create[] = [
+            $create[$index] = [
                 'is_block'   => $model::IS_BLOCK,
                 'blocked_by' => $data['blocked_by'],
                 'user_id'    => $userId,
@@ -43,7 +43,7 @@ class UserBlockProfileController extends BaseController
             $model->updateOrCreate([
                 'blocked_by' => $data['blocked_by'],
                 'user_id'    => $userId
-            ], $create);
+            ], $create[$index]);
         }
 
         return $this->returnSuccess(__('Users profile blocked successfully!'));
@@ -81,5 +81,25 @@ class UserBlockProfileController extends BaseController
         }
 
         return $this->returnSuccess(__('Users profile unblocked successfully!'));
+    }
+
+    public function getBlock(Request $request)
+    {
+        $model = new UserBlockProfile();
+        $data  = $request->all();
+
+        $userId = (!empty($data['user_id'])) ? $data['user_id'] : NULL;
+
+        if (empty($userId)) {
+            return $this->returnError(__('User id is required!'));
+        }
+
+        $records = $model::select('user_id')->where('blocked_by', $userId)->where('is_block', $model::IS_BLOCK)->get();
+
+        if (!empty($records) && !$records->isEmpty()) {
+            return $this->returnSuccess(__('Blocked users get successfully!'), $records->pluck('user_id'));
+        }
+
+        return $this->returnNull();
     }
 }
