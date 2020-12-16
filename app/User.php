@@ -283,9 +283,13 @@ class User extends Authenticatable
         $userBlockProfilesModel = new UserBlockProfile();
 
         $checkBlocked = $userBlockProfilesModel::where(
-            function($query) use($userId) {
+            function($query) use($userId, $requestedUserId) {
                 $query->where('blocked_by', (int)$userId)
-                      ->orWhere('user_id', (int)$userId);
+                      ->where('user_id', (int)$requestedUserId)
+                      ->orWhere(function($qry) use($userId, $requestedUserId) {
+                          $qry->where('blocked_by', (int)$requestedUserId)
+                              ->where('user_id', (int)$userId);
+                      });
             }
         )->where('is_block', $userBlockProfilesModel::IS_BLOCK)->first();
 

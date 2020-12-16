@@ -319,13 +319,13 @@ class UserController extends BaseController
     public function getDetails(int $userId, $isApi = false, $apiKey = false)
     {
         $model = new User();
-        $requestedUserId = request()->get('request_user_id', false);
+        $requestedUserId = request()->get('user_id', false);
 
         if (empty($userId) || !is_numeric($userId)) {
             return $this->returnError(__('User id seems incorrect.'));
         }
 
-        if ($model->isBlocked($userId, $requestedUserId)) {
+        if ($model->isBlocked($requestedUserId, $userId)) {
             return $this->returnError(__('This profile blocked by user.'));
         }
 
