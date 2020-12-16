@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Auth::routes(['register' => false, 'reset' => false]);
+Auth::routes(['register' => false]);
 Route::get('/get-states/{id}', 'Admin\SchoolController@getStateDetails')->name('get-states');
 Route::get('/get-cities/{id}', 'Admin\SchoolController@getCitiesDetails')->name('get-cities');
 
