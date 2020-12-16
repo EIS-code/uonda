@@ -44,4 +44,9 @@ class UserBlockProfile extends BaseModel
 
         return $validator;
     }
+
+    public function user()
+    {
+        return $this->hasOne('App\User', 'id', 'user_id');
+    }
 }

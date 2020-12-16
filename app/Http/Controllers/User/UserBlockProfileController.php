@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\BaseController;
 use Illuminate\Http\Request;
 use App\UserBlockProfile;
+use App\User;
 use Carbon\Carbon;
 
 class UserBlockProfileController extends BaseController
@@ -85,8 +86,9 @@ class UserBlockProfileController extends BaseController
 
     public function getBlock(Request $request)
     {
-        $model = new UserBlockProfile();
-        $data  = $request->all();
+        $model     = new UserBlockProfile();
+        $userModel = new User();
+        $data      = $request->all();
 
         $userId = (!empty($data['user_id'])) ? $data['user_id'] : NULL;
 
@@ -94,10 +96,13 @@ class UserBlockProfileController extends BaseController
             return $this->returnError(__('User id is required!'));
         }
 
-        $records = $model::select('user_id')->where('blocked_by', $userId)->where('is_block', $model::IS_BLOCK)->get();
+        $records = $model::select($model::getTableName() . '.id', $userModel->getTableName() . '.name', $userModel->getTableName() . '.user_name', $model::getTableName() . '.user_id')
+                         ->where('blocked_by', $userId)->where('is_block', $model::IS_BLOCK)
+                         ->join($userModel->getTableName(), $model::getTableName() . '.user_id', '=', $userModel->getTableName() . '.id')
+                         ->get();
 
         if (!empty($records) && !$records->isEmpty()) {
-            return $this->returnSuccess(__('Blocked users get successfully!'), $records->pluck('user_id'));
+            return $this->returnSuccess(__('Blocked users get successfully!'), $records);
         }
 
         return $this->returnNull();

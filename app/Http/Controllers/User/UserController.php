@@ -515,6 +515,7 @@ class UserController extends BaseController
     {
         $model       = new User();
         $schoolModel = new School();
+        $cityModel   = new City();
         $data        = $request->all();
 
         // Check proper latitude & longitude
@@ -529,7 +530,7 @@ class UserController extends BaseController
         }
 
         $query            = $model::query();
-        $selectStatements = "{$model->getTableName()}.id, {$model->getTableName()}.name, {$model->getTableName()}.user_name, {$model->getTableName()}.profile, {$schoolModel::getTableName()}.name as school, {$model->getTableName()}.latitude, {$model->getTableName()}.longitude";
+        $selectStatements = "{$model->getTableName()}.id, {$model->getTableName()}.name, {$model->getTableName()}.user_name, {$model->getTableName()}.profile, {$schoolModel::getTableName()}.name as school, {$model->getTableName()}.latitude, {$model->getTableName()}.longitude, {$model->getTableName()}.current_location, {$cityModel::getTableName()}.name as city";
 
         /*$schoolName = $request->get('school_name', false);
         if (!empty($schoolName)) {
@@ -602,6 +603,7 @@ class UserController extends BaseController
         }
 
         $query->join($schoolModel::getTableName(), $model->getTableName() . '.school_id', '=', $schoolModel::getTableName() . '.id');
+        $query->leftJoin($cityModel::getTableName(), $model->getTableName() . '.city_id', '=', $cityModel::getTableName() . '.id');
 
         $records = $query->selectRaw($selectStatements)->get();
 
