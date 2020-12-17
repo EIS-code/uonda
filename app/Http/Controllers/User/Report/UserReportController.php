@@ -13,6 +13,9 @@ class UserReportController extends BaseController
         $model = new UserReport();
         $data  = $request->all();
 
+        $data['reported_by'] = $data['user_id'];
+        $data['user_id']     = !empty($data['request_user_id']) ? (int)$data['request_user_id'] : NULL;
+
         $validator = $model->validator($data);
 
         if ($validator->fails()) {

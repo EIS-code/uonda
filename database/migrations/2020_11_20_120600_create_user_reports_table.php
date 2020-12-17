@@ -20,6 +20,8 @@ class CreateUserReportsTable extends Migration
             $table->foreign('user_report_question_id')->references('id')->on('user_report_questions')->onDelete('cascade');
             $table->bigInteger('user_id')->unsigned();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->bigInteger('reported_by')->unsigned();
+            $table->foreign('reported_by')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
     }
