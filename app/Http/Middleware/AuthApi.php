@@ -23,7 +23,8 @@ class AuthApi
         'api/school/save',
         'api/school/update',
         'api/user/details',
-        'api/user/forgot/password'
+        'api/user/forgot/password',
+        'api/user/chat/send'
     ];
 
     /**

@@ -25,6 +25,12 @@ Route::group(['middleware' => ['auth']], function(){
     Route::resource('promo-codes', 'Admin\PromoCodeController');
     Route::resource('groups', 'Admin\GroupsController');
     Route::resource('schools', 'Admin\SchoolController');
+
+    Route::group(['prefix' => 'user', 'namespace' => 'User'], function () {
+        Route::group(['prefix' => 'chat', 'namespace' => 'Chat'], function () {
+            Route::get('/', 'ChatController@index');
+        });
+    });
 });
 
 

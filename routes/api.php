@@ -82,6 +82,10 @@ Route::group(['middleware' => ['web.auth.api']], function () {
         });
 
         Route::post('/location', 'UserController@updateLocation')->name('user.location.update');
+
+        Route::group(['prefix' => 'chat', 'namespace' => 'Chat'], function () {
+            Route::post('/send', 'ChatController@sendMessage')->name('user.chat.send');
+        });
     });
 
     Route::group(['prefix' => 'constant', 'namespace' => 'Constant'], function () {
