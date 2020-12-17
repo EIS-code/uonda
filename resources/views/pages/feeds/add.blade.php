@@ -53,7 +53,7 @@
             <div class="position-relative form-group">
                 <label for="exampleSelect" class="">Type</label>
                 <select name="type" id="type" class="form-control @error('type') is-invalid @enderror">
-                    <option value="">Please select type</option>
+                    <option value="0">Please select type</option>
                     @foreach(Config::get('globalConstant.types') as $key => $type)
                         <option value="{{ $key }}" {{ old('type') == $key ? "Selected='selected'" : ''}}>{{ $type }}</option>
                     @endforeach

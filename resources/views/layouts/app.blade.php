@@ -60,7 +60,7 @@
                             <div class="widget-content-left">
                                 <div class="btn-group">
                                     <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="p-0 btn">
-                                    <img width="42" class="rounded-circle" src="{{ asset('assets/images/avatars/2.jpg') }}" alt="">
+                                    <img width="42" class="rounded-circle" src="{{ !empty(Auth::user()->profile_pic) ? URL::asset('storage/admin-profile/'. Auth::user()->profile_pic) : asset('assets/images/avatars/2.jpg') }}" alt="">
                                     <i class="fa fa-angle-down ml-2 opacity-8"></i>
                                     </a>
                                     <div tabindex="-1" role="menu" aria-hidden="true" class="rm-pointers dropdown-menu-lg dropdown-menu dropdown-menu-right">
@@ -71,7 +71,7 @@
                                                     <div class="widget-content p-0">
                                                         <div class="widget-content-wrapper">
                                                             <div class="widget-content-left mr-3">
-                                                                <img width="42" class="rounded-circle" src="{{ asset('assets/images/avatars/2.jpg') }}" alt="">
+                                                                <img width="42" class="rounded-circle" src="{{ !empty(Auth::user()->profile_pic) ? URL::asset('storage/admin-profile/'. Auth::user()->profile_pic) : asset('assets/images/avatars/2.jpg') }}" alt="">
                                                             </div>
                                                             <div class="widget-content-left">
                                                                 <div class="widget-heading">{{ ucfirst(Auth::user()->name) }}</div>
@@ -90,6 +90,17 @@
                                                         </div>
                                                     </div>
                                                 </div>
+                                            </div>
+                                        </div>
+                                        <div class="scroll-area-xs" style="height: 70px;">
+                                            <div class="scrollbar-container ps">
+                                                <ul class="nav flex-column">
+                                                    <li class="nav-item-header nav-item">Activity</li>
+                                                    <li class="nav-item">
+                                                        <a href="{{ route('profile') }}" class="nav-link">My Profile
+                                                        </a>
+                                                    </li>
+                                                </ul>
                                             </div>
                                         </div>
                                     </div>
@@ -148,6 +159,11 @@
                 <div class="app-sidebar__inner">
                     <ul class="vertical-nav-menu">
                         <li class="app-sidebar__heading">Menu</li>
+                            <li class="{{ Request::is('/') ? 'mm-active' : '' }}">
+                                <a href="{{ route('dashboard') }}" >
+                                    <i class="metismenu-icon pe-7s-rocket"></i>Dashboard
+                                </a>
+                            </li>
                             <li class="{{ Request::is('users*') ? 'mm-active' : '' }}">
                                 <a href="{{ route('users.index') }}" >
                                     <i class="metismenu-icon pe-7s-id"></i>Users
@@ -175,7 +191,7 @@
                             </li>
                             <li class="{{ Request::is('groups*') ? 'mm-active' : '' }}">
                                 <a href="{{ route('groups.index') }}" >
-                                    <i class="metismenu-icon pe-7s-graph1"></i>Groups
+                                    <i class="metismenu-icon pe-7s-light"></i>Groups
                                 </a>
                             </li>
                         </li>

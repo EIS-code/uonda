@@ -25,6 +25,8 @@ Route::group(['middleware' => ['auth']], function(){
     Route::resource('promo-codes', 'Admin\PromoCodeController');
     Route::resource('groups', 'Admin\GroupsController');
     Route::resource('schools', 'Admin\SchoolController');
+    Route::get('/profile', 'Admin\AdminController@editProfile')->name('profile');
+    Route::post('/profile-update', 'Admin\AdminController@updateProfile')->name('profile-update');
 });
 
 
