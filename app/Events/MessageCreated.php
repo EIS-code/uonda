@@ -4,9 +4,10 @@ namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
+use App\Events\Event;
 use App\Chat;
 
-class MessageCreated implements ShouldBroadcast
+class MessageCreated extends Event implements ShouldBroadcast
 {
     public $chat;
 
