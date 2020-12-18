@@ -17,7 +17,7 @@ class MessageCreated implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        return new Channel('users.2.3');
+        return new PrivateChannel('users.2.3');
     }
 
     public function broadcastWith()
@@ -30,6 +30,6 @@ class MessageCreated implements ShouldBroadcast
             $chat->user = $user;
         }
 
-        return !empty($chat) ? $chat->toArray() : ['message' => 'Test'];
+        return !empty($chat) ? $chat->toArray() : [];
     }
 }
