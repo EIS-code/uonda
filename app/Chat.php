@@ -25,8 +25,8 @@ class Chat extends BaseModel
     public function validators(array $data, $returnBoolsOnly = false)
     {
         $validator = Validator::make($data, [
-            'message' => ['nullable', 'string', 'max:255'],
-            'user_id' => ['nullable', 'integer', 'exists:' . (new User())->getTableName() . ',id'],
+            'message' => ['required', 'string', 'max:255'],
+            'user_id' => ['required', 'integer', 'exists:' . (new User())->getTableName() . ',id'],
             'send_by' => ['required', 'integer', 'exists:' . (new User())->getTableName() . ',id'],
         ]);
 

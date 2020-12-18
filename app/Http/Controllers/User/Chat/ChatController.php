@@ -52,7 +52,7 @@ class ChatController extends BaseController
         if ($chat) {
             broadcast(new MessageCreated($chat));
 
-            return $this->returnSuccess(__('User report saved successfully!'), $chat);
+            return $this->returnSuccess(__('Message send successfully!'), $chat);
         }
 
         return $this->returnError(__('Something went wrong!'));
