@@ -3,7 +3,6 @@
 namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use App\Chat;
 
@@ -18,7 +17,7 @@ class MessageCreated implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        return new PrivateChannel('users.2.3');
+        return new Channel('users.2.3');
     }
 
     public function broadcastWith()
