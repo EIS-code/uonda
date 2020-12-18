@@ -30,6 +30,6 @@ class MessageCreated implements ShouldBroadcast
             $chat->user = $user;
         }
 
-        return !empty($chat) ? $chat->toArray() : [];
+        return !empty($chat) ? $chat->toArray() : ['message' => 'Test'];
     }
 }
