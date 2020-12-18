@@ -41,7 +41,7 @@
                     @if(!empty($feed->attachment))
                     <tr>
                         <th> attachment Type </th>
-                        <td> {{ Config::get('globalConstant.types')[$feed->type] }} </td>
+                        <td> {{ $feed->type != 0 ? Config::get('globalConstant.types')[$feed->type] : '-' }} </td>
                     </tr>
                     <tr>
                         <th> Cover Image </th>

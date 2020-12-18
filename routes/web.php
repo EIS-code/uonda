@@ -31,6 +31,9 @@ Route::group(['middleware' => ['auth']], function(){
             Route::get('/', 'ChatController@index');
         });
     });
+
+    Route::get('/profile', 'Admin\AdminController@editProfile')->name('profile');
+    Route::post('/profile-update', 'Admin\AdminController@updateProfile')->name('profile-update');
 });
 
 

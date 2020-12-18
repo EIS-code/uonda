@@ -5,7 +5,7 @@
     <div class="page-title-wrapper">
         <div class="page-title-heading">
             <div class="page-title-icon">
-                <i class="pe-7s-medal icon-gradient bg-tempting-azure"></i>
+                <i class="lnr-magic-wand icon-gradient bg-mixed-hopes"></i>
             </div>
             <div>Subscription Plans
             </div>

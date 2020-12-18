@@ -11,7 +11,8 @@ return [
     //feed types
     'types' => [
         1 => 'Image',
-        2 => 'Video',
-        3 => 'GIF'
+        2 => 'URL',
+        3 => 'Video',
+        4 => 'GIF'
     ]
 ];

@@ -5,7 +5,7 @@
     <div class="page-title-wrapper">
         <div class="page-title-heading">
             <div class="page-title-icon">
-                <i class="pe-7s-medal icon-gradient bg-tempting-azure"></i>
+                <i class="lnr-diamond icon-gradient bg-strong-bliss"></i>
             </div>
             <div>Promo Codes
             </div>
