@@ -4,3 +4,8 @@
 .dropdown-menu-header {
     margin-bottom: -1.35rem;
 }
+
+.logo-src {
+    width: 87px !important;
+    height: 23px !important;
+}
