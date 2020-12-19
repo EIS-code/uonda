@@ -29,8 +29,7 @@ class ChatController extends BaseController
     {
         $model = new Chat();
         $data  = $request->all();
-$chat = $model::find(2);
-broadcast(new MessageCreated($chat));
+
         $data['send_by'] = !empty($data['user_id']) ? (int)$data['user_id'] : NULL;
         $data['user_id'] = !empty($data['request_user_id']) ? (int)$data['request_user_id'] : NULL;
 
@@ -51,7 +50,7 @@ broadcast(new MessageCreated($chat));
         $chat = $model::create($data);
 
         if ($chat) {
-            // broadcast(new MessageCreated($chat));
+            broadcast(new MessageCreated($chat));
 
             return $this->returnSuccess(__('Message send successfully!'), $chat);
         }
