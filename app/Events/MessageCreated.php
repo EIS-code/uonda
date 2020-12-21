@@ -22,7 +22,7 @@ class MessageCreated implements ShouldBroadcast
 
     public function broadcastAs()
     {
-        return 'message-created';
+        return 'MessageCreated';
     }
 
     public function broadcastWith()

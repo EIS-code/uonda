@@ -33,13 +33,13 @@ class ChatController extends BaseController
         $data['send_by'] = !empty($data['user_id']) ? (int)$data['user_id'] : NULL;
         $data['user_id'] = !empty($data['request_user_id']) ? (int)$data['request_user_id'] : NULL;
 
-        /*if (env('APP_ENV') == 'local' || env('APP_ENV') == 'dev') {
+        if (env('APP_ENV') == 'local' || env('APP_ENV') == 'dev') {
             $userId = auth()->user()->id;
             $sendBy = $userId == 2 ? 3 : 2;
 
             $data['user_id'] = $userId;
             $data['send_by'] = $sendBy;
-        }*/
+        }
 
         $validator = $model->validators($data);
 
