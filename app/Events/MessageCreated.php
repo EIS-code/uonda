@@ -20,6 +20,11 @@ class MessageCreated implements ShouldBroadcast
         return new Channel('chat');
     }
 
+    public function broadcastAs()
+    {
+        return 'chat';
+    }
+
     public function broadcastWith()
     {
         $chat = Chat::select(Chat::getTableName() . '.*', Chat::getTableName() . '.id as chat_id')->where(Chat::getTableName() . '.id', $this->chat->id)->with('sentUser')->first();
