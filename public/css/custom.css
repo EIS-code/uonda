@@ -4,3 +4,7 @@
 .dropdown-menu-header {
     margin-bottom: -1.35rem;
 }
+.remove-button {
+    cursor: pointer;
+    color: #d41f1f !important;
+}

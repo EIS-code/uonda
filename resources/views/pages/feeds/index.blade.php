@@ -53,9 +53,9 @@
                         <td>{{ $feed->sub_title }}</td>
                         <td>{{ Carbon\Carbon::parse($feed->created_at)->format('jS M Y') }}</td>
                         <td class="icons_list">
-                            <a href="{{ route('feeds.edit', $feed->encrypted_feed_id) }}" title="Edit Feed"><i class="faicons mdi mdi-lead-pencil"></i></a> 
-                            <a href="javascript:void(0);" class="remove-button" data-id="{{ $feed->id }}" title="Delete Feed"><i class="faicons mdi mdi-delete delete-button"></i></a>
-                            <a href="{{ route('feeds.show', $feed->encrypted_feed_id)}}" title="Show Feed Details"><i class="faicons mdi mdi-eye"></i></a>
+                            <a href="{{ route('feeds.edit', $feed->encrypted_feed_id) }}" title="Edit Feed"><span class="material-icons">edit</span></a> 
+                            <a href="javascript:void(0);" class="remove-button" data-id="{{ $feed->id }}" title="Delete Feed"><span class="material-icons delete-button">delete</span></a>
+                            <a href="{{ route('feeds.show', $feed->encrypted_feed_id)}}" title="Show Feed Details"><span class="material-icons">visibility</span></a>
                             <form id="remove-form-{{ $feed->id }}" action="{{ route('feeds.destroy', $feed->encrypted_feed_id) }}" method="POST" class="d-none">
                             @csrf
                             {{ method_field('DELETE') }}
