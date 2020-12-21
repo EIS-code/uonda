@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-<script src="http://{{ Request::getHost() }}:6001/socket.io/socket.io.js"></script>
+<script src="http://{{ Request::getHost() }}:6002/socket.io/socket.io.js"></script>
 <script src="{{ asset('/js/app.js') }}"></script>
 <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
 
