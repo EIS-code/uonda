@@ -17,7 +17,7 @@ class MessageCreated implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        return new Channel('users.' . $this->chat->user_id . '.' . $this->chat->send_by);
+        return new Channel('chat');
     }
 
     public function broadcastWith()

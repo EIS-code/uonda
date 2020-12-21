@@ -58,7 +58,7 @@
         });
     }
 
-    window.Echo.channel('users.' + userId + '.' + sendBy).listen('MessageCreated', (e) => {
+    window.Echo.channel('chat').listen('MessageCreated', (e) => {
         addMessageToList(e.message);
     });
 
