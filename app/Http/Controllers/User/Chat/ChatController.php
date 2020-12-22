@@ -6,6 +6,7 @@ use App\Http\Controllers\BaseController;
 use Illuminate\Http\Request;
 use App\Events\MessageCreated;
 use App\Chat;
+use LRedis;
 
 class ChatController extends BaseController
 {
@@ -50,7 +51,10 @@ class ChatController extends BaseController
         $chat = $model::create($data);
 
         if ($chat) {
-            broadcast(new MessageCreated($chat));
+            // broadcast(new MessageCreated($chat));
+            /*$redis = LRedis::connection();
+
+            $redis->publish('messageSend', $chat);*/
 
             return $this->returnSuccess(__('Message send successfully!'), $chat);
         }

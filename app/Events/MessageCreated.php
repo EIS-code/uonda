@@ -17,7 +17,7 @@ class MessageCreated implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        return new Channel('chat');
+        return new Channel('messageSend');
     }
 
     public function broadcastWith()
