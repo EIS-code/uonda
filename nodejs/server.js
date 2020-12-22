@@ -13,7 +13,7 @@ let opts = {
        'Access-Control-Allow-Credentials': 'false'
     },
     cors: {
-        origin: env.config(envPath).APP_URL,
+        origin: env.config(envPath).parsed.APP_URL,
         methods: ["GET", "POST"],
         credentials: false
     }
