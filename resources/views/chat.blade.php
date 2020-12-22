@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-<script src="{{env('APP_URL')}}:6002/socket.io/socket.io.js"></script>
+<script src="{{ env('APP_URL') }}:6002/socket.io/socket.io.js"></script>
 <script src="{{ asset('/js/app.js') }}"></script>
 
 @section('content')
@@ -40,7 +40,8 @@
     </div>
 </div>
 <script>
-    var socket = io.connect('http://evolution_community_uonda:6002');
+    var appUrl = "{{ env('APP_URL') }}";
+    var socket = io.connect(appUrl + ':6002');
     var chatRoute = '{{ route("user.chat.send") }}';
     var userId = '{{ $userId }}';
     var sendBy = '{{ $sendBy }}';
