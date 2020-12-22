@@ -13,7 +13,7 @@ let opts = {
        'Access-Control-Allow-Credentials': 'false'
     },
     cors: {
-        origin: 'http://evolution_community_uonda',
+        origin: env.config(envPath).APP_URL,
         methods: ["GET", "POST"],
         credentials: false
     }
