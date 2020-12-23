@@ -13,9 +13,10 @@ let opts = {
        'Access-Control-Allow-Credentials': 'false'
     },
     cors: {
-        origin: env.config(envPath).parsed.APP_URL,
+        // origin: env.config(envPath).parsed.APP_URL,
         methods: ["GET", "POST"],
-        credentials: false
+        credentials: false,
+        origin: '*'
     }
 };
 
@@ -38,7 +39,8 @@ let con  = mysql.createPool({
     user            : env.config(envPath).parsed.DB_USERNAME,
     password        : env.config(envPath).parsed.DB_PASSWORD,
     database        : env.config(envPath).parsed.DB_DATABASE,
-    strict          : false
+    strict          : false,
+    socketPath      : env.config(envPath).parsed.APP_ENV == 'dev' ? '/opt/lampp/var/mysql/mysql.sock' : ''
 });
 
 /*io.use((socket, next)=>{
