@@ -70,7 +70,7 @@ io.on('connection', function (socket) {
                     connection.query(getUser, function (err, resultUser, fields) {
                         if (err) throw err;
 
-                        socket.emit('messageRecieve', {id: resultChat[0].id, message: resultChat[0].message, user: resultUser[0]});
+                        io.sockets.emit('messageRecieve', {id: resultChat[0].id, message: resultChat[0].message, user: resultUser[0]});
                     });
                 });
             });
