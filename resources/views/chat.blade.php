@@ -43,15 +43,28 @@
     var appUrl = "{{ env('APP_URL') }}";
     var socket = io.connect(appUrl + ':6002');
     var chatRoute = '{{ route("user.chat.send") }}';
-    var userId = '{{ $userId }}';
-    var sendBy = '{{ $sendBy }}';
+    var senderId   = '{{ $userId }}';
+    var receiverId = '{{ $sendBy }}';
 
     socket.on('connect', function() {
         console.log("connected !!");
 
-        socket.on('messageRecieve', function (data) {
-            // data = jQuery.parseJSON(data);
-            // console.log(data);
+        socket.emit('individualJoin', {'senderId': senderId, 'receiverId': receiverId});
+
+        socket.on('error-' + senderId, function (data) {
+            console.log(data);
+        });
+console.log('messageRecieve-' + receiverId);
+        socket.on('messageRecieve-' + receiverId, function (data) {
+            console.log("messageRecieve");
+            console.log(data);
+
+            $( "#messages" ).append( "<strong>"+data.user.name+":</strong><p>"+data.message+"</p>" );
+        });
+console.log('messageAcknowledge-' + senderId);
+        socket.on('messageAcknowledge-' + senderId, function (data) {
+            console.log("messageAcknowledge");
+            console.log(data);
 
             $( "#messages" ).append( "<strong>"+data.user.name+":</strong><p>"+data.message+"</p>" );
         });
@@ -64,7 +77,8 @@
         var msg = $(".msg").val();
 
         if (msg != '') {
-            socket.emit('messageSend', {'_token':token, 'message':msg, 'user':user, "send_by": sendBy, "user_id": userId});
+            console.log('messageSend-' + senderId + '-' + receiverId);
+            socket.emit('messageSend-' + senderId + '-' + receiverId, {'message':msg});
             /*$.ajax({
                 type: "POST",
                 url: chatRoute,

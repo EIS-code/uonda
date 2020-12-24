@@ -42,6 +42,15 @@ let con  = mysql.createPool({
     socketPath      : env.config(envPath).parsed.APP_ENV == 'dev' ? '/opt/lampp/var/mysql/mysql.sock' : ''
 });
 
+// Database tables.
+let modelUsers         = 'users',
+    modelChatRooms     = 'chat_rooms',
+    modelChatRoomUsers = 'chat_room_users',
+    modelChats         = 'chats';
+
+// Global variables.
+var isError = false;
+
 /*io.use((socket, next)=>{
 
 })*/
@@ -50,34 +59,159 @@ io.on('connection', function (socket) {
     /*var redisClient = redis.createClient();
     redisClient.subscribe('messageSend');*/
 
-    socket.on("messageSend", function(data) {
+    socket.on('individualJoin', function(joinData) {
+
+        if (typeof joinData === typeof undefined) {
+            io.emit('error', {error: "Provide senderId and receiverId."});
+            return false;
+            isError = true;
+        } else if (typeof joinData.senderId === typeof undefined) {
+            io.emit('error', {error: "Provide senderId."});
+            return false;
+            isError = true;
+        } else if (typeof joinData.receiverId === typeof undefined) {
+            io.emit('error', {error: "Provide receiverId."});
+            return false;
+            isError = true;
+        }
+
+        try {
+            var senderId   = joinData.senderId,
+                receiverId = joinData.receiverId;
+        } catch(error) {
+            io.emit('error', {error: "Provide senderId and receiverId."});
+            return false;
+            isError = true;
+        }
+
+        socket.join('individualJoin-' + senderId);
+
+        // Create room.
+        var uuid            = generateUuid(10),
+            now             = mysqlDate(new Date()),
+            timestampsQuery = "`created_at` = '" + now + "', `updated_at` = '" + now + "'",
+            chatRoomId      = false,
+            chatRoomUserId  = false;
+
+        // Check is exists.
         con.getConnection(function(err, connection) {
-            if (err) throw err;
+            if (err) {
+                io.emit('error-' + senderId, {error: err.message});
+                return false;
+                isError = true;
+            };
 
-            let createdAt = mysqlDate(new Date());
-            let sqlQuery  = "INSERT INTO `chats` (message, user_id, send_by, created_at, updated_at) VALUES ('"+ data.message +"','"+ data.user_id+"','"+data.send_by+"','"+createdAt+"','"+createdAt+"')";
+            let sqlCheckRoomUser = "SELECT * FROM `" + modelChatRoomUsers + "` WHERE (`sender_id` = '" + senderId + "' AND `receiver_id` = '" + receiverId + "' OR `sender_id` = '" + receiverId + "' AND `receiver_id` = '" + senderId + "') LIMIT 1";
 
-            connection.query(sqlQuery, function (err, resultInsertChat, fields) {
-                if (err) throw err;
+            connection.query(sqlCheckRoomUser, function (err1, chatRoomUser) {
+                if (err1) {
+                    io.emit('error-' + senderId, {error: err1.message});
+                    return false;
+                    isError = true;
+                };
 
-                let getChat = "SELECT id, message, user_id FROM `chats` as c WHERE c.`id` = '" + resultInsertChat.insertId + "' LIMIT 1";
+                if (chatRoomUser.length <= 0) {
+                    let sqlInsertRoom = "INSERT INTO `" + modelChatRooms + "` SET `uuid` = '" + uuid + "', " + timestampsQuery;
 
-                connection.query(getChat, function (err, resultChat, fields) {
-                    if (err) throw err;
+                    connection.query(sqlInsertRoom, function (err2, insertRoom) {
+                        if (err2) {
+                            io.emit('error-' + senderId, {error: err2.message});
+                            return false;
+                            isError = true;
+                        };
 
-                    let getUser = "SELECT * FROM `users` WHERE `id` = '" + resultChat[0].user_id + "' LIMIT 1";
-
-                    connection.query(getUser, function (err, resultUser, fields) {
-                        if (err) throw err;
-
-                        io.sockets.emit('messageRecieve', {id: resultChat[0].id, message: resultChat[0].message, user: resultUser[0]});
+                        chatRoomId = insertRoom.insertId;
                     });
+                } else {
+                    chatRoomId     = chatRoomUser[0].chat_room_id;
+                    chatRoomUserId = chatRoomUser[0].id;
+                }
+
+                // Check is exists.
+                let sqlCheckRoomUser = "SELECT * FROM `" + modelChatRoomUsers + "` WHERE `sender_id` = '" + senderId + "' AND `receiver_id` = '" + receiverId + "' LIMIT 1";
+
+                connection.query(sqlCheckRoomUser, function (err8, checkRoomUser) {
+                    if (err8) {
+                        io.emit('error-' + senderId, {error: err8.message});
+                        return false;
+                        isError = true;
+                    };
+
+                    if (checkRoomUser.length <= 0) {
+                        let sqlInsertRoomUser = "INSERT INTO `" + modelChatRoomUsers + "` SET `chat_room_id` = '" + chatRoomId + "', `sender_id` = '" + senderId + "', `receiver_id` = '" + receiverId + "', " + timestampsQuery;
+                        connection.query(sqlInsertRoomUser, function (err3, insertRoomUser) {
+                            if (err3) {
+                                io.emit('error-' + senderId, {error: err3.message});
+                                return false;
+                                isError = true;
+                            };
+
+                            chatRoomUserId = insertRoomUser.insertId;
+                        });
+                    }
                 });
+
+                if (!isError) {
+                    socket.on("messageSend-" + senderId + '-' + receiverId, function(message) {
+                        let sqlQuery  = "INSERT INTO `" + modelChats + "` SET `message` = '" + message.message + "', `chat_room_id` = '" + chatRoomId + "', `chat_room_user_id` = '" + chatRoomUserId + "', " + timestampsQuery;
+
+                        connection.query(sqlQuery, async function (err4, insertChat, fields) {
+                            if (err4) {
+                                io.emit('error-' + senderId, {error: err4.message});
+                                return false;
+                                isError = true;
+                            };
+
+                            let sqlGetChat = "SELECT id, message FROM `" + modelChats + "` as c WHERE c.`id` = '" + insertChat.insertId + "' LIMIT 1";
+
+                            connection.query(sqlGetChat, async function (err5, resultChat, fields) {
+                                if (err5) {
+                                    io.emit('error-' + senderId, {error: err5.message});
+                                    return false;
+                                    isError = true;
+                                };
+
+                                var senderData   = {},
+                                    receiverData = {};
+
+                                let sqlGetSenderUser = "SELECT * FROM `" + modelUsers + "` WHERE `id` = '" + senderId + "' LIMIT 1";
+
+                                connection.query(sqlGetSenderUser, async function (err6, resultSenderUser, fields) {
+                                    if (err6) {
+                                        io.emit('error-' + senderId, {error: err6.message});
+                                        return false;
+                                        isError = true;
+                                    };
+
+                                    senderData = {type: "new-message", message: resultChat[0].message, user: resultSenderUser[0]};
+
+                                    io.sockets.in('individualJoin-' + senderId).emit('messageAcknowledge-' + senderId, senderData);
+                                });
+
+                                let sqlGetReceiverUser = "SELECT * FROM `" + modelUsers + "` WHERE `id` = '" + receiverId + "' LIMIT 1";
+
+                                connection.query(sqlGetReceiverUser, async function (err7, resultReceiverUser, fields) {
+                                    if (err7) {
+                                        io.emit('error-' + senderId, {error: err7.message});
+                                        return false;
+                                        isError = true;
+                                    };
+
+                                    receiverData = {type: "new-message", message: resultChat[0].message, 'user': resultReceiverUser[0]};
+
+                                    io.sockets.in('individualJoin-' + receiverId).emit('messageRecieve-' + receiverId, receiverData);
+                                });
+                            });
+                        });
+                    });
+                }
             });
 
-            connection.release();
+            // connection.release();
         });
     });
+
+    
 
     socket.on('disconnect', function() {
         console.log('disconnected');
@@ -106,4 +240,14 @@ function mysqlDate(dateVal)
 function padValue(value)
 {
     return (value < 10) ? "0" + value : value;
+}
+function generateUuid(count) {
+    let _sym = 'abcdefghijklmnopqrstuvwxyz1234567890',
+        str  = '';
+
+    for(var i = 0; i < count; i++) {
+        str += _sym[parseInt(Math.random() * (_sym.length))];
+    }
+
+    return str;
 }

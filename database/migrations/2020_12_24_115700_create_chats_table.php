@@ -16,10 +16,10 @@ class CreateChatsTable extends Migration
         Schema::create('chats', function (Blueprint $table) {
             $table->id();
             $table->text('message')->nullable();
-            $table->bigInteger('user_id')->unsigned()->nullable();
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->bigInteger('send_by')->unsigned()->nullable();
-            $table->foreign('send_by')->references('id')->on('users')->onDelete('cascade');
+            $table->bigInteger('chat_room_id')->unsigned()->nullable();
+            $table->foreign('chat_room_id')->references('id')->on('chat_rooms')->onDelete('cascade');
+            $table->bigInteger('chat_room_user_id')->unsigned()->nullable();
+            $table->foreign('chat_room_user_id')->references('id')->on('chat_room_users')->onDelete('cascade');
             $table->timestamps();
         });
     }
