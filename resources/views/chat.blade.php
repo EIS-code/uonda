@@ -55,6 +55,10 @@
             console.log(data);
         });
 
+        socket.on('roomId', function (data) {
+            console.log(data);
+        });
+
         socket.on('messageRecieve', function (data) {
             console.log("messageRecieve");
             console.log(data);

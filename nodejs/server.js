@@ -84,7 +84,12 @@ io.on('connection', function (socket) {
             isError = true;
         }
 
-        socket.join('individualJoin-' + senderId);
+        // Join Rooms
+        let roomId = 'individualJoin-' + senderId;
+        socket.join(roomId);
+
+        // Emit room id.
+        io.sockets.to(roomId).emit('roomId', {id: roomId});
 
         // Create room.
         var uuid            = generateUuid(10),
