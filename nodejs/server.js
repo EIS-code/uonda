@@ -179,7 +179,7 @@ io.on('connection', function (socket) {
                                 var senderData   = {},
                                     receiverData = {};
 
-                                let sqlGetSenderUser = "SELECT * FROM `" + modelUsers + "` WHERE `id` = '" + senderId + "' LIMIT 1";
+                                let sqlGetSenderUser = "SELECT `id`, `name`, `user_name`, `email`, `profile` FROM `" + modelUsers + "` WHERE `id` = '" + senderId + "' LIMIT 1";
 
                                 connection.query(sqlGetSenderUser, async function (err6, resultSenderUser, fields) {
                                     if (err6) {
@@ -193,7 +193,7 @@ io.on('connection', function (socket) {
                                     io.sockets.to('individualJoin-' + senderId).emit('messageAcknowledge', senderData);
                                 });
 
-                                let sqlGetReceiverUser = "SELECT * FROM `" + modelUsers + "` WHERE `id` = '" + receiverId + "' LIMIT 1";
+                                let sqlGetReceiverUser = "SELECT `id`, `name`, `user_name`, `email`, `profile` FROM `" + modelUsers + "` WHERE `id` = '" + receiverId + "' LIMIT 1";
 
                                 connection.query(sqlGetReceiverUser, async function (err7, resultReceiverUser, fields) {
                                     if (err7) {
