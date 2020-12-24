@@ -51,18 +51,18 @@
 
         socket.emit('individualJoin', {'senderId': senderId, 'receiverId': receiverId});
 
-        socket.on('error-' + senderId, function (data) {
+        socket.on('error', function (data) {
             console.log(data);
         });
-console.log('messageRecieve-' + receiverId);
-        socket.on('messageRecieve-' + receiverId, function (data) {
+
+        socket.on('messageRecieve', function (data) {
             console.log("messageRecieve");
             console.log(data);
 
             $( "#messages" ).append( "<strong>"+data.user.name+":</strong><p>"+data.message+"</p>" );
         });
-console.log('messageAcknowledge-' + senderId);
-        socket.on('messageAcknowledge-' + senderId, function (data) {
+
+        socket.on('messageAcknowledge', function (data) {
             console.log("messageAcknowledge");
             console.log(data);
 
@@ -77,8 +77,9 @@ console.log('messageAcknowledge-' + senderId);
         var msg = $(".msg").val();
 
         if (msg != '') {
-            console.log('messageSend-' + senderId + '-' + receiverId);
-            socket.emit('messageSend-' + senderId + '-' + receiverId, {'message':msg});
+            // console.log('messageSend-' + senderId + '-' + receiverId);
+
+            socket.emit('messageSend', {'message': msg});
             /*$.ajax({
                 type: "POST",
                 url: chatRoute,

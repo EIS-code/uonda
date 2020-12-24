@@ -96,7 +96,7 @@ io.on('connection', function (socket) {
         // Check is exists.
         con.getConnection(function(err, connection) {
             if (err) {
-                io.emit('error-' + senderId, {error: err.message});
+                io.emit('error', {error: err.message});
                 return false;
                 isError = true;
             };
@@ -105,7 +105,7 @@ io.on('connection', function (socket) {
 
             connection.query(sqlCheckRoomUser, function (err1, chatRoomUser) {
                 if (err1) {
-                    io.emit('error-' + senderId, {error: err1.message});
+                    io.emit('error', {error: err1.message});
                     return false;
                     isError = true;
                 };
@@ -115,7 +115,7 @@ io.on('connection', function (socket) {
 
                     connection.query(sqlInsertRoom, function (err2, insertRoom) {
                         if (err2) {
-                            io.emit('error-' + senderId, {error: err2.message});
+                            io.emit('error', {error: err2.message});
                             return false;
                             isError = true;
                         };
@@ -132,7 +132,7 @@ io.on('connection', function (socket) {
 
                 connection.query(sqlCheckRoomUser, function (err8, checkRoomUser) {
                     if (err8) {
-                        io.emit('error-' + senderId, {error: err8.message});
+                        io.emit('error', {error: err8.message});
                         return false;
                         isError = true;
                     };
@@ -141,7 +141,7 @@ io.on('connection', function (socket) {
                         let sqlInsertRoomUser = "INSERT INTO `" + modelChatRoomUsers + "` SET `chat_room_id` = '" + chatRoomId + "', `sender_id` = '" + senderId + "', `receiver_id` = '" + receiverId + "', " + timestampsQuery;
                         connection.query(sqlInsertRoomUser, function (err3, insertRoomUser) {
                             if (err3) {
-                                io.emit('error-' + senderId, {error: err3.message});
+                                io.emit('error', {error: err3.message});
                                 return false;
                                 isError = true;
                             };
@@ -152,12 +152,12 @@ io.on('connection', function (socket) {
                 });
 
                 if (!isError) {
-                    socket.on("messageSend-" + senderId + '-' + receiverId, function(message) {
+                    socket.on("messageSend", function(message) {
                         let sqlQuery  = "INSERT INTO `" + modelChats + "` SET `message` = '" + message.message + "', `chat_room_id` = '" + chatRoomId + "', `chat_room_user_id` = '" + chatRoomUserId + "', " + timestampsQuery;
 
                         connection.query(sqlQuery, async function (err4, insertChat, fields) {
                             if (err4) {
-                                io.emit('error-' + senderId, {error: err4.message});
+                                io.emit('error', {error: err4.message});
                                 return false;
                                 isError = true;
                             };
@@ -166,7 +166,7 @@ io.on('connection', function (socket) {
 
                             connection.query(sqlGetChat, async function (err5, resultChat, fields) {
                                 if (err5) {
-                                    io.emit('error-' + senderId, {error: err5.message});
+                                    io.emit('error', {error: err5.message});
                                     return false;
                                     isError = true;
                                 };
@@ -178,28 +178,28 @@ io.on('connection', function (socket) {
 
                                 connection.query(sqlGetSenderUser, async function (err6, resultSenderUser, fields) {
                                     if (err6) {
-                                        io.emit('error-' + senderId, {error: err6.message});
+                                        io.emit('error', {error: err6.message});
                                         return false;
                                         isError = true;
                                     };
 
                                     senderData = {type: "new-message", message: resultChat[0].message, user: resultSenderUser[0]};
 
-                                    io.sockets.in('individualJoin-' + senderId).emit('messageAcknowledge-' + senderId, senderData);
+                                    io.sockets.to('individualJoin-' + senderId).emit('messageAcknowledge', senderData);
                                 });
 
                                 let sqlGetReceiverUser = "SELECT * FROM `" + modelUsers + "` WHERE `id` = '" + receiverId + "' LIMIT 1";
 
                                 connection.query(sqlGetReceiverUser, async function (err7, resultReceiverUser, fields) {
                                     if (err7) {
-                                        io.emit('error-' + senderId, {error: err7.message});
+                                        io.emit('error', {error: err7.message});
                                         return false;
                                         isError = true;
                                     };
 
                                     receiverData = {type: "new-message", message: resultChat[0].message, 'user': resultReceiverUser[0]};
 
-                                    io.sockets.in('individualJoin-' + receiverId).emit('messageRecieve-' + receiverId, receiverData);
+                                    io.sockets.to('individualJoin-' + receiverId).emit('messageRecieve', receiverData);
                                 });
                             });
                         });
@@ -207,7 +207,7 @@ io.on('connection', function (socket) {
                 }
             });
 
-            // connection.release();
+            connection.release();
         });
     });
 
