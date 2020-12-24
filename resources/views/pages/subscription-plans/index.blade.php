@@ -53,9 +53,9 @@
                         <td>{{ $plan->price }}</td>
                         <td>{{ Carbon\Carbon::parse($plan->created_at)->format('jS M Y') }}</td>
                         <td class="icons_list">
-                            <a href="{{ route('subscription_plan.edit', $plan->encrypted_plan_id) }}" title="Edit Subscription Plan"><i class="faicons mdi mdi-lead-pencil"></i></a> 
-                            <a href="javascript:void(0)" class="remove-button" data-id="{{ $plan->id }}" title="Delete Subscription Plan"><i class="faicons mdi mdi-delete delete-button"></i></a>
-                            <a href="{{ route('subscription_plan.show', $plan->encrypted_plan_id)}}" title="Show Plan Details"><i class="faicons mdi mdi-eye"></i></a>
+                            <a href="{{ route('subscription_plan.edit', $plan->encrypted_plan_id) }}" title="Edit Subscription Plan"><span class="material-icons">edit</span></a> 
+                            <a href="javascript:void(0)" class="remove-button" data-id="{{ $plan->id }}" title="Delete Subscription Plan"><span class="material-icons delete-button">delete</span></a>
+                            <a href="{{ route('subscription_plan.show', $plan->encrypted_plan_id)}}" title="Show Plan Details"><span class="material-icons">visibility</span></a>
                             <form id="remove-form-{{ $plan->id }}" action="{{ route('subscription_plan.destroy', $plan->encrypted_plan_id) }}" method="POST" class="d-none">
                             @csrf
                             {{ method_field('DELETE') }}

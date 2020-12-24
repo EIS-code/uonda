@@ -57,9 +57,9 @@
                         <td>{{ $code->status == 1 ? 'Enable' : 'Disable' }}</td>
                         <td>{{ Carbon\Carbon::parse($code->created_at)->format('jS M Y') }}</td>
                         <td class="icons_list">
-                            <a href="{{ route('promo-codes.edit', $code->encrypted_code_id) }}" title="Edit Promo Code"><i class="faicons mdi mdi-lead-pencil"></i></a> 
-                            <a href="javascript:void(0)" class="remove-button" data-id="{{ $code->id }}" title="Delete Promo Code"><i class="faicons mdi mdi-delete delete-button"></i></a>
-                            <a href="{{ route('promo-codes.show', $code->encrypted_code_id)}}" title="Show Promo Code Details"><i class="faicons mdi mdi-eye"></i></a>
+                            <a href="{{ route('promo-codes.edit', $code->encrypted_code_id) }}" title="Edit Promo Code"><span class="material-icons">edit</span></a> 
+                            <a href="javascript:void(0)" class="remove-button" data-id="{{ $code->id }}" title="Delete Promo Code"><span class="material-icons delete-button">delete</span></a>
+                            <a href="{{ route('promo-codes.show', $code->encrypted_code_id)}}" title="Show Promo Code Details"><span class="material-icons">visibility</span></a>
                             <form id="remove-form-{{ $code->id }}" action="{{ route('promo-codes.destroy', $code->encrypted_code_id) }}" method="POST" class="d-none">
                             @csrf
                             {{ method_field('DELETE') }}

@@ -47,12 +47,12 @@
                         </td>
                         <td class="icons_list">
                             @if($user->is_accepted)
-                                <a href="javascript:void(0)" class="rejectModal" data-id="{{ $user->encrypted_user_id }}" title="Reject User"><i class="fa fa-times" aria-hidden="true"></i></a> 
+                                <a href="javascript:void(0)" class="rejectModal" data-id="{{ $user->encrypted_user_id }}" title="Reject User"><span class="material-icons">close</span></a> 
                             @else 
-                                <a href="javascript:void(0)" class="acceptUser" data-id="{{ $user->encrypted_user_id }}" title="Accept User"><i class="fa fa-check" aria-hidden="true"></i></a> 
+                                <a href="javascript:void(0)" class="acceptUser" data-id="{{ $user->encrypted_user_id }}" title="Accept User"><span class="material-icons">done</span></a> 
                             @endif
-                            <a href="javascript:void(0)" class="remove-button" data-id="{{ $user->id }}" title="Delete User"><i class="faicons mdi mdi-delete delete-button"></i></a>
-                            <a href="{{ route('users.show', $user->encrypted_user_id) }}" title="Show User Details"><i class="faicons mdi mdi-eye"></i></a>
+                            <a href="javascript:void(0)" class="remove-button" data-id="{{ $user->id }}" title="Delete User"><span class="material-icons delete-button">delete</span></a>
+                            <a href="{{ route('users.show', $user->encrypted_user_id) }}" title="Show User Details"><span class="material-icons">visibility</span></a>
                             <form id="remove-form-{{ $user->id }}" action="{{ route('users.destroy', $user->encrypted_user_id) }}" method="POST" class="d-none">
                             @csrf
                             {{ method_field('DELETE') }}

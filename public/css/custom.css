@@ -9,3 +9,8 @@
     width: 87px !important;
     height: 23px !important;
 }
+
+.remove-button {
+    cursor: pointer;
+    color: #d41f1f !important;
+}
