@@ -52,23 +52,29 @@
         socket.emit('individualJoin', {'senderId': senderId, 'receiverId': receiverId});
 
         socket.on('error', function (data) {
-            console.log(data);
+            // console.log(data);
         });
 
         socket.on('roomId', function (data) {
+            // console.log(data);
+        });
+
+        socket.emit('messageHistory');
+
+        socket.on('messageDetails', function (data) {
             console.log(data);
         });
 
         socket.on('messageRecieve', function (data) {
-            console.log("messageRecieve");
-            console.log(data);
+            // console.log("messageRecieve");
+            // console.log(data);
 
             $( "#messages" ).append( "<strong>"+data.user.name+":</strong><p>"+data.message+"</p>" );
         });
 
         socket.on('messageAcknowledge', function (data) {
-            console.log("messageAcknowledge");
-            console.log(data);
+            // console.log("messageAcknowledge");
+            // console.log(data);
 
             $( "#messages" ).append( "<strong>"+data.user.name+":</strong><p>"+data.message+"</p>" );
         });

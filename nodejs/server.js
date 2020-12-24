@@ -209,6 +209,20 @@ io.on('connection', function (socket) {
                             });
                         });
                     });
+
+                    socket.on("messageHistory", function() {
+                        let sqlGetChatHistory = "SELECT c.id, c.message, c.created_at, c.updated_at FROM `" + modelChatRoomUsers + "` AS cru JOIN `" + modelChats + "` AS c ON cru.id = c.chat_room_user_id WHERE ((cru.`sender_id` = '" + senderId + "' AND cru.`receiver_id` = '" + receiverId + "') OR (cru.`sender_id` = '" + receiverId + "' AND cru.`receiver_id` = '" + senderId + "'))";
+
+                        connection.query(sqlGetChatHistory, function (err9, resultChatHistory, fields) {
+                            if (err9) {
+                                io.emit('error', {error: err9.message});
+                                return false;
+                                isError = true;
+                            }
+
+                            io.sockets.to('individualJoin-' + senderId).emit('messageDetails', resultChatHistory);
+                        });
+                    });
                 }
             });
 
