@@ -204,6 +204,7 @@ class UserController extends BaseController
             'gender'           => ['required'],
             'birthday'         => ['nullable'],
             'country_id'       => ['nullable'],
+            'state_id'         => ['nullable'],
             'city_id'          => ['nullable']
         ], $extraRequired);
 
@@ -234,6 +235,7 @@ class UserController extends BaseController
         $user->field_of_study   = !empty($data['field_of_study']) ? $data['field_of_study'] : NULL;
         $user->other_flag       = $model::OTHER_FLAG_DONE;
         $user->country_id       = !empty($data['country_id']) ? $data['country_id'] : NULL;
+        $user->state_id         = !empty($data['state_id']) ? $data['state_id'] : NULL;
         $user->city_id          = !empty($data['city_id']) ? $data['city_id'] : NULL;
 
         if ($user->save()) {
@@ -340,6 +342,7 @@ class UserController extends BaseController
             }
 
             array_push($user->appends, 'country_name');
+            array_push($user->appends, 'state_name');
             array_push($user->appends, 'city_name');
             array_push($user->appends, 'school_name');
 

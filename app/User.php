@@ -24,7 +24,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'user_name', 'email', 'password', 'referral_code', 'current_location', 'nation', 'gender', 'birthday', 'school_id', 'country_id', 'city_id',
+        'name', 'user_name', 'email', 'password', 'referral_code', 'current_location', 'nation', 'gender', 'birthday', 'school_id', 'state_id', 'country_id', 'city_id',
         'current_status', 'company', 'job_position', 'university', 'field_of_study', 'profile', 'personal_flag', 'school_flag', 'other_flag', 'latitude', 'longitude'
     ];
 
@@ -137,6 +137,7 @@ class User extends Authenticatable
             'birthday'         => array_merge([], !empty($requiredFileds['string']) ? $requiredFileds['string'] : ['nullable']),
             'school_id'        => array_merge(['integer', 'exists:' . School::getTableName() . ',id'], !empty($requiredFileds['school_id']) ? $requiredFileds['school_id'] : ['nullable']),
             'country_id'       => array_merge(['integer', 'exists:' . Country::getTableName() . ',id'], !empty($requiredFileds['country_id']) ? $requiredFileds['country_id'] : ['nullable']),
+            'state_id'         => array_merge(['integer', 'exists:' . State::getTableName() . ',id'], !empty($requiredFileds['state_id']) ? $requiredFileds['state_id'] : ['nullable']),
             'city_id'          => array_merge(['integer', 'exists:' . City::getTableName() . ',id'], !empty($requiredFileds['city_id']) ? $requiredFileds['city_id'] : ['nullable']),
             'current_status'   => array_merge(['nullable', 'in:0,1,2,3'], !empty($requiredFileds['current_status']) ? $requiredFileds['current_status'] : ['nullable']),
             'company'          => array_merge(['string', 'max:255'], !empty($requiredFileds['company']) ? $requiredFileds['company'] : ['nullable']),
@@ -165,6 +166,11 @@ class User extends Authenticatable
     public function country()
     {
         return $this->hasOne('App\Country', 'id', 'country_id');
+    }
+
+    public function state()
+    {
+        return $this->hasOne('App\State', 'id', 'state_id');
     }
 
     public function city()
@@ -237,6 +243,13 @@ class User extends Authenticatable
         $country = $this->country;
 
         return !empty($country) ? $country->name : NULL;
+    }
+
+    public function getStateNameAttribute()
+    {
+        $state = $this->state;
+
+        return !empty($state) ? $state->name : NULL;
     }
 
     public function getCityNameAttribute()

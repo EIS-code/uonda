@@ -25,8 +25,8 @@ Route::group(['middleware' => ['web.auth.api']], function () {
     Route::group(['prefix' => 'location', 'namespace' => 'Location'], function () {
         Route::group(['prefix' => 'get'], function () {
             Route::get('/country', 'LocationController@getCountry')->name('getCountry');
-            Route::get('/state', 'LocationController@getState')->name('getState');
-            Route::get('/city', 'LocationController@getCity')->name('getCity');
+            Route::post('/state', 'LocationController@getState')->name('getState');
+            Route::post('/city', 'LocationController@getCity')->name('getCity');
         });
     });
 

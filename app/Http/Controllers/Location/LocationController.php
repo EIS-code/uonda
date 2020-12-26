@@ -6,6 +6,7 @@ use App\Http\Controllers\BaseController;
 use App\Country;
 use App\City;
 use App\State;
+use Illuminate\Http\Request;
 
 class LocationController extends BaseController
 {
@@ -20,9 +21,15 @@ class LocationController extends BaseController
         return $this->returnNull();
     }
 
-    public function getCity()
+    public function getCity(Request $request)
     {
-        $cities = City::all();
+        $stateId = $request->get('state_id', false);
+
+        if (!empty($stateId)) {
+            $cities = City::where('state_id', (int)$stateId)->get();
+        } else {
+            $cities = City::all();
+        }
 
         if (!empty($cities) && !$cities->isEmpty()) {
             return $this->returnSuccess(__('City fetched successfully!'), $cities);
@@ -31,9 +38,15 @@ class LocationController extends BaseController
         return $this->returnNull();
     }
 
-    public function getState()
+    public function getState(Request $request)
     {
-        $states = State::all();
+        $countryId = $request->get('country_id', false);
+
+        if (!empty($countryId)) {
+            $states = State::where('country_id', (int)$countryId)->get();
+        } else {
+            $states = State::all();
+        }
 
         if (!empty($states) && !$states->isEmpty()) {
             return $this->returnSuccess(__('State fetched successfully!'), $states);
