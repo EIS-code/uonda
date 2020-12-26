@@ -85,6 +85,8 @@ Route::group(['middleware' => ['web.auth.api']], function () {
 
         Route::group(['prefix' => 'chat', 'namespace' => 'Chat'], function () {
             Route::post('/send', 'ChatController@sendMessage')->name('user.chat.send');
+
+            Route::get('/list', 'ChatController@getUsersList')->name('user.chat.users.list');
         });
     });
 

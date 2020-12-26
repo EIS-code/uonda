@@ -6,7 +6,11 @@ use App\Http\Controllers\BaseController;
 use Illuminate\Http\Request;
 use App\Events\MessageCreated;
 use App\Chat;
+use App\ChatRoomUser;
+use App\User;
 use LRedis;
+use DB;
+use Illuminate\Support\Facades\Storage;
 
 class ChatController extends BaseController
 {
@@ -60,5 +64,40 @@ class ChatController extends BaseController
         }
 
         return $this->returnError(__('Something went wrong!'));
+    }
+
+    public function getUsersList(Request $request)
+    {
+        $model              = new User();
+        $modelChatRoomUsers = new ChatRoomUser();
+        $modelChats         = new Chat();
+
+        $userId = $request->get('user_id', false);
+
+        if (empty($userId)) {
+            return $this->returnError(__("User id can not be empty."));
+        }
+
+        $storageFolderName = (str_ireplace("\\", "/", $model->profile));
+
+        $records = DB::select("SELECT u.id, u.profile, u.name, c.updated_at AS recent_time, c.message AS recent_message from `" . $model->getTableName() . "` AS u
+                    JOIN `" . $modelChatRoomUsers::getTableName() . "` AS crm ON u.id = crm.sender_id OR u.id = crm.receiver_id
+                    LEFT JOIN `" . $modelChats::getTableName() . "` AS c ON crm.id = c.chat_room_user_id AND c.updated_at = (SELECT (MAX(c2.updated_at)) FROM `" . $modelChats::getTableName() . "` AS c2 WHERE crm.id = c2.chat_room_user_id LIMIT 1)
+                    WHERE u.id != '" . $userId . "'
+                    GROUP BY u.id
+                    ORDER BY c.updated_at DESC
+            ");
+
+        if (!empty($records)) {
+            foreach ($records as &$record) {
+                if (empty($record->profile)) {
+                    continue;
+                }
+
+                $record->profile = Storage::disk($model->fileSystem)->url($storageFolderName . '/' . $record->profile);
+            }
+        }
+
+        return $this->returnSuccess(__('User chat list get successfully!'), $records);
     }
 }
