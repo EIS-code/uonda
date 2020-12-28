@@ -20,7 +20,7 @@ class AdminController extends Controller
     public function updateProfile(Request $request) {
         $user = Auth::user();
         $data = $request->all();
-        $prevAttachment = $user->profile_pic;
+        $prevAttachment = $user->profile;
         $rules = [
             'name' => 'required',
             'email' => 'required|email|unique:users,email,'.$user->id,
@@ -52,7 +52,7 @@ class AdminController extends Controller
                 $storeFile = $attachment->storeAs('admin-profile', $fileName, 'public');
 
                 if ($storeFile) {
-                    $user->profile_pic = $fileName;
+                    $user->profile = $fileName;
 
                 }
             }
