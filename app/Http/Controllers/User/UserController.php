@@ -119,6 +119,8 @@ class UserController extends BaseController
 
         $data['personal_flag'] = $model::PERSONAL_FLAG_DONE;
 
+        $data['oauth_provider'] = !empty($data['oauth_provider']) ? (string)$data['oauth_provider'] : $model::OAUTH_NONE;
+
         $validator = $model->validator($data);
 
         if ($validator->fails()) {
@@ -299,23 +301,47 @@ class UserController extends BaseController
         $model = new User();
         $data  = $request->all();
 
+        $oauthId  = !empty($data['oauth_uid']) ? $data['oauth_uid'] : NULL;
         $userName = !empty($data['username']) ? $data['username'] : NULL;
         $password = !empty($data['password']) ? $data['password'] : NULL;
 
-        if (empty($userName) || empty($password)) {
+        // Check username & password.
+        $if     = ((empty($userName) || empty($password)) && empty($oauthId));
+        $elseif = (empty($oauthId) && (empty($userName) || empty($password)));
+
+        if ($if) {
             return $this->returnError(__('Username or Password is incorrect.'));
+        } elseif ($elseif) {
+            return $this->returnError(__('Oauth uid is incorrect.'));
         }
 
-        $user = $model->where('email', $userName)->first();
+        $isUserNamePasswordLogin = (!empty($userName) && !empty($password) || empty($oauthId));
+        $isOauthLogin            = (!$isUserNamePasswordLogin && (empty($userName) || empty($password)) && !empty($oauthId));
 
-        if (!empty($user) && Hash::check($password, $user->password)) {
+        if ($isUserNamePasswordLogin) {
+            $user = $model->where('email', $userName)->first();
+        } elseif ($isOauthLogin) {
+            $user = $model->where('oauth_uid', $oauthId)->first();
+        }
+
+        $check = false;
+
+        if (!empty($user)) {
+            if ($isUserNamePasswordLogin) {
+                $check = ((string)$user->email === (string)$userName && Hash::check($password, $user->password));
+            } elseif ($isOauthLogin) {
+                $check = (string)$user->oauth_uid === (string)$oauthId;
+            }
+        }
+
+        if ($check === true) {
             // Generate API key.
             ApiKey::generateKey($user->id);
 
             return $this->returnSuccess(__('Logged in successfully!'), $this->getDetails($user->id, false, true));
         }
 
-        return $this->returnError(__('Username or Password is incorrect.'));
+        return $this->returnError(__('Username, Password or oauth uid is incorrect.'));
     }
 
     public function getDetails(int $userId, $isApi = false, $apiKey = false)

@@ -25,7 +25,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name', 'user_name', 'email', 'password', 'referral_code', 'current_location', 'nation', 'gender', 'birthday', 'school_id', 'state_id', 'country_id', 'city_id',
-        'current_status', 'company', 'job_position', 'university', 'field_of_study', 'profile', 'personal_flag', 'school_flag', 'other_flag', 'latitude', 'longitude'
+        'current_status', 'company', 'job_position', 'university', 'field_of_study', 'profile', 'personal_flag', 'school_flag', 'other_flag', 'latitude', 'longitude', 'device_token', 'device_type', 'app_version', 'oauth_uid', 'oauth_provider'
     ];
 
     /**
@@ -37,7 +37,7 @@ class User extends Authenticatable
         'password', 'remember_token', 'personal_flag', 'school_flag', 'other_flag',
         // 'user_name',
         // 'email',
-        'created_at', 'updated_at',
+        'created_at', 'updated_at', 'oauth_uid', 'oauth_provider',
     ];
 
     /**
@@ -92,6 +92,18 @@ class User extends Authenticatable
     public $fileSystem               = 'public';
     public $profile                  = 'user\\profile';
 
+    const OAUTH_NONE     = '0';
+    const OAUTH_GOOGLE   = '1';
+    const OAUTH_FACEBOOK = '2';
+    const OAUTH_APPLE    = '3';
+
+    public $oauthProviders = [
+        self::OAUTH_NONE     => 'None',
+        self::OAUTH_GOOGLE   => 'Google',
+        self::OAUTH_FACEBOOK => 'Facebook',
+        self::OAUTH_APPLE    => 'Apple'
+    ];
+
     public function __construct(array $attributes = array())
     {
         parent::__construct($attributes);
@@ -128,8 +140,8 @@ class User extends Authenticatable
         $validator = Validator::make($data, array_merge([
             'name'             => array_merge(['string', 'max:255'], !empty($requiredFileds['name']) ? $requiredFileds['name'] : ['required']),
             'user_name'        => array_merge(['string', 'max:255'], !empty($requiredFileds['user_name']) ? $requiredFileds['user_name'] : ['nullable']),
-            'password'         => array_merge(['min:6'], !empty($requiredFileds['password']) ? $requiredFileds['password'] : ['required']),
-            'email'            => array_merge(['email', 'unique:' . $this->getTableName()], !empty($requiredFileds['email']) ? $requiredFileds['email'] : ['required']),
+            'password'         => array_merge(['min:6'], !empty($requiredFileds['password']) ? $requiredFileds['password'] : ['nullable']),
+            'email'            => array_merge(['email', 'unique:' . $this->getTableName()], !empty($requiredFileds['email']) ? $requiredFileds['email'] : ['nullable']),
             'referral_code'    => array_merge(['string', 'max:255'], !empty($requiredFileds['referral_code']) ? $requiredFileds['referral_code'] : ['nullable']),
             'current_location' => array_merge(['string'], !empty($requiredFileds['current_location']) ? $requiredFileds['current_location'] : ['nullable']),
             'nation'           => array_merge(['string', 'max:255'], !empty($requiredFileds['nation']) ? $requiredFileds['nation'] : ['nullable']),
@@ -149,7 +161,12 @@ class User extends Authenticatable
             'school_flag'      => array_merge(['nullable', 'in:' . implode(",", array_keys($this->schoolFlags))], !empty($requiredFileds['school_flag']) ? $requiredFileds['school_flag'] : ['nullable']),
             'other_flag'       => array_merge(['nullable', 'in:' . implode(",", array_keys($this->otherFlags))], !empty($requiredFileds['other_flag']) ? $requiredFileds['other_flag'] : ['nullable']),
             'latitude'        => array_merge(['nullable', 'between:0,99.99'], !empty($requiredFileds['latitude']) ? $requiredFileds['latitude'] : ['nullable']),
-            'longitude'       => array_merge(['nullable', 'between:0,99.99'], !empty($requiredFileds['longitude']) ? $requiredFileds['longitude'] : ['nullable'])
+            'longitude'       => array_merge(['nullable', 'between:0,99.99'], !empty($requiredFileds['longitude']) ? $requiredFileds['longitude'] : ['nullable']),
+            'device_token'    => array_merge(['string'], !empty($requiredFileds['device_token']) ? $requiredFileds['device_token'] : ['nullable']),
+            'device_type'     => array_merge(['string'], !empty($requiredFileds['device_type']) ? $requiredFileds['device_type'] : ['nullable']),
+            'app_version'     => array_merge(['string'], !empty($requiredFileds['app_version']) ? $requiredFileds['app_version'] : ['nullable']),
+            'oauth_uid'       => array_merge(['string', 'unique:' . $this->getTableName() . ',oauth_uid'], !empty($requiredFileds['oauth_uid']) ? $requiredFileds['oauth_uid'] : ['nullable']),
+            'oauth_provider'  => array_merge(['in:' . implode(",", array_keys($this->oauthProviders))], !empty($requiredFileds['oauth_provider']) ? $requiredFileds['oauth_provider'] : ['nullable'])
         ], $extraFields));
 
         if ($returnBoolsOnly === true) {
