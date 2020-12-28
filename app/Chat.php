@@ -3,7 +3,8 @@
 namespace App;
 
 use Illuminate\Support\Facades\Validator;
-use App\User;
+use App\ChatRoom;
+use App\ChatRoomUser;
 
 class Chat extends BaseModel
 {
@@ -13,7 +14,7 @@ class Chat extends BaseModel
      * @var array
      */
     protected $fillable = [
-        'message', 'user_id', 'send_by'
+        'message', 'chat_room_id', 'chat_room_user_id'
     ];
 
     protected $casts = [
@@ -25,9 +26,9 @@ class Chat extends BaseModel
     public function validators(array $data, $returnBoolsOnly = false)
     {
         $validator = Validator::make($data, [
-            'message' => ['required', 'string', 'max:255'],
-            'user_id' => ['required', 'integer', 'exists:' . (new User())->getTableName() . ',id'],
-            'send_by' => ['required', 'integer', 'exists:' . (new User())->getTableName() . ',id'],
+            'message'           => ['required', 'string', 'max:255'],
+            'chat_room_id'      => ['required', 'integer', 'exists:' . (new ChatRoom())->getTableName() . ',id'],
+            'chat_room_user_id' => ['required', 'integer', 'exists:' . (new ChatRoomUser())->getTableName() . ',id'],
         ]);
 
         if ($returnBoolsOnly === true) {
@@ -39,15 +40,5 @@ class Chat extends BaseModel
         }
 
         return $validator;
-    }
-
-    public function user()
-    {
-        return $this->hasOne('App\User', 'id', 'user_id');
-    }
-
-    public function sentUser()
-    {
-        return $this->hasOne('App\User', 'id', 'send_by');
     }
 }
