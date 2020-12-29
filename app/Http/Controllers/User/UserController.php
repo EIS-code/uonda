@@ -339,9 +339,13 @@ class UserController extends BaseController
             ApiKey::generateKey($user->id);
 
             return $this->returnSuccess(__('Logged in successfully!'), $this->getDetails($user->id, false, true));
+        } elseif ($isOauthLogin) {
+            $this->errorCode = 402;
+
+            return $this->returnError(__('OauthId is incorrect.'));
         }
 
-        return $this->returnError(__('Username, Password or oauth uid is incorrect.'));
+        return $this->returnError(__('Username or Password is incorrect.'));
     }
 
     public function getDetails(int $userId, $isApi = false, $apiKey = false)
