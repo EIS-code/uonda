@@ -16,12 +16,12 @@ class SchoolController extends BaseController
 
         switch ($method) {
             case 'GET':
-                $schools = $model::with('country', 'city')->orderBy($model::getTableName() . '.name', 'ASC')->get();
+                $schools = $model::with('country', 'city', 'state')->orderBy($model::getTableName() . '.name', 'ASC')->get();
                 break;
             case 'POST':
             case 'PUT':
                 $schoolId = $request->get('school_id', false);
-                $schools  = $model::with('country', 'city')->where($model::getTableName() . '.id', (int)$schoolId)->orderBy($model::getTableName() . '.name', 'ASC')->get();
+                $schools  = $model::with('country', 'city', 'state')->where($model::getTableName() . '.id', (int)$schoolId)->orderBy($model::getTableName() . '.name', 'ASC')->get();
                 break;
             default:
                 $schools = [];
@@ -34,6 +34,12 @@ class SchoolController extends BaseController
                 }
 
                 unset($data->country);
+
+                if (!empty($data->state)) {
+                    $data->state_name = $data->state->name;
+                }
+
+                unset($data->state);
 
                 if (!empty($data->city)) {
                     $data->city_name = $data->city->name;
@@ -92,6 +98,7 @@ class SchoolController extends BaseController
 
         $record->name       = (string)$data['name'];
         $record->city_id    = (int)$data['city_id'];
+        $record->state_id   = (int)$data['state_id'];
         $record->country_id = (int)$data['country_id'];
 
         $update = $record->save();
