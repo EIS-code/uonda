@@ -167,7 +167,8 @@ io.on('connection', function (socket) {
                                 isError = true;
                             };
 
-                            let sqlGetChat = "SELECT id, message FROM `" + modelChats + "` as c WHERE c.`id` = '" + insertChat.insertId + "' LIMIT 1";
+                            // let sqlGetChat = "SELECT id, message FROM `" + modelChats + "` as c WHERE c.`id` = '" + insertChat.insertId + "' LIMIT 1";
+                            let sqlGetChat = "SELECT c.id, c.message, ca.mime_type, ca.attachment, ca.url, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' ELSE NULL END AS message_type FROM `" + modelChats + "` AS c LEFT JOIN chat_attachments AS ca ON c.id = ca.chat_id WHERE c.`id` = '" + insertChat.insertId + "' LIMIT 1";
 
                             connection.query(sqlGetChat, async function (err5, resultChat, fields) {
                                 if (err5) {
@@ -188,7 +189,7 @@ io.on('connection', function (socket) {
                                         isError = true;
                                     };
 
-                                    senderData = {type: "new-message", message: resultChat[0].message, user: resultSenderUser[0]};
+                                    senderData = {type: "new-message", message: resultChat[0], user: resultSenderUser[0]};
 
                                     io.sockets.to('individualJoin-' + senderId).emit('messageAcknowledge', senderData);
                                 });
@@ -202,7 +203,7 @@ io.on('connection', function (socket) {
                                         isError = true;
                                     };
 
-                                    receiverData = {type: "new-message", message: resultChat[0].message, 'user': resultReceiverUser[0]};
+                                    receiverData = {type: "new-message", message: resultChat[0], 'user': resultReceiverUser[0]};
 
                                     io.sockets.to('individualJoin-' + receiverId).emit('messageRecieve', receiverData);
                                 });
