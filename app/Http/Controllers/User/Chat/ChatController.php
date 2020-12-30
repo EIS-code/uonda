@@ -218,9 +218,10 @@ class ChatController extends BaseController
 
     public function getUserHistory(Request $request)
     {
-        $modelChatRoomUsers = new ChatRoomUser();
-        $modelChats         = new Chat();
-        $data               = $request->all();
+        $modelChatRoomUsers  = new ChatRoomUser();
+        $modelChats          = new Chat();
+        $modelChatAttachment = new ChatAttachment();
+        $data                = $request->all();
 
         $userId     = !empty($data['user_id']) ? (int)$data['user_id'] : false;;
         $receiverId = !empty($data['receiver_id']) ? (int)$data['receiver_id'] : false;
@@ -235,9 +236,11 @@ class ChatController extends BaseController
 
         // , CASE cru.sender_id WHEN '4' THEN 'sender' ELSE 'receiver' END AS sender_receiver_flag
 
-        $records = DB::select("SELECT c.id, c.message, cru.sender_id, cru.receiver_id, c.created_at, c.updated_at, ca.mime_type, ca.attachment, ca.url, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' ELSE NULL END AS message_type FROM `" . $modelChatRoomUsers::getTableName() . "` AS cru JOIN `" . $modelChats::getTableName() . "` AS c ON cru.id = c.chat_room_user_id LEFT JOIN `chat_attachments` AS ca ON c.id = ca.chat_id WHERE ((cru.`sender_id` = '" . $userId . "' AND cru.`receiver_id` = '" . $receiverId . "') OR (cru.`sender_id` = '" . $receiverId . "' AND cru.`receiver_id` = '" . $userId . "'))");
+        $records = DB::select("SELECT c.id, c.message, cru.sender_id, cru.receiver_id, c.created_at, c.updated_at, ca.mime_type, ca.attachment, ca.url, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' ELSE NULL END AS message_type FROM `" . $modelChatRoomUsers::getTableName() . "` AS cru JOIN `" . $modelChats::getTableName() . "` AS c ON cru.id = c.chat_room_user_id LEFT JOIN `" . $modelChatAttachment::getTableName() . "` AS ca ON c.id = ca.chat_id WHERE ((cru.`sender_id` = '" . $userId . "' AND cru.`receiver_id` = '" . $receiverId . "') OR (cru.`sender_id` = '" . $receiverId . "' AND cru.`receiver_id` = '" . $userId . "'))");
 
         if (!empty($records)) {
+            $storageFolderName = (str_ireplace("\\", "/", $modelChatAttachment->folder));
+
             foreach ($records as &$record) {
                 if (!empty($record->created_at) && strtotime($record->created_at) > 0) {
                     $record->created_at = strtotime($record->created_at) * 1000;
@@ -245,6 +248,10 @@ class ChatController extends BaseController
 
                 if (!empty($record->updated_at) && strtotime($record->updated_at) > 0) {
                     $record->updated_at = strtotime($record->updated_at) * 1000;
+                }
+
+                if (!empty($record->attachment)) {
+                    $record->attachment = Storage::disk($modelChatAttachment->fileSystem)->url($storageFolderName . '/' . $record->id . '/' . $record->attachment);;
                 }
             }
         }
