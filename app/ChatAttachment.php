@@ -46,4 +46,22 @@ class ChatAttachment extends BaseModel
         $storageFolderName = (str_ireplace("\\", "/", $this->folder));
         return Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $this->chat_id . '/' . $value);
     }
+
+    public function getCreatedAtAttribute($value)
+    {
+        if (empty($value)) {
+            return $value;
+        }
+
+        return strtotime($value) * 1000;
+    }
+
+    public function getUpdatedAtAttribute($value)
+    {
+        if (empty($value)) {
+            return $value;
+        }
+
+        return strtotime($value) * 1000;
+    }
 }
