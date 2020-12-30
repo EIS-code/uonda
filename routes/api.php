@@ -88,6 +88,8 @@ Route::group(['middleware' => ['web.auth.api']], function () {
 
             Route::get('/list', 'ChatController@getUsersList')->name('user.chat.users.list');
 
+            Route::post('/history', 'ChatController@getUserHistory')->name('user.chat.user.history');
+
             Route::post('/attachment/send', 'ChatController@sendMessageAttachments')->name('user.chat.attachments.send');
         });
     });
