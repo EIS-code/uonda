@@ -17,12 +17,17 @@ class MessageCreated implements ShouldBroadcast
 
     public function broadcastOn()
     {
-        return new Channel('messageSend');
+        return new Channel('individualJoin-3');
+    }
+
+    public function broadcastAs()
+    {
+        return 'messageRecieve';
     }
 
     public function broadcastWith()
     {
-        $chat = Chat::select(Chat::getTableName() . '.*', Chat::getTableName() . '.id as chat_id')->where(Chat::getTableName() . '.id', $this->chat->id)->with('sentUser')->first();
+        $chat = Chat::select(Chat::getTableName() . '.*', Chat::getTableName() . '.id as chat_id')->where(Chat::getTableName() . '.id', $this->chat->id)->first();
 
         if (!empty($chat)) {
             $user = !empty($chat->sentUser) ? $chat->sentUser : [];

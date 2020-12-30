@@ -16,6 +16,7 @@ class CreateChatsTable extends Migration
         Schema::create('chats', function (Blueprint $table) {
             $table->id();
             $table->text('message')->nullable();
+            $table->enum('is_attachment', ['0', '1'])->default('0')->comment("0: Nope, 1: Yes");
             $table->bigInteger('chat_room_id')->unsigned()->nullable();
             $table->foreign('chat_room_id')->references('id')->on('chat_rooms')->onDelete('cascade');
             $table->bigInteger('chat_room_user_id')->unsigned()->nullable();
