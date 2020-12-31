@@ -140,6 +140,10 @@ class ChatController extends BaseController
                     $mimeType   = $attachment->getClientMimeType();
 
                     if (!empty($pathInfos['extension'])) {
+                        if ($pathInfos['extension'] == 'm4a') {
+                            $mimeType = "audio/mp4";
+                        }
+
                         $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
                         $storeFile = $attachment->storeAs($modelChatAttachment->folder . '\\' . $chatId, $fileName, $modelChatAttachment->fileSystem);
 
