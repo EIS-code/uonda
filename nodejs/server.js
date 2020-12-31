@@ -50,7 +50,8 @@ let modelUsers          = 'users',
     modelChatAttachment = 'chat_attachments';
 
 // Global variables.
-var isError = false;
+var isError     = false,
+    onlineUsers = {};
 
 /*io.use((socket, next)=>{
 
@@ -59,6 +60,13 @@ var isError = false;
 io.on('connection', function (socket) {
     /*var redisClient = redis.createClient();
     redisClient.subscribe('messageSend');*/
+
+    socket.on("doOnline", (userId) => {
+        // Set online users.
+        onlineUsers[socket.id] = userId;
+
+        io.sockets.emit('getOnline', onlineUsers);
+    });
 
     socket.on('individualJoin', function(joinData) {
 
@@ -240,10 +248,17 @@ io.on('connection', function (socket) {
         });
     });
 
-    
+    /*socket.on('disconnect', function() {
+        console.log('Disconnected. SocetId : ' + socket.id);
 
+        delete onlineUsers[socket.id];
+    });*/
     socket.on('disconnect', function() {
-        console.log('disconnected');
+        console.log('Disconnected. SocetId : ' + socket.id);
+
+        delete onlineUsers[socket.id];
+
+        io.sockets.emit('getOnline', onlineUsers);
     });
 });
 

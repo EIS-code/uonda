@@ -51,6 +51,8 @@
 
         socket.emit('individualJoin', {'senderId': senderId, 'receiverId': receiverId});
 
+        socket.emit('doOnline', senderId);
+
         socket.on('error', function (data) {
             // console.log(data);
         });
@@ -77,6 +79,10 @@
             // console.log(data);
 
             $( "#messages" ).append( "<strong> TEST :</strong><p>"+data.message+"</p>" );
+        });
+
+        socket.on('getOnline', function (data) {
+            console.log(data);
         });
     });
 
