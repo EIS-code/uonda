@@ -105,7 +105,9 @@ class ChatController extends BaseController
         if (!empty($data)) {
             $roomUser = $modelChatRoomUser->where(function($query) use($userId, $receiverId) {
                 $query->where(['sender_id' => $userId, 'receiver_id' => $receiverId])
-                      ->orWhere(['sender_id' => $receiverId, 'receiver_id' => $userId]);
+                      ->orWhere(function($query1) use($userId, $receiverId) {
+                          $query1->where(['sender_id' => $receiverId, 'receiver_id' => $userId]);
+                      });
             })->first();
 
             if (empty($roomUser)) {
