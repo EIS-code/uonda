@@ -45,7 +45,7 @@
     var chatRoute = '{{ route("user.chat.send") }}';
     var senderId   = '{{ $userId }}';
     var receiverId = '{{ $sendBy }}';
-    var groupId = '30';
+    var groupId = '13';
 
     socket.on('connect', function() {
         console.log("connected !!");
