@@ -213,6 +213,10 @@ class ChatController extends BaseController
 
         if (!empty($records)) {
             foreach ($records as &$record) {
+                if (!empty($record->recent_time) && strtotime($record->recent_time) > 0) {
+                    $record->recent_time = strtotime($record->recent_time) * 1000;
+                }
+
                 if (empty($record->profile)) {
                     continue;
                 }
