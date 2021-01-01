@@ -162,6 +162,8 @@ io.on('connection', function (socket) {
 
                             chatRoomUserId = insertRoomUser.insertId;
                         });
+                    } else {
+                        chatRoomUserId = checkRoomUser[0].id;
                     }
                 });
 

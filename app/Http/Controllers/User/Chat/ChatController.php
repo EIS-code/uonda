@@ -125,6 +125,8 @@ class ChatController extends BaseController
                 $chatRoomUser = $modelChatRoomUser->create(['chat_room_id' => $chatRoomId, 'sender_id' => $userId, 'receiver_id' => $receiverId]);
 
                 $chatRoomUserId = $chatRoomUser->id;
+            } else {
+                $chatRoomUserId = $chatRoomUser->id;
             }
 
             // Chat.
