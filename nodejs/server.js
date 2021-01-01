@@ -94,11 +94,22 @@ io.on('connection', function (socket) {
         }
 
         // Join Rooms
-        let roomId = 'individualJoin-' + senderId;
+        var roomId = 'individualJoin-' + senderId;
         socket.join(roomId);
 
         // Emit room id.
         io.sockets.to(roomId).emit('roomId', {id: roomId});
+
+        // Error Handling.
+        var errorFun = function(errMessage) {
+            io.sockets.to(roomId).emit('error-' + senderId, {error: errMessage});
+
+            isError = true;
+
+            socket.leave(roomId);
+
+            return false;
+        };
 
         // Create room.
         var uuid            = generateUuid(10),
@@ -110,29 +121,23 @@ io.on('connection', function (socket) {
         // Check is exists.
         con.getConnection(function(err, connection) {
             if (err) {
-                io.emit('error', {error: err.message});
-                return false;
-                isError = true;
-            };
+                return errorFun(err.message);
+            }
 
             let sqlCheckRoomUser = "SELECT * FROM `" + modelChatRoomUsers + "` WHERE ((`sender_id` = '" + senderId + "' AND `receiver_id` = '" + receiverId + "') OR (`sender_id` = '" + receiverId + "' AND `receiver_id` = '" + senderId + "')) LIMIT 1";
 
             connection.query(sqlCheckRoomUser, function (err1, chatRoomUser) {
                 if (err1) {
-                    io.emit('error', {error: err1.message});
-                    return false;
-                    isError = true;
-                };
+                    return errorFun(err1.message);
+                }
 
                 if (chatRoomUser.length <= 0) {
                     let sqlInsertRoom = "INSERT INTO `" + modelChatRooms + "` SET `uuid` = '" + uuid + "', " + timestampsQuery;
 
                     connection.query(sqlInsertRoom, function (err2, insertRoom) {
                         if (err2) {
-                            io.emit('error', {error: err2.message});
-                            return false;
-                            isError = true;
-                        };
+                            return errorFun(err2.message);
+                        }
 
                         chatRoomId = insertRoom.insertId;
                     });
@@ -146,19 +151,15 @@ io.on('connection', function (socket) {
 
                 connection.query(sqlCheckRoomUser, function (err8, checkRoomUser) {
                     if (err8) {
-                        io.emit('error', {error: err8.message});
-                        return false;
-                        isError = true;
-                    };
+                        return errorFun(err8.message);
+                    }
 
                     if (checkRoomUser.length <= 0) {
                         let sqlInsertRoomUser = "INSERT INTO `" + modelChatRoomUsers + "` SET `chat_room_id` = '" + chatRoomId + "', `sender_id` = '" + senderId + "', `receiver_id` = '" + receiverId + "', " + timestampsQuery;
                         connection.query(sqlInsertRoomUser, function (err3, insertRoomUser) {
                             if (err3) {
-                                io.emit('error', {error: err3.message});
-                                return false;
-                                isError = true;
-                            };
+                                return errorFun(err3.message);
+                            }
 
                             chatRoomUserId = insertRoomUser.insertId;
                         });
@@ -173,20 +174,16 @@ io.on('connection', function (socket) {
 
                         connection.query(sqlQuery, async function (err4, insertChat, fields) {
                             if (err4) {
-                                io.emit('error', {error: err4.message});
-                                return false;
-                                isError = true;
-                            };
+                                return errorFun(err4.message);
+                            }
 
                             // let sqlGetChat = "SELECT id, message FROM `" + modelChats + "` as c WHERE c.`id` = '" + insertChat.insertId + "' LIMIT 1";
                             let sqlGetChat = "SELECT c.id, c.message, ca.mime_type, ca.attachment, ca.url, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' ELSE NULL END AS message_type FROM `" + modelChats + "` AS c LEFT JOIN `" + modelChatAttachment + "` AS ca ON c.id = ca.chat_id WHERE c.`id` = '" + insertChat.insertId + "' LIMIT 1";
 
                             connection.query(sqlGetChat, async function (err5, resultChat, fields) {
                                 if (err5) {
-                                    io.emit('error', {error: err5.message});
-                                    return false;
-                                    isError = true;
-                                };
+                                    return errorFun(err5.message);
+                                }
 
                                 var senderData   = {},
                                     receiverData = {};
@@ -195,10 +192,8 @@ io.on('connection', function (socket) {
 
                                 connection.query(sqlGetSenderUser, async function (err6, resultSenderUser, fields) {
                                     if (err6) {
-                                        io.emit('error', {error: err6.message});
-                                        return false;
-                                        isError = true;
-                                    };
+                                        return errorFun(err6.message);
+                                    }
 
                                     // senderData = {type: "new-message", message: resultChat[0], user: resultSenderUser[0]};
                                     resultChat[0].sender_id  = senderId;
@@ -206,17 +201,15 @@ io.on('connection', function (socket) {
 
                                     senderData = resultChat[0];
 
-                                    io.sockets.to('individualJoin-' + senderId).emit('messageAcknowledge', senderData);
+                                    io.sockets.to(roomId).emit('messageAcknowledge', senderData);
                                 });
 
                                 let sqlGetReceiverUser = "SELECT `id`, `name`, `user_name`, `email`, `profile` FROM `" + modelUsers + "` WHERE `id` = '" + receiverId + "' LIMIT 1";
 
                                 connection.query(sqlGetReceiverUser, async function (err7, resultReceiverUser, fields) {
                                     if (err7) {
-                                        io.emit('error', {error: err7.message});
-                                        return false;
-                                        isError = true;
-                                    };
+                                        return errorFun(err7.message);
+                                    }
 
                                     // receiverData = {type: "new-message", message: resultChat[0], 'user': resultReceiverUser[0]};
                                     resultChat[0].sender_id  = senderId;
@@ -224,7 +217,7 @@ io.on('connection', function (socket) {
 
                                     receiverData = resultChat[0];
 
-                                    io.sockets.to('individualJoin-' + receiverId).emit('messageRecieve', receiverData);
+                                    io.sockets.to(roomId).emit('messageRecieve', receiverData);
                                 });
                             });
                         });
@@ -235,14 +228,127 @@ io.on('connection', function (socket) {
 
                         connection.query(sqlGetChatHistory, function (err9, resultChatHistory, fields) {
                             if (err9) {
-                                io.emit('error', {error: err9.message});
-                                return false;
-                                isError = true;
+                                return errorFun(err9.message);
                             }
 
-                            io.sockets.to('individualJoin-' + senderId).emit('messageDetails', resultChatHistory);
+                            io.sockets.to(roomId).emit('messageDetails', resultChatHistory);
                         });
                     });
+                }
+            });
+
+            connection.release();
+        });
+    });
+
+    isError = false;
+
+    socket.on('groupJoin', function(groupData) {
+        if (typeof groupData.groupId === typeof undefined) {
+            io.emit('error', {error: "Provide groupId."});
+            isError = true;
+            return false;
+        }
+
+        try {
+            var senderId = groupData.senderId,
+                groupId  = groupData.groupId;
+        } catch(error) {
+            io.emit('error', {error: "Provide senderId and groupId."});
+            isError = true;
+            return false;
+        }
+
+        // Join Rooms
+        var roomId = 'groupJoin-' + groupId;
+        socket.join(roomId);
+
+        // Emit room id.
+        io.sockets.to(roomId).emit('roomId', {id: roomId});
+
+        // Create room.
+        var uuid            = generateUuid(10),
+            now             = mysqlDate(new Date()),
+            timestampsQuery = "`created_at` = '" + now + "', `updated_at` = '" + now + "'",
+            chatRoomId      = groupId,
+            chatRoomUserId  = false,
+            socketIds       = [];
+
+        // Error Handling.
+        var errorFun = function(errMessage) {
+            io.sockets.to(roomId).emit('error-' + senderId, {error: errMessage});
+
+            isError = true;
+
+            socket.leave(roomId);
+
+            return false;
+        };
+
+        con.getConnection(function(err, connection) {
+            if (err) {
+                return errorFun(err.message);
+            }
+
+            // Check is exists.
+            let sqlCheckRooms = "SELECT * FROM `" + modelChatRooms + "` WHERE `id` = '" + chatRoomId + "' LIMIT 1";
+            connection.query(sqlCheckRooms, async function (err1, chatRooms) {
+                if (err1) {
+                    return errorFun(err1.message);
+                }
+
+                if (chatRooms.length <= 0) {
+                    return errorFun("Group not found.");
+                }
+            });
+
+            let sqlCheckRoomUser = "SELECT * FROM `" + modelChatRoomUsers + "` WHERE `chat_room_id` = '" + chatRoomId + "' AND `sender_id` = '" + senderId + "' LIMIT 1";
+
+            connection.query(sqlCheckRoomUser, async function (err2, chatRoomUser) {
+                if (err2) {
+                    return errorFun(err2.message);
+                }
+
+                if (chatRoomUser.length <= 0) {
+                    return errorFun("User not added in this group.");
+                } else {
+                    chatRoomUserId = chatRoomUser[0].id;
+
+                    if (!isError) {
+                        socketIds[senderId] = socket.id;
+
+                        socket.on("messageSend", function(message) {
+                            let sqlQuery  = "INSERT INTO `" + modelChats + "` SET `message` = '" + message.message + "', `chat_room_id` = '" + chatRoomId + "', `chat_room_user_id` = '" + chatRoomUserId + "', " + timestampsQuery;
+
+                            connection.query(sqlQuery, async function (err3, insertChat, fields) {
+                                if (err3) {
+                                    return errorFun(err3.message);
+                                }
+
+                                let sqlGetChat = "SELECT c.id, c.message, ca.mime_type, ca.attachment, ca.url, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' ELSE NULL END AS message_type FROM `" + modelChats + "` AS c LEFT JOIN `" + modelChatAttachment + "` AS ca ON c.id = ca.chat_id WHERE c.`id` = '" + insertChat.insertId + "' LIMIT 1";
+
+                                connection.query(sqlGetChat, async function (err4, resultChat, fields) {
+                                    if (err4) {
+                                        return errorFun(err4.message);
+                                    }
+
+                                    var senderData   = {},
+                                        receiverData = {};
+
+                                    resultChat[0].sender_id = senderId;
+                                    resultChat[0].groupId   = chatRoomId;
+
+                                    senderData = resultChat[0];
+
+                                    io.sockets.to(roomId).emit('messageAcknowledge-' + senderId, senderData);
+
+                                    receiverData = resultChat[0];
+
+                                    io.sockets.to(roomId).emit('messageRecieve', receiverData);
+                                });
+                            });
+                        });
+                    }
                 }
             });
 

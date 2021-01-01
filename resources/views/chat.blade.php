@@ -45,20 +45,23 @@
     var chatRoute = '{{ route("user.chat.send") }}';
     var senderId   = '{{ $userId }}';
     var receiverId = '{{ $sendBy }}';
+    var groupId = '30';
 
     socket.on('connect', function() {
         console.log("connected !!");
 
-        socket.emit('individualJoin', {'senderId': senderId, 'receiverId': receiverId});
+        // socket.emit('individualJoin', {'senderId': senderId, 'receiverId': receiverId});
+
+        socket.emit('groupJoin', {groupId: groupId, 'senderId': senderId});
 
         socket.emit('doOnline', senderId);
 
-        socket.on('error', function (data) {
-            // console.log(data);
+        socket.on('error-' + senderId, function (data) {
+            console.log(data);
         });
 
         socket.on('roomId', function (data) {
-            // console.log(data);
+            // console.log('roomId : ' + data);
         });
 
         /*socket.emit('messageHistory');
@@ -68,15 +71,24 @@
         });*/
 
         socket.on('messageRecieve', function (data) {
-            // console.log("messageRecieve");
-            // console.log(data);
+            console.log("messageRecieve");
+            console.log(data);
 
-            $( "#messages" ).append( "<strong> TEST :</strong><p>"+data.message+"</p>" );
+            if (data.sender_id != senderId) {
+                $( "#messages" ).append( "<strong> TEST :</strong><p>"+data.message+"</p>" );
+            }
         });
 
-        socket.on('messageAcknowledge', function (data) {
-            // console.log("messageAcknowledge");
-            // console.log(data);
+        /*socket.on('messageAcknowledge', function (data) {
+            console.log("messageAcknowledge");
+            console.log(data);
+
+            $( "#messages" ).append( "<strong> TEST :</strong><p>"+data.message+"</p>" );
+        });*/
+
+        socket.on('messageAcknowledge-' + senderId, function (data) {
+            console.log("messageAcknowledge");
+            console.log(data);
 
             $( "#messages" ).append( "<strong> TEST :</strong><p>"+data.message+"</p>" );
         });
