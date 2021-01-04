@@ -69,9 +69,9 @@
                     @enderror
                 </div>
             </div>
-            @if(!empty($user->profile_pic))
+            @if(!empty($user->profile))
                 <div class="">
-                    <img width="250" src="{{ URL::asset('storage/admin-profile/'. $user->profile_pic) }}">
+                    <img width="250" src="{{ URL::asset('storage/admin-profile/'. $user->profile) }}">
                 </div>
             @endif
             <div class="form-group">

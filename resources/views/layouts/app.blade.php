@@ -60,7 +60,7 @@
                             <div class="widget-content-left">
                                 <div class="btn-group">
                                     <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="p-0 btn">
-                                    <img width="42" class="rounded-circle" src="{{ !empty(Auth::user()->profile_pic) ? URL::asset('storage/admin-profile/'. Auth::user()->profile_pic) : asset('assets/images/avatars/2.jpg') }}" alt="">
+                                    <img width="42" class="rounded-circle" src="{{ !empty(Auth::user()->profile) ? URL::asset('storage/admin-profile/'. Auth::user()->profile) : asset('assets/images/avatars/2.jpg') }}" alt="">
                                     <i class="fa fa-angle-down ml-2 opacity-8"></i>
                                     </a>
                                     <div tabindex="-1" role="menu" aria-hidden="true" class="rm-pointers dropdown-menu-lg dropdown-menu dropdown-menu-right">
@@ -71,7 +71,7 @@
                                                     <div class="widget-content p-0">
                                                         <div class="widget-content-wrapper">
                                                             <div class="widget-content-left mr-3">
-                                                                <img width="42" class="rounded-circle" src="{{ !empty(Auth::user()->profile_pic) ? URL::asset('storage/admin-profile/'. Auth::user()->profile_pic) : asset('assets/images/avatars/2.jpg') }}" alt="">
+                                                                <img width="42" class="rounded-circle" src="{{ !empty(Auth::user()->profile) ? URL::asset('storage/admin-profile/'. Auth::user()->profile) : asset('assets/images/avatars/2.jpg') }}" alt="">
                                                             </div>
                                                             <div class="widget-content-left">
                                                                 <div class="widget-heading">{{ ucfirst(Auth::user()->name) }}</div>
