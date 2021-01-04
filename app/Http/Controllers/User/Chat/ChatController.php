@@ -191,9 +191,11 @@ class ChatController extends BaseController
 
     public function getUsersList(Request $request)
     {
-        $model              = new User();
-        $modelChatRoomUsers = new ChatRoomUser();
-        $modelChats         = new Chat();
+        $model                = new User();
+        $modelChatRoomUsers   = new ChatRoomUser();
+        $modelChats           = new Chat();
+        $modelChatRooms       = new ChatRoom();
+        $modelChatAttachments = new ChatAttachment();
 
         $userId = $request->get('user_id', false);
 
@@ -203,29 +205,97 @@ class ChatController extends BaseController
 
         $storageFolderName = (str_ireplace("\\", "/", $model->profile));
 
-        $records = DB::select("SELECT u.id, u.profile, u.name, c.updated_at AS recent_time, c.message AS recent_message from `" . $model->getTableName() . "` AS u
+        /*$records = DB::select("SELECT u.id, u.profile, u.name, c.updated_at AS recent_time, c.message AS recent_message from `" . $model->getTableName() . "` AS u
                     JOIN `" . $modelChatRoomUsers::getTableName() . "` AS crm ON u.id = crm.sender_id OR u.id = crm.receiver_id
                     LEFT JOIN `" . $modelChats::getTableName() . "` AS c ON crm.id = c.chat_room_user_id AND c.updated_at = (SELECT (MAX(c2.updated_at)) FROM `" . $modelChats::getTableName() . "` AS c2 WHERE crm.id = c2.chat_room_user_id LIMIT 1)
                     WHERE u.id != '" . $userId . "'
                     GROUP BY u.id
                     ORDER BY c.updated_at DESC
-            ");
+            ");*/
+
+        $records = $modelChats::selectRaw("{$modelChats::getTableName()}.id, {$modelChatRoomUsers::getTableName()}.sender_id, {$modelChatRoomUsers::getTableName()}.receiver_id, {$modelChatRooms::getTableName()}.id as chat_room_id, {$modelChats::getTableName()}.updated_at, CASE WHEN {$modelChatAttachments::getTableName()}.mime_type != '' && {$modelChatAttachments::getTableName()}.attachment != '' THEN 'Attachment Sent' WHEN {$modelChatAttachments::getTableName()}.url != '' THEN 'URL Sent' WHEN {$modelChatAttachments::getTableName()}.name != '' && {$modelChatAttachments::getTableName()}.contacts != '' THEN 'Contact Sent' ELSE {$modelChats::getTableName()}.message END AS recent_message, {$modelChatRooms::getTableName()}.is_group, {$modelChatRooms::getTableName()}.title")
+                              ->join($modelChatRoomUsers::getTableName(), $modelChats::getTableName() . '.chat_room_user_id', '=', $modelChatRoomUsers::getTableName() . '.id')
+                              ->join($modelChatRooms::getTableName(), $modelChatRoomUsers::getTableName() . '.chat_room_id', '=', $modelChatRooms::getTableName() . '.id')
+                              ->leftJoin($modelChatAttachments::getTableName(), $modelChats::getTableName() . '.id', '=', $modelChatAttachments::getTableName() . '.chat_id')
+                              ->whereRaw($modelChatRoomUsers::getTableName() . '.receiver_id = ' . $userId . ' OR ' . $modelChatRoomUsers::getTableName() . '.sender_id = ' . $userId)
+                              ->where($modelChatRooms::getTableName() . '.is_group', $modelChatRooms::IS_NOT_GROUP)
+                              ->orderBy($modelChats::getTableName() . '.updated_at', 'ASC')
+                              ->get();
+
+        $returnDatas = [];
 
         if (!empty($records)) {
-            foreach ($records as &$record) {
-                if (!empty($record->recent_time) && strtotime($record->recent_time) > 0) {
-                    $record->recent_time = strtotime($record->recent_time) * 1000;
+            $userIds = $records->pluck('sender_id');
+            $userIds = $userIds->merge($records->pluck('receiver_id'));
+            $users   = $model::selectRaw('*, profile as profile_image')->whereIn('id', $userIds->unique())->get()->keyBy('id');
+
+            $records->map(function($data) use($users, $userId, $storageFolderName, &$returnDatas) {
+                $user = false;
+
+                if ($data->sender_id == $userId) {
+                    if (!empty($users[$data->receiver_id])) {
+                        $user = $users[$data->receiver_id];
+                    }
+                } elseif (!empty($users[$data->sender_id])) {
+                    $user = $users[$data->sender_id];
                 }
 
-                if (empty($record->profile)) {
-                    continue;
+                if (!empty($user)) {
+                    $returnDatas[$user->id] = [
+                        'sender_id'         => $data->sender_id,
+                        'receiver_id'       => $data->receiver_id,
+                        'chat_id'           => $data->id,
+                        'chat_room_id'      => $data->chat_room_id,
+                        'name'              => $user->name,
+                        'profile'           => Storage::disk($user->fileSystem)->url($storageFolderName . '/' . $user->profile_image),
+                        'recent_time'       => strtotime($data->updated_at) * 1000,
+                        'recent_message'    => $data->recent_message,
+                        'is_group'          => $data->is_group,
+                        'is_online'         => $user->is_online,
+                        'socket_id'         => $user->socket_id,
+                        'title'             => $data->title
+                    ];
                 }
-
-                $record->profile = Storage::disk($model->fileSystem)->url($storageFolderName . '/' . $record->profile);
-            }
+            });
         }
 
-        return $this->returnSuccess(__('User chat list get successfully!'), $records);
+        $records = $modelChatRooms::selectRaw("{$modelChats::getTableName()}.id, {$modelChatRooms::getTableName()}.id as chat_room_id, {$modelChats::getTableName()}.updated_at, CASE WHEN {$modelChatAttachments::getTableName()}.mime_type != '' && {$modelChatAttachments::getTableName()}.attachment != '' THEN 'Attachment Sent' WHEN {$modelChatAttachments::getTableName()}.url != '' THEN 'URL Sent' WHEN {$modelChatAttachments::getTableName()}.name != '' && {$modelChatAttachments::getTableName()}.contacts != '' THEN 'Contact Sent' ELSE {$modelChats::getTableName()}.message END AS recent_message, {$modelChatRooms::getTableName()}.is_group, {$modelChatRooms::getTableName()}.title")
+                              ->join($modelChatRoomUsers::getTableName(), $modelChatRooms::getTableName() . '.id', '=', $modelChatRoomUsers::getTableName() . '.chat_room_id')
+                              ->leftJoin($modelChats::getTableName(), $modelChatRooms::getTableName() . '.id', '=', $modelChats::getTableName() . '.chat_room_id')
+                              ->leftJoin($modelChatAttachments::getTableName(), $modelChats::getTableName() . '.id', '=', $modelChatAttachments::getTableName() . '.chat_id')
+                              ->where($modelChatRooms::getTableName() . '.is_group', $modelChatRooms::IS_GROUP)
+                              ->where($modelChatRoomUsers::getTableName() . '.sender_id', $userId)
+                              ->orderBy($modelChats::getTableName() . '.updated_at', 'ASC')
+                              ->get();
+
+        $returnGroupDatas = [];
+
+        if (!empty($records)) {
+            $records->map(function($data) use(&$returnGroupDatas) {
+                $returnGroupDatas[$data->chat_room_id] = [
+                    'chat_id'           => $data->id,
+                    'chat_room_id'      => $data->chat_room_id,
+                    'recent_time'       => strtotime($data->updated_at) * 1000,
+                    'recent_message'    => $data->recent_message,
+                    'is_group'          => $data->is_group,
+                    'title'             => $data->title
+                ];
+            });
+        }
+
+        $return = array_merge($returnDatas, $returnGroupDatas);
+
+        // Sortings.
+        if (!empty($return)) {
+            usort($return, function($a, $b) {
+                $t1 = $a['recent_time'];
+                $t2 = $b['recent_time'];
+
+                return $t2 - $t1;
+            });
+        }
+
+        return $this->returnSuccess(__('User chat list get successfully!'), $return);
     }
 
     public function getUserHistory(Request $request)

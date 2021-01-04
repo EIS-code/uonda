@@ -25,7 +25,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name', 'user_name', 'email', 'password', 'referral_code', 'current_location', 'nation', 'gender', 'birthday', 'school_id', 'state_id', 'country_id', 'city_id',
-        'current_status', 'company', 'job_position', 'university', 'field_of_study', 'profile', 'personal_flag', 'school_flag', 'other_flag', 'latitude', 'longitude', 'device_token', 'device_type', 'app_version', 'oauth_uid', 'oauth_provider'
+        'current_status', 'company', 'job_position', 'university', 'field_of_study', 'profile', 'personal_flag', 'school_flag', 'other_flag', 'latitude', 'longitude', 'device_token', 'device_type', 'app_version', 'oauth_uid', 'oauth_provider', 'is_online'
     ];
 
     /**
@@ -166,7 +166,9 @@ class User extends Authenticatable
             'device_type'     => array_merge(['string'], !empty($requiredFileds['device_type']) ? $requiredFileds['device_type'] : ['nullable']),
             'app_version'     => array_merge(['string'], !empty($requiredFileds['app_version']) ? $requiredFileds['app_version'] : ['nullable']),
             'oauth_uid'       => array_merge(['string', 'unique:' . $this->getTableName() . ',oauth_uid'], !empty($requiredFileds['oauth_uid']) ? $requiredFileds['oauth_uid'] : ['nullable']),
-            'oauth_provider'  => array_merge(['in:' . implode(",", array_keys($this->oauthProviders))], !empty($requiredFileds['oauth_provider']) ? $requiredFileds['oauth_provider'] : ['nullable'])
+            'oauth_provider'  => array_merge(['in:' . implode(",", array_keys($this->oauthProviders))], !empty($requiredFileds['oauth_provider']) ? $requiredFileds['oauth_provider'] : ['nullable']),
+            'is_online'       => array_merge(['string', 'unique:' . $this->getTableName() . ',is_online'], !empty($requiredFileds['is_online']) ? $requiredFileds['is_online'] : ['nullable']),
+            'socket_id'       => array_merge(['string', 'unique:' . $this->getTableName() . ',socket_id'], !empty($requiredFileds['socket_id']) ? $requiredFileds['socket_id'] : ['nullable']),
         ], $extraFields));
 
         if ($returnBoolsOnly === true) {

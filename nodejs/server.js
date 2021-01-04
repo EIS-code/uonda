@@ -65,7 +65,24 @@ io.on('connection', function (socket) {
         // Set online users.
         onlineUsers[socket.id] = userId;
 
-        io.sockets.emit('getOnline', onlineUsers);
+        con.getConnection(function(err10, connection) {
+            if (err10) {
+                io.emit('error', {error: err10.message});
+                return false;
+                isError = true;
+            }
+
+            let sqlSetOnline = "UPDATE " + modelUsers + " SET `is_online` = '1', `socket_id` = '" + socket.id + "' WHERE `id` = '" + userId + "'";
+            connection.query(sqlSetOnline, function (err11, setOnline) {
+                if (err11) {
+                    io.emit('error', {error: err11.message});
+                    return false;
+                    isError = true;
+                }
+
+                io.sockets.emit('getOnline', onlineUsers);
+            });
+        });
     });
 
     socket.on('individualJoin', function(joinData) {
@@ -170,6 +187,9 @@ io.on('connection', function (socket) {
 
                 if (!isError) {
                     socket.on("messageSend", function(message) {
+                        let now             = mysqlDate(new Date()),
+                            timestampsQuery = "`created_at` = '" + now + "', `updated_at` = '" + now + "'";
+
                         let sqlQuery  = "INSERT INTO `" + modelChats + "` SET `message` = '" + message.message + "', `chat_room_id` = '" + chatRoomId + "', `chat_room_user_id` = '" + chatRoomUserId + "', " + timestampsQuery;
 
                         connection.query(sqlQuery, async function (err4, insertChat, fields) {
@@ -217,14 +237,15 @@ io.on('connection', function (socket) {
 
                                     receiverData = resultChat[0];
 
-                                    io.sockets.to(roomId).emit('messageRecieve', receiverData);
+                                    io.sockets.to('individualJoin-' + receiverId).emit('messageRecieve', receiverData);
+                                    // io.sockets.to(roomId).emit('messageRecieve', receiverData);
                                 });
                             });
                         });
                     });
 
                     socket.on("messageHistory", function() {
-                        let sqlGetChatHistory = "SELECT c.id, c.message, cru.sender_id, cru.receiver_id, CASE cru.sender_id WHEN '4' THEN 'sender' ELSE 'receiver' END AS sender_receiver_flag, c.created_at, c.updated_at FROM `" + modelChatRoomUsers + "` AS cru JOIN `" + modelChats + "` AS c ON cru.id = c.chat_room_user_id WHERE ((cru.`sender_id` = '" + senderId + "' AND cru.`receiver_id` = '" + receiverId + "') OR (cru.`sender_id` = '" + receiverId + "' AND cru.`receiver_id` = '" + senderId + "'))";
+                        let sqlGetChatHistory = "SELECT c.id, c.message, cru.sender_id, cru.receiver_id, CASE cru.sender_id WHEN '" + senderId + "' THEN 'sender' ELSE 'receiver' END AS sender_receiver_flag, c.created_at, c.updated_at FROM `" + modelChatRoomUsers + "` AS cru JOIN `" + modelChats + "` AS c ON cru.id = c.chat_room_user_id WHERE ((cru.`sender_id` = '" + senderId + "' AND cru.`receiver_id` = '" + receiverId + "') OR (cru.`sender_id` = '" + receiverId + "' AND cru.`receiver_id` = '" + senderId + "'))";
 
                         connection.query(sqlGetChatHistory, function (err9, resultChatHistory, fields) {
                             if (err9) {
@@ -318,6 +339,9 @@ io.on('connection', function (socket) {
                         socketIds[senderId] = socket.id;
 
                         socket.on("messageSend", function(message) {
+                            let now             = mysqlDate(new Date()),
+                                timestampsQuery = "`created_at` = '" + now + "', `updated_at` = '" + now + "'";
+
                             let sqlQuery  = "INSERT INTO `" + modelChats + "` SET `message` = '" + message.message + "', `chat_room_id` = '" + chatRoomId + "', `chat_room_user_id` = '" + chatRoomUserId + "', " + timestampsQuery;
 
                             connection.query(sqlQuery, async function (err3, insertChat, fields) {
@@ -364,9 +388,38 @@ io.on('connection', function (socket) {
     socket.on('disconnect', function() {
         console.log('Disconnected. SocetId : ' + socket.id);
 
-        delete onlineUsers[socket.id];
+        let userId = false;
 
-        io.sockets.emit('getOnline', onlineUsers);
+        try {
+            userId = onlineUsers[socket.id];
+        } catch (e) {
+            /*io.emit('error', {error: "UserId not found while disconnect."});
+            return false;
+            isError = true;*/
+        }
+
+        if (userId) {
+            con.getConnection(function(err12, connection) {
+                if (err12) {
+                    io.emit('error', {error: err12.message});
+                    return false;
+                    isError = true;
+                }
+
+                let sqlSetOnline = "UPDATE " + modelUsers + " SET `is_online` = '0', `socket_id` = '' WHERE `id` = '" + userId + "' AND `socket_id` = '" + socket.id + "'";
+                connection.query(sqlSetOnline, function (err13, setOnline) {
+                    if (err13) {
+                        io.emit('error', {error: err13.message});
+                        return false;
+                        isError = true;
+                    }
+
+                    delete onlineUsers[socket.id];
+
+                    io.sockets.emit('getOnline', onlineUsers);
+                });
+            });
+        }
     });
 });
 
