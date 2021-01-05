@@ -113,6 +113,9 @@ Route::group(['middleware' => ['web.auth.api']], function () {
         Route::group(['prefix' => 'screenshot'], function () {
             Route::post('/store', 'NotificationController@storeScreenshot')->name('notification.store.screenshot');
         });
+
+        Route::post('/ios/test', 'NotificationController@testIOS')->name('user.notifications.test.ios');
+        Route::post('/android/test', 'NotificationController@testAndroid')->name('user.notifications.test.android');
     });
 
     Route::group(['prefix' => 'contactus', 'namespace' => 'ContactUs'], function () {
