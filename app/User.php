@@ -327,4 +327,33 @@ class User extends Authenticatable
 
         return !empty($checkBlocked);
     }
+
+    public static function setDeviceInfos(array $data = [])
+    {
+        $userId = !empty($data['user_id']) ? (int)$data['user_id'] : false;
+
+        if (empty($userId)) {
+            return false;
+        }
+
+        $user = self::find($userId);
+
+        if (empty($user)) {
+            return false;
+        }
+
+        if (!empty($data['device_token'])) {
+            $user->device_token = $data['device_token'];
+        }
+
+        if (!empty($data['device_type'])) {
+            $user->device_type = $data['device_type'];
+        }
+
+        if (!empty($data['app_version'])) {
+            $user->app_version = $data['app_version'];
+        }
+
+        return $user->save();
+    }
 }

@@ -338,6 +338,10 @@ class UserController extends BaseController
             // Generate API key.
             ApiKey::generateKey($user->id);
 
+            // Set device informations if request having.
+            $data['user_id'] = $user->id;
+            $model::setDeviceInfos($data);
+
             return $this->returnSuccess(__('Logged in successfully!'), $this->getDetails($user->id, false, true));
         } elseif ($isOauthLogin) {
             $this->errorCode = 402;
@@ -377,6 +381,9 @@ class UserController extends BaseController
             array_push($user->appends, 'school_name');
 
             if ($isApi) {
+                // Set device informations if request having.
+                $model::setDeviceInfos(request()->all());
+
                 return $this->returnSuccess(__('User details get successfully!'), $user);
             }
 
