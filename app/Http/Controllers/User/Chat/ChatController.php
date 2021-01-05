@@ -84,14 +84,15 @@ class ChatController extends BaseController
         $data                = $request->all();
         $userId              = !empty($data['user_id']) ? (int)$data['user_id'] : false;
         $receiverId          = !empty($data['receiver_id']) ? (int)$data['receiver_id'] : false;
+        $groupId             = !empty($data['group_id']) ? (int)$data['group_id'] : false;
         $isInserted          = false;
 
         if (empty($userId)) {
             return $this->returnError(__('User id required.'));
         }
 
-        if (empty($receiverId)) {
-            return $this->returnError(__('Receiver id required.'));
+        if (empty($receiverId) && empty($groupId)) {
+            return $this->returnError(__('Receiver id or Group id required.'));
         }
 
         if (!empty($data['name']) && empty($data['contacts'])) {
@@ -103,30 +104,51 @@ class ChatController extends BaseController
         }
 
         if (!empty($data)) {
-            $roomUser = $modelChatRoomUser->where(function($query) use($userId, $receiverId) {
-                $query->where(['sender_id' => $userId, 'receiver_id' => $receiverId])
-                      ->orWhere(function($query1) use($userId, $receiverId) {
-                          $query1->where(['sender_id' => $receiverId, 'receiver_id' => $userId]);
-                      });
-            })->first();
+            $group = "";
 
-            if (empty($roomUser)) {
-                $chatRoom   = $modelChatRoom->create(['uuid' => $model->generateUuid(10)]);
+            if (!empty($receiverId)) {
+                $roomUser = $modelChatRoomUser->where(function($query) use($userId, $receiverId) {
+                    $query->where(['sender_id' => $userId, 'receiver_id' => $receiverId])
+                          ->orWhere(function($query1) use($userId, $receiverId) {
+                              $query1->where(['sender_id' => $receiverId, 'receiver_id' => $userId]);
+                          });
+                })->first();
 
-                $chatRoomId = $chatRoom->id;
+                if (empty($roomUser)) {
+                    $chatRoom   = $modelChatRoom->create(['uuid' => $model->generateUuid(10)]);
+
+                    $chatRoomId = $chatRoom->id;
+                } else {
+                    $chatRoomId     = $roomUser->chat_room_id;
+                    $chatRoomUserId = $roomUser->id;
+                }
+
+                $chatRoomUser = $modelChatRoomUser->where('sender_id', $userId)->where('receiver_id', $receiverId)->first();
+
+                if (empty($chatRoomUser)) {
+                    $chatRoomUser = $modelChatRoomUser->create(['chat_room_id' => $chatRoomId, 'sender_id' => $userId, 'receiver_id' => $receiverId]);
+
+                    $chatRoomUserId = $chatRoomUser->id;
+                } else {
+                    $chatRoomUserId = $chatRoomUser->id;
+                }
             } else {
-                $chatRoomId     = $roomUser->chat_room_id;
-                $chatRoomUserId = $roomUser->id;
-            }
+                $chatRoom = $modelChatRoom::find($groupId);
 
-            $chatRoomUser = $modelChatRoomUser->where('sender_id', $userId)->where('receiver_id', $receiverId)->first();
+                if (empty($chatRoom)) {
+                    return $this->returnError(__('Group not found.'));
+                }
 
-            if (empty($chatRoomUser)) {
-                $chatRoomUser = $modelChatRoomUser->create(['chat_room_id' => $chatRoomId, 'sender_id' => $userId, 'receiver_id' => $receiverId]);
+                $chatRoomUser = $modelChatRoomUser::where('chat_room_id', (int)$groupId)->where('sender_id', (int)$userId)->first();
+
+                if (empty($chatRoomUser)) {
+                    return $this->returnError(__('User not added in this group.'));
+                }
 
                 $chatRoomUserId = $chatRoomUser->id;
-            } else {
-                $chatRoomUserId = $chatRoomUser->id;
+                $chatRoomId     = $groupId;
+
+                $group = __('group');
             }
 
             // Chat.
@@ -153,30 +175,30 @@ class ChatController extends BaseController
                             $isInserted = $modelChatAttachment->create(['mime_type' => $mimeType, 'attachment' => $fileName, 'chat_id' => $chatId]);
 
                             if ($isInserted) {
-                                return $this->returnSuccess(__('Chat attachment inserted successfully!'), $isInserted);
+                                return $this->returnSuccess(__('Chat ' . $group . ' attachment inserted successfully!'), $isInserted);
                             }
                         }
                     }
 
-                    return $this->returnError(__('Chat attachment doesn\'t inserted. Try again.'));
+                    return $this->returnError(__('Chat ' . $group . ' attachment doesn\'t inserted. Try again.'));
 
                 } elseif (!empty($data['url'])) {
                     $isInserted = $modelChatAttachment->create(['url' => $data['url'], 'chat_id' => $chatId]);
 
                     if ($isInserted) {
-                        return $this->returnSuccess(__('Chat URL inserted successfully!'), $isInserted);
+                        return $this->returnSuccess(__('Chat ' . $group . ' URL inserted successfully!'), $isInserted);
                     }
 
-                    return $this->returnError(__('Chat URL doesn\'t inserted. Try again.'));
+                    return $this->returnError(__('Chat ' . $group . ' URL doesn\'t inserted. Try again.'));
 
                 } elseif (!empty($data['name']) && !empty($data['contacts'])) {
                     $isInserted = $modelChatAttachment->create(['name' => $data['name'], 'contacts' => $data['contacts'], 'chat_id' => $chatId]);
 
                     if ($isInserted) {
-                        return $this->returnSuccess(__('Chat contact inserted successfully!'), $isInserted);
+                        return $this->returnSuccess(__('Chat ' . $group . ' contact inserted successfully!'), $isInserted);
                     }
 
-                    return $this->returnError(__('Chat contact doesn\'t inserted. Try again.'));
+                    return $this->returnError(__('Chat ' . $group . ' contact doesn\'t inserted. Try again.'));
 
                 }
             }
@@ -303,25 +325,41 @@ class ChatController extends BaseController
         $modelChatRoomUsers  = new ChatRoomUser();
         $modelChats          = new Chat();
         $modelChatAttachment = new ChatAttachment();
+        $modelChatRooms      = new ChatRoom();
+        $model               = new User();
         $data                = $request->all();
 
         $userId     = !empty($data['user_id']) ? (int)$data['user_id'] : false;;
         $receiverId = !empty($data['receiver_id']) ? (int)$data['receiver_id'] : false;
+        $groupId    = !empty($data['group_id']) ? (int)$data['group_id'] : false;
 
         if (empty($userId)) {
             return $this->returnError(__("User id required."));
         }
 
-        if (empty($receiverId)) {
-            return $this->returnError(__('Receiver id required.'));
+        if (empty($receiverId) && empty($groupId)) {
+            return $this->returnError(__('Receiver id or Group id required.'));
         }
 
         // , CASE cru.sender_id WHEN '4' THEN 'sender' ELSE 'receiver' END AS sender_receiver_flag
 
-        $records = DB::select("SELECT c.id, c.message, cru.sender_id, cru.receiver_id, c.created_at, c.updated_at, ca.mime_type, ca.attachment, ca.url, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' ELSE NULL END AS message_type FROM `" . $modelChatRoomUsers::getTableName() . "` AS cru JOIN `" . $modelChats::getTableName() . "` AS c ON cru.id = c.chat_room_user_id LEFT JOIN `" . $modelChatAttachment::getTableName() . "` AS ca ON c.id = ca.chat_id WHERE ((cru.`sender_id` = '" . $userId . "' AND cru.`receiver_id` = '" . $receiverId . "') OR (cru.`sender_id` = '" . $receiverId . "' AND cru.`receiver_id` = '" . $userId . "'))");
+        if (!empty($receiverId)) {
+            $records = DB::select("SELECT c.id, c.message, cru.sender_id, cru.receiver_id, c.created_at, c.updated_at, ca.mime_type, ca.attachment, ca.url, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' ELSE NULL END AS message_type FROM `" . $modelChatRoomUsers::getTableName() . "` AS cru JOIN `" . $modelChats::getTableName() . "` AS c ON cru.id = c.chat_room_user_id LEFT JOIN `" . $modelChatAttachment::getTableName() . "` AS ca ON c.id = ca.chat_id WHERE ((cru.`sender_id` = '" . $userId . "' AND cru.`receiver_id` = '" . $receiverId . "') OR (cru.`sender_id` = '" . $receiverId . "' AND cru.`receiver_id` = '" . $userId . "'))
+                ORDER BY c.updated_at ASC");
+        } else {
+            $records = DB::select("SELECT c.id, c.message, cru.sender_id, cru.receiver_id, c.created_at, c.updated_at, ca.mime_type, ca.attachment, ca.url, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' WHEN c.message != '' THEN 'text' ELSE NULL END AS message_type, u.name as user_name, u.profile
+                FROM `" . $modelChatRoomUsers::getTableName() . "` AS cru
+                JOIN `" . $modelChats::getTableName() . "` AS c ON cru.id = c.chat_room_user_id
+                JOIN `" . $modelChatRooms::getTableName() . "` AS cr ON cru.chat_room_id = cr.id
+                JOIN `" . $model->getTableName() . "` AS u ON cru.sender_id = u.id
+                LEFT JOIN `" . $modelChatAttachment::getTableName() . "` AS ca ON c.id = ca.chat_id
+                WHERE cr.is_group = '" . $modelChatRooms::IS_GROUP . "' AND cr.id = '" . (int)$groupId . "'
+                ORDER BY c.updated_at ASC");
+        }
 
         if (!empty($records)) {
-            $storageFolderName = (str_ireplace("\\", "/", $modelChatAttachment->folder));
+            $storageFolderName     = (str_ireplace("\\", "/", $modelChatAttachment->folder));
+            $storageFolderNameUser = (str_ireplace("\\", "/", $model->profile));
 
             foreach ($records as &$record) {
                 if (!empty($record->created_at) && strtotime($record->created_at) > 0) {
@@ -335,6 +373,20 @@ class ChatController extends BaseController
                 if (!empty($record->attachment)) {
                     $record->attachment = Storage::disk($modelChatAttachment->fileSystem)->url($storageFolderName . '/' . $record->id . '/' . $record->attachment);;
                 }
+
+                if (!empty($record->profile)) {
+                    $record->profile = Storage::disk($model->fileSystem)->url($storageFolderNameUser . '/' . $record->profile);;
+                }
+            }
+
+            // Sortings.
+            if (!empty($records)) {
+                usort($records, function($a, $b) {
+                    $t1 = $a->updated_at;
+                    $t2 = $b->updated_at;
+
+                    return $t1 - $t2;
+                });
             }
         }
 
