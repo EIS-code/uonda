@@ -259,6 +259,16 @@ class User extends Authenticatable
         return Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $value);
     }
 
+    public function getProfileIconAttribute($value)
+    {
+        if (empty($value)) {
+            return $value;
+        }
+
+        $storageFolderName = (str_ireplace("\\", "/", $this->profileIcon));
+        return Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $value);
+    }
+
     public function getCountryNameAttribute()
     {
         $country = $this->country;
