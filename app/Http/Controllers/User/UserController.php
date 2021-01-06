@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\UploadedFile;
 use Carbon\Carbon;
 use DB;
+use Intervention\Image\ImageManagerStatic as Image;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends BaseController
 {
@@ -511,13 +513,26 @@ class UserController extends BaseController
                     $pathInfos = pathinfo($profile->getClientOriginalName());
 
                     if (!empty($pathInfos['extension'])) {
-                        $folder = $model->profile;
+                        $folder     = $model->profile;
+                        $folderIcon = $model->profileIcon;
 
                         if (!empty($folder)) {
                             $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
                             $storeFile = $profile->storeAs($folder, $fileName, $model->fileSystem);
 
                             if ($storeFile) {
+                                // Set 100 x 100 px icon for later use for example in Chats.
+                                $profileIcon = Image::make($profile)->fit(100)->encode($pathInfos['extension']);
+
+                                if ($profileIcon) {
+                                    $iconName  = time() . '.png';
+                                    $storeIcon = Storage::disk($model->fileSystem)->put($folderIcon . '\\' . $iconName, $profileIcon->__toString());
+
+                                    if ($storeIcon) {
+                                        $user->update(['profile_icon' => $iconName]);
+                                    }
+                                }
+
                                 $user->update(['profile' => $fileName]);
                             }
                         }

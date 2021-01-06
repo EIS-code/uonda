@@ -25,7 +25,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name', 'user_name', 'email', 'password', 'referral_code', 'current_location', 'nation', 'gender', 'birthday', 'school_id', 'state_id', 'country_id', 'city_id',
-        'current_status', 'company', 'job_position', 'university', 'field_of_study', 'profile', 'personal_flag', 'school_flag', 'other_flag', 'latitude', 'longitude', 'device_token', 'device_type', 'app_version', 'oauth_uid', 'oauth_provider', 'is_online'
+        'current_status', 'company', 'job_position', 'university', 'field_of_study', 'profile', 'profile_icon', 'personal_flag', 'school_flag', 'other_flag', 'latitude', 'longitude', 'device_token', 'device_type', 'app_version', 'oauth_uid', 'oauth_provider', 'is_online'
     ];
 
     /**
@@ -91,6 +91,7 @@ class User extends Authenticatable
     public $allowedProfileExtensions = ['jpg', 'jpeg', 'png', 'gif'];
     public $fileSystem               = 'public';
     public $profile                  = 'user\\profile';
+    public $profileIcon              = 'user\\profile\\icons';
 
     const OAUTH_NONE     = '0';
     const OAUTH_GOOGLE   = '1';
@@ -157,6 +158,7 @@ class User extends Authenticatable
             'university'       => array_merge(['string', 'max:255'], !empty($requiredFileds['university']) ? $requiredFileds['university'] : ['nullable']),
             'field_of_study'   => array_merge(['string', 'max:255'], !empty($requiredFileds['field_of_study']) ? $requiredFileds['field_of_study'] : ['nullable']),
             'profile'          => array_merge(['mimes:' . implode(",", $this->allowedProfileExtensions)], !empty($requiredFileds['profile']) ? $requiredFileds['profile'] : ['nullable']),
+            'profile_icon'     => array_merge(['mimes:' . implode(",", $this->allowedProfileExtensions)], !empty($requiredFileds['profile_icon']) ? $requiredFileds['profile_icon'] : ['nullable']),
             'personal_flag'    => array_merge(['nullable', 'in:' . implode(",", array_keys($this->personalFlags))], !empty($requiredFileds['personal_flag']) ? $requiredFileds['personal_flag'] : ['nullable']),
             'school_flag'      => array_merge(['nullable', 'in:' . implode(",", array_keys($this->schoolFlags))], !empty($requiredFileds['school_flag']) ? $requiredFileds['school_flag'] : ['nullable']),
             'other_flag'       => array_merge(['nullable', 'in:' . implode(",", array_keys($this->otherFlags))], !empty($requiredFileds['other_flag']) ? $requiredFileds['other_flag'] : ['nullable']),
