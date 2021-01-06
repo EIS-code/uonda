@@ -244,6 +244,36 @@ io.on('connection', function (socket) {
                         });
                     });
 
+                    socket.on("messageSendAttachment", function(data) {
+                        if (typeof data === typeof undefined) {
+                            return errorFun("Chat id is required.");
+                        } else if (typeof data.id === typeof undefined) {
+                            return errorFun("Chat id is required.");
+                        }
+
+                        try {
+                            var chatId = data.id;
+                        } catch(error) {
+                            return errorFun("Chat id is required.");
+                        }
+
+                        if (!isError) {
+                            let sqlGetChat = "SELECT c.id, c.message, ca.mime_type, ca.attachment, ca.url, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' ELSE NULL END AS message_type FROM `" + modelChats + "` AS c LEFT JOIN `" + modelChatAttachment + "` AS ca ON c.id = ca.chat_id WHERE c.`id` = '" + chatId + "' LIMIT 1";
+
+                            connection.query(sqlGetChat, async function (err14, resultChat, fields) {
+                                if (err14) {
+                                    return errorFun(err14.message);
+                                }
+
+                                resultChat[0].sender_id  = senderId;
+                                resultChat[0].receiverId = receiverId;
+
+                                io.sockets.to(roomId).emit('messageAcknowledge', resultChat[0]);
+                                io.sockets.to('individualJoin-' + receiverId).emit('messageRecieve', resultChat[0]);
+                            });
+                        }
+                    });
+
                     socket.on("messageHistory", function() {
                         let sqlGetChatHistory = "SELECT c.id, c.message, cru.sender_id, cru.receiver_id, CASE cru.sender_id WHEN '" + senderId + "' THEN 'sender' ELSE 'receiver' END AS sender_receiver_flag, c.created_at, c.updated_at FROM `" + modelChatRoomUsers + "` AS cru JOIN `" + modelChats + "` AS c ON cru.id = c.chat_room_user_id WHERE ((cru.`sender_id` = '" + senderId + "' AND cru.`receiver_id` = '" + receiverId + "') OR (cru.`sender_id` = '" + receiverId + "' AND cru.`receiver_id` = '" + senderId + "'))";
 
@@ -371,6 +401,36 @@ io.on('connection', function (socket) {
                                     io.sockets.to(roomId).emit('messageRecieve', receiverData);
                                 });
                             });
+                        });
+
+                        socket.on("messageSendAttachment", function(data) {
+                            if (typeof data === typeof undefined) {
+                                return errorFun("Chat id is required.");
+                            } else if (typeof data.id === typeof undefined) {
+                                return errorFun("Chat id is required.");
+                            }
+
+                            try {
+                                var chatId = data.id;
+                            } catch(error) {
+                                return errorFun("Chat id is required.");
+                            }
+
+                            if (!isError) {
+                                let sqlGetChat = "SELECT c.id, c.message, ca.mime_type, ca.attachment, ca.url, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' ELSE NULL END AS message_type FROM `" + modelChats + "` AS c LEFT JOIN `" + modelChatAttachment + "` AS ca ON c.id = ca.chat_id WHERE c.`id` = '" + chatId + "' LIMIT 1";
+
+                                connection.query(sqlGetChat, async function (err14, resultChat, fields) {
+                                    if (err14) {
+                                        return errorFun(err14.message);
+                                    }
+
+                                    resultChat[0].sender_id = senderId;
+                                    resultChat[0].groupId   = chatRoomId;
+
+                                    io.sockets.to(roomId).emit('messageAcknowledge-' + senderId, resultChat[0]);
+                                    io.sockets.to(roomId).emit('messageRecieve', resultChat[0]);
+                                });
+                            }
                         });
                     }
                 }

@@ -50,9 +50,9 @@
     socket.on('connect', function() {
         console.log("connected !!");
 
-        // socket.emit('individualJoin', {'senderId': senderId, 'receiverId': receiverId});
+        socket.emit('individualJoin', {'senderId': senderId, 'receiverId': receiverId});
 
-        socket.emit('groupJoin', {groupId: groupId, 'senderId': senderId});
+        // socket.emit('groupJoin', {groupId: groupId, 'senderId': senderId});
 
         socket.emit('doOnline', senderId);
 
@@ -79,19 +79,21 @@
             }
         });
 
-        /*socket.on('messageAcknowledge', function (data) {
-            console.log("messageAcknowledge");
-            console.log(data);
+        socket.emit('messageSendAttachment', {id: 234});
 
-            $( "#messages" ).append( "<strong> TEST :</strong><p>"+data.message+"</p>" );
-        });*/
-
-        socket.on('messageAcknowledge-' + senderId, function (data) {
+        socket.on('messageAcknowledge', function (data) {
             console.log("messageAcknowledge");
             console.log(data);
 
             $( "#messages" ).append( "<strong> TEST :</strong><p>"+data.message+"</p>" );
         });
+
+        /*socket.on('messageAcknowledge-' + senderId, function (data) {
+            console.log("messageAcknowledge");
+            console.log(data);
+
+            $( "#messages" ).append( "<strong> TEST :</strong><p>"+data.message+"</p>" );
+        });*/
 
         socket.on('getOnline', function (data) {
             console.log(data);
