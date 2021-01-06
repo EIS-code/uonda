@@ -16,6 +16,7 @@ class AuthApi
         'api/user/registration/personal',
         'api/user/registration/status',
         'api/user/registration/document',
+        'api/user/registration/documents',
         'api/location/get/country',
         'api/location/get/state',
         'api/location/get/city',

@@ -58,6 +58,25 @@ class UserDocument extends BaseModel
         return $validator;
     }
 
+    public function validators(array $data, $returnBoolsOnly = false)
+    {
+        $validator = Validator::make($data, [
+            'document_types.*' => ['required', 'in:' . implode(",", array_keys($this->documentTypes))],
+            'documents.*'      => ['required', 'mimes:' . implode(",", $this->allowedExtensions)],
+            'user_id'          => ['required', 'integer', 'exists:' . (new User())->getTableName() . ',id']
+        ]);
+
+        if ($returnBoolsOnly === true) {
+            if ($validator->fails()) {
+                \Session::flash('error', $validator->errors()->first());
+            }
+
+            return !$validator->fails();
+        }
+
+        return $validator;
+    }
+
     public function getDocumentAttribute($value)
     {
         if (empty($value)) {

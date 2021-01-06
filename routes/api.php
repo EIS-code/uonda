@@ -49,6 +49,7 @@ Route::group(['middleware' => ['web.auth.api']], function () {
             Route::post('/school', 'UserController@registrationSchool')->name('user.registration.school');
             Route::post('/other', 'UserController@registrationOther')->name('user.registration.Other');
             Route::post('/document', 'UserController@registrationDocument')->name('user.registration.document');
+            Route::post('/documents', 'UserController@registrationDocuments')->name('user.registration.documents');
             Route::post('/status', 'UserController@getStatus')->name('user.get.status');
         });
 

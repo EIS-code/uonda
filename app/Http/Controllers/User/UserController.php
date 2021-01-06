@@ -298,6 +298,60 @@ class UserController extends BaseController
         return $this->returnError(__('Something went wrong!'));
     }
 
+    public function registrationDocuments(Request $request)
+    {
+        $data  = $request->all();
+        $model = new UserDocument();
+
+        $userId        = !empty($data['user_id']) ? (int)$data['user_id'] : false;
+        $documents     = !empty($data['document']) ? (array)$data['document'] : [];
+        $documentTypes = (!empty($documents)) ? array_keys($documents) : [];
+        $save          = false;
+
+        $validators = $model->validators(['document_types' => $documentTypes, 'documents' => $documents, 'user_id' => $userId]);
+
+        if ($validators->fails()) {
+            return $this->returnError($validators->errors()->first());
+        }
+
+        foreach ($documents as $documentType => $document) {
+            $documentType = (string)$documentType;
+
+            if ($document instanceof UploadedFile) {
+                $pathInfos = pathinfo($document->getClientOriginalName());
+
+                if (!empty($pathInfos['extension'])) {
+                    $folder = false;
+
+                    if ($documentType == $model::GRADUATION_CERTIFICATE) {
+                        $folder = $model->graduation;
+                    } elseif ($documentType == $model::STUDENT_ID_CARD) {
+                        $folder = $model->studentIdCard;
+                    } elseif ($documentType == $model::PHOTO_IN_UNIFORM) {
+                        $folder = $model->photoInUniform;
+                    } elseif ($documentType == $model::CLASS_PHOTO) {
+                        $folder = $model->classPhoto;
+                    }
+
+                    if (!empty($folder)) {
+                        $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                        $storeFile = $document->storeAs($folder, $fileName, $model->fileSystem);
+
+                        if ($storeFile) {
+                            $save = $model->updateOrCreate(['document_type' => $documentType, 'user_id' => $userId], ['document_type' => $documentType, 'document' => $fileName, 'user_id' => $userId]);
+                        }
+                    }
+                }
+            }
+        }
+
+        if ($save) {
+            return $this->returnSuccess(__('User documents saved successfully!'), $this->getDetails($userId));
+        }
+
+        return $this->returnError(__('Something went wrong!'));
+    }
+
     public function doLogin(Request $request)
     {
         $model = new User();
