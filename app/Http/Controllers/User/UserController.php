@@ -708,4 +708,28 @@ class UserController extends BaseController
 
         return $this->returnError(__('Something went wrong!'));
     }
+
+    public function removeDocument(Request $request)
+    {
+        $model  = new UserDocument();
+        $data   = $request->all();
+        $userId = !empty($data['user_id']) ? (int)$data['user_id'] : false;
+        $id     = !empty($data['id']) ? (int)$data['id']: false;
+
+        if (empty($userId)) {
+            return $this->returnError(__('User id seems incorrect.'));
+        }
+
+        if (empty($id)) {
+            return $this->returnError(__('Document id seems incorrect.'));
+        }
+
+        $userDocument = $model::where('id', $id)->where('user_id', $userId)->limit(1)->delete();
+
+        if ($userDocument) {
+            return $this->returnSuccess(__('User document removed successfully!'));
+        }
+
+        return $this->returnError(__('Something went wrong!'));
+    }
 }
