@@ -13,6 +13,10 @@ use Pushok\Client;
 use Pushok\Notification as PushokNotification;
 use Pushok\Payload;
 use Pushok\Payload\Alert;
+use LaravelFCM\Message\OptionsBuilder;
+use LaravelFCM\Message\PayloadDataBuilder;
+use LaravelFCM\Message\PayloadNotificationBuilder;
+use FCM;
 
 class NotificationController extends BaseController
 {
@@ -74,7 +78,7 @@ class NotificationController extends BaseController
         $authProvider = AuthProvider\Token::create($options);
 
         $alert = Alert::create()->setTitle('Hello!');
-        $alert = $alert->setBody('First push notification');
+        $alert = $alert->setBody('First iOS push notification');
 
         $payload = Payload::create()->setAlert($alert);
 
@@ -102,5 +106,113 @@ class NotificationController extends BaseController
         }
 
         return $this->returnSuccess(__('Notification sent successfully!'), $res);
+    }
+
+    public function testAndroid(Request $request)
+    {
+        $modelUsers = new User();
+        $data       = $request->all();
+        $userId     = !empty($data['user_id']) ? (int)$data['user_id'] : false;
+
+        if (empty($userId)) {
+            return $this->returnError(__('User id required.'));
+        }
+
+        // Check user exists.
+        $user = $modelUsers::find($userId);
+
+        $optionBuilder = new OptionsBuilder();
+        $optionBuilder->setTimeToLive(60 * 20);
+
+        $notificationBuilder = new PayloadNotificationBuilder('myHello!');
+        $notificationBuilder->setBody('First Android push notification')->setSound('default');
+
+        $dataBuilder = new PayloadDataBuilder();
+        $dataBuilder->addData(['a_data' => 'my_data']);
+
+        $option = $optionBuilder->build();
+        $notification = $notificationBuilder->build();
+        $data = $dataBuilder->build();
+
+        $token = $user->device_token;
+
+        $downstreamResponse = FCM::sendTo($token, $option, $notification, $data);
+
+        $downstreamResponse->numberSuccess();
+        $downstreamResponse->numberFailure();
+        $downstreamResponse->numberModification();
+
+        $downstreamResponse->tokensToDelete();
+
+        $downstreamResponse->tokensToModify();
+
+        $downstreamResponse->tokensToRetry();
+
+        $downstreamResponse->tokensWithError();
+
+        return $this->returnSuccess(__('Notification sent successfully!'));
+    }
+
+    public function getNotifications(Request $request)
+    {
+        $model  = new Notification();
+        $data   = $request->all();
+        $userId = !empty($data['user_id']) ? (int)$data['user_id'] : false;
+
+        if (empty($userId)) {
+            return $this->returnError(__('User id is required.'));
+        }
+
+        $notifications = $model::where('user_id', (int)$userId)->where('is_read', $model::IS_UNREAD)->where('is_success', $model::IS_SUCCESS)->get();
+
+        return $this->returnSuccess(__('Notifications get successfully!'), $notifications);
+    }
+
+    public function removeNotification(Request $request)
+    {
+        $model  = new Notification();
+        $data   = $request->all();
+        $userId = !empty($data['user_id']) ? (int)$data['user_id'] : false;
+        $id     = !empty($data['id']) ? (int)$data['id'] : false;
+
+        if (empty($userId)) {
+            return $this->returnError(__('User id is required.'));
+        }
+
+        if (empty($id)) {
+            return $this->returnError(__('Notification id is required.'));
+        }
+
+        $remove = $model::where('user_id', (int)$userId)->where('id', (int)$id)->limit(1)->delete();
+
+        if ($remove) {
+            return $this->returnSuccess(__('Notification removed successfully!'));
+        }
+
+        return $this->returnError(__('Notification could\'t found.'));
+    }
+
+    public function readNotification(Request $request)
+    {
+        $model  = new Notification();
+        $data   = $request->all();
+        $userId = !empty($data['user_id']) ? (int)$data['user_id'] : false;
+        $id     = !empty($data['id']) ? (int)$data['id'] : false;
+
+        if (empty($userId)) {
+            return $this->returnError(__('User id is required.'));
+        }
+
+        if (empty($id)) {
+            return $this->returnError(__('Notification id is required.'));
+        }
+
+        $isRead = $model::where('user_id', (int)$userId)->where('id', (int)$id)->update(['is_read' => $model::IS_READ]);
+
+        if ($isRead) {
+            return $this->returnSuccess(__('Notification read successfully!'));
+        }
+
+        return $this->returnError(__('Notification could\'t found.'));
     }
 }

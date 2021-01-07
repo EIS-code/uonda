@@ -4,16 +4,20 @@ namespace App;
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use App\User;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Notification extends BaseModel
 {
+    use SoftDeletes;
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'message', 'is_read', 'model', 'model_id'
+        'title', 'message', 'payload', 'device_token', 'is_success', 'apns_id', 'error_infos', 'user_id', 'created_by', 'is_read'
     ];
 
     const IS_READ   = '1';
@@ -23,13 +27,22 @@ class Notification extends BaseModel
         self::IS_UNREAD => 'Unread'
     ];
 
+    const IS_SUCCESS = '1';
+    const IS_NOT_SUCCESS = '0';
+    public $isSuccess = [
+        self::IS_SUCCESS => 'Yes',
+        self::IS_NOT_SUCCESS => 'No'
+    ];
+
     public function validator(array $data, $returnBoolsOnly = false)
     {
         $validator = Validator::make($data, [
-            'message'  => ['required', 'string'],
-            'is_read'  => ['nullable', 'in:' . implode(",", array_keys($this->isRead))],
-            'model'    => ['nullable', 'string', 'max:255'],
-            'model_id' => ['required', 'integer']
+            'message'      => ['required', 'string'],
+            'device_token' => ['required', 'string'],
+            'user_id'      => ['required', 'integer', 'exists:' . (new User())->getTableName() . ',id'],
+            'created_by'   => ['required', 'integer', 'exists:' . (new User())->getTableName() . ',id'],
+            'is_success'   => ['nullable', 'in:' . implode(",", array_keys($this->isSuccess))],
+            'is_read'      => ['nullable', 'in:' . implode(",", array_keys($this->isRead))]
         ]);
 
         if ($returnBoolsOnly === true) {
@@ -50,5 +63,14 @@ class Notification extends BaseModel
         }
 
         return $this->isRead[$value];
+    }
+
+    public function getIsSuccessAttribute($value)
+    {
+        if (empty($value) || !array_key_exists($value, $this->isSuccess)) {
+            return $value;
+        }
+
+        return $this->isSuccess[$value];
     }
 }
