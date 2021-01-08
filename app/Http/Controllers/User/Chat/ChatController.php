@@ -344,13 +344,13 @@ class ChatController extends BaseController
             return $this->returnError(__("User id is required."));
         }
 
-        if (empty($groupId)) {
+        /*if (empty($groupId)) {
             return $this->returnError(__('Group id is required.'));
-        }
-
-        /*if (empty($receiverId) && empty($groupId)) {
-            return $this->returnError(__('Receiver id or Group id required.'));
         }*/
+
+        if (empty($receiverId) && empty($groupId)) {
+            return $this->returnError(__('Receiver id or Group id required.'));
+        }
 
         // , CASE cru.sender_id WHEN '4' THEN 'sender' ELSE 'receiver' END AS sender_receiver_flag
 
@@ -368,14 +368,25 @@ class ChatController extends BaseController
                 ORDER BY c.updated_at ASC");
         }*/
 
-        $records = DB::select("SELECT c.id, c.message, cru.sender_id, cru.receiver_id, c.created_at, c.updated_at, ca.mime_type, ca.attachment, ca.url, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' WHEN c.message != '' THEN 'text' ELSE NULL END AS message_type, u.name as user_name, u.profile, u.profile_icon
-                FROM `" . $modelChatRoomUsers::getTableName() . "` AS cru
-                JOIN `" . $modelChats::getTableName() . "` AS c ON cru.id = c.chat_room_user_id
-                JOIN `" . $modelChatRooms::getTableName() . "` AS cr ON cru.chat_room_id = cr.id
-                JOIN `" . $model->getTableName() . "` AS u ON cru.sender_id = u.id
-                LEFT JOIN `" . $modelChatAttachment::getTableName() . "` AS ca ON c.id = ca.chat_id
-                WHERE cr.id = '" . (int)$groupId . "'
-                ORDER BY c.updated_at ASC");
+        if (!empty($receiverId)) {
+            $records = DB::select("SELECT c.id, c.message, cru.sender_id, cru.receiver_id, c.created_at, c.updated_at, ca.mime_type, ca.attachment, ca.url, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' WHEN c.message != '' THEN 'text' ELSE NULL END AS message_type, u.name as user_name, u.profile, u.profile_icon
+                    FROM `" . $modelChatRoomUsers::getTableName() . "` AS cru
+                    JOIN `" . $modelChats::getTableName() . "` AS c ON cru.id = c.chat_room_user_id
+                    JOIN `" . $modelChatRooms::getTableName() . "` AS cr ON cru.chat_room_id = cr.id
+                    JOIN `" . $model->getTableName() . "` AS u ON cru.sender_id = u.id
+                    LEFT JOIN `" . $modelChatAttachment::getTableName() . "` AS ca ON c.id = ca.chat_id
+                    WHERE ((cru.`sender_id` = '" . $userId . "' AND cru.`receiver_id` = '" . $receiverId . "') OR (cru.`sender_id` = '" . $receiverId . "' AND cru.`receiver_id` = '" . $userId . "')) AND cr.is_group = '" . $modelChatRooms::IS_NOT_GROUP . "'
+                    ORDER BY c.updated_at ASC");
+        } else {
+            $records = DB::select("SELECT c.id, c.message, cru.sender_id, cru.receiver_id, c.created_at, c.updated_at, ca.mime_type, ca.attachment, ca.url, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' WHEN c.message != '' THEN 'text' ELSE NULL END AS message_type, u.name as user_name, u.profile, u.profile_icon
+                    FROM `" . $modelChatRoomUsers::getTableName() . "` AS cru
+                    JOIN `" . $modelChats::getTableName() . "` AS c ON cru.id = c.chat_room_user_id
+                    JOIN `" . $modelChatRooms::getTableName() . "` AS cr ON cru.chat_room_id = cr.id
+                    JOIN `" . $model->getTableName() . "` AS u ON cru.sender_id = u.id
+                    LEFT JOIN `" . $modelChatAttachment::getTableName() . "` AS ca ON c.id = ca.chat_id
+                    WHERE cr.id = '" . (int)$groupId . "'
+                    ORDER BY c.updated_at ASC");
+        }
 
         if (!empty($records)) {
             $storageFolderName         = (str_ireplace("\\", "/", $modelChatAttachment->folder));
