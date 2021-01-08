@@ -225,7 +225,8 @@ class ChatController extends BaseController
             return $this->returnError(__("User id can not be empty."));
         }
 
-        $storageFolderName = (str_ireplace("\\", "/", $model->profile));
+        $storageFolderName     = (str_ireplace("\\", "/", $model->profile));
+        $storageFolderNameIcon = (str_ireplace("\\", "/", $model->profileIcon));
 
         /*$records = DB::select("SELECT u.id, u.profile, u.name, c.updated_at AS recent_time, c.message AS recent_message from `" . $model->getTableName() . "` AS u
                     JOIN `" . $modelChatRoomUsers::getTableName() . "` AS crm ON u.id = crm.sender_id OR u.id = crm.receiver_id
@@ -249,9 +250,9 @@ class ChatController extends BaseController
         if (!empty($records)) {
             $userIds = $records->pluck('sender_id');
             $userIds = $userIds->merge($records->pluck('receiver_id'));
-            $users   = $model::selectRaw('*, profile as profile_image')->whereIn('id', $userIds->unique())->get()->keyBy('id');
+            $users   = $model::selectRaw('*, profile as profile_image, profile_icon as profile_image_icon')->whereIn('id', $userIds->unique())->get()->keyBy('id');
 
-            $records->map(function($data) use($users, $userId, $storageFolderName, &$returnDatas) {
+            $records->map(function($data) use($users, $userId, $storageFolderName, $storageFolderNameIcon, &$returnDatas) {
                 $user = false;
 
                 if ($data->sender_id == $userId) {
@@ -269,7 +270,8 @@ class ChatController extends BaseController
                         'chat_id'           => $data->id,
                         'chat_room_id'      => $data->chat_room_id,
                         'name'              => $user->name,
-                        'profile'           => Storage::disk($user->fileSystem)->url($storageFolderName . '/' . $user->profile_image),
+                        'profile'           => !empty($user->profile_image) ? Storage::disk($user->fileSystem)->url($storageFolderName . '/' . $user->profile_image) : NULL,
+                        'profile_icon'      => !empty($user->profile_image_icon) ? Storage::disk($user->fileSystem)->url($storageFolderNameIcon . '/' . $user->profile_image_icon) : NULL,
                         'recent_time'       => strtotime($data->updated_at) * 1000,
                         'recent_message'    => $data->recent_message,
                         'is_group'          => $data->is_group,
