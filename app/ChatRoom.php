@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Support\Facades\Validator;
 use App\ChatRoom;
 use App\ChatRoomUser;
+use Illuminate\Support\Facades\Storage;
 
 class ChatRoom extends BaseModel
 {
@@ -14,7 +15,7 @@ class ChatRoom extends BaseModel
      * @var array
      */
     protected $fillable = [
-        'uuid', 'title', 'is_group'
+        'uuid', 'title', 'group_icon', 'group_icon_actual', 'is_group'
     ];
 
     const IS_NOT_GROUP = '0';
@@ -25,12 +26,19 @@ class ChatRoom extends BaseModel
         self::IS_GROUP     => 'Yes'
     ];
 
+    public $fileSystem = 'public';
+    public $folder     = 'user\\chat\\group';
+    // public $folderIcon = 'user\\chat\\group\\icon';
+    public $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
+
     public function validators(array $data, $returnBoolsOnly = false)
     {
         $validator = Validator::make($data, [
-            'uuid'     => ['required', 'string', 'max:255'],
-            'title'    => ['nullable', 'integer', 'exists:' . (new ChatRoom())->getTableName() . ',id'],
-            'is_group' => ['in:' . implode(",", array_keys($this->isGroup))],
+            'uuid'              => ['required', 'string', 'max:255'],
+            'title'             => ['nullable', 'integer', 'exists:' . (new ChatRoom())->getTableName() . ',id'],
+            'group_icon'        => ['nullable', 'mimes:' . implode(",", $this->allowedExtensions)],
+            'group_icon_actual' => ['nullable', 'mimes:' . implode(",", $this->allowedExtensions)],
+            'is_group'          => ['in:' . implode(",", array_keys($this->isGroup))],
         ]);
 
         if ($returnBoolsOnly === true) {
@@ -42,5 +50,25 @@ class ChatRoom extends BaseModel
         }
 
         return $validator;
+    }
+
+    public function getGroupIconAttribute($value)
+    {
+        if (empty($value)) {
+            return $value;
+        }
+
+        $storageFolderName = (str_ireplace("\\", "/", $this->folder));
+        return Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $this->id . '/' . $value);
+    }
+
+    public function getGroupIconActualAttribute($value)
+    {
+        if (empty($value)) {
+            return $value;
+        }
+
+        $storageFolderName = (str_ireplace("\\", "/", $this->folder));
+        return Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $this->id . '/icon/' . $value);
     }
 }

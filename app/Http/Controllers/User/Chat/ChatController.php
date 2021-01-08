@@ -236,7 +236,7 @@ class ChatController extends BaseController
                     ORDER BY c.updated_at DESC
             ");*/
 
-        $records = $modelChats::selectRaw("{$modelChats::getTableName()}.id, {$modelChatRoomUsers::getTableName()}.sender_id, {$modelChatRoomUsers::getTableName()}.receiver_id, {$modelChatRooms::getTableName()}.id as chat_room_id, {$modelChats::getTableName()}.updated_at, CASE WHEN {$modelChatAttachments::getTableName()}.mime_type != '' && {$modelChatAttachments::getTableName()}.attachment != '' THEN 'Attachment Sent' WHEN {$modelChatAttachments::getTableName()}.url != '' THEN 'URL Sent' WHEN {$modelChatAttachments::getTableName()}.name != '' && {$modelChatAttachments::getTableName()}.contacts != '' THEN 'Contact Sent' ELSE {$modelChats::getTableName()}.message END AS recent_message, {$modelChatRooms::getTableName()}.is_group, {$modelChatRooms::getTableName()}.title")
+        $records = $modelChats::selectRaw("{$modelChats::getTableName()}.id as chat_id, {$modelChatRoomUsers::getTableName()}.sender_id, {$modelChatRoomUsers::getTableName()}.receiver_id, {$modelChatRooms::getTableName()}.id as chat_room_id, {$modelChats::getTableName()}.updated_at, CASE WHEN {$modelChatAttachments::getTableName()}.mime_type != '' && {$modelChatAttachments::getTableName()}.attachment != '' THEN 'Attachment Sent' WHEN {$modelChatAttachments::getTableName()}.url != '' THEN 'URL Sent' WHEN {$modelChatAttachments::getTableName()}.name != '' && {$modelChatAttachments::getTableName()}.contacts != '' THEN 'Contact Sent' ELSE {$modelChats::getTableName()}.message END AS recent_message, {$modelChatRooms::getTableName()}.is_group, {$modelChatRooms::getTableName()}.title")
                               ->join($modelChatRoomUsers::getTableName(), $modelChats::getTableName() . '.chat_room_user_id', '=', $modelChatRoomUsers::getTableName() . '.id')
                               ->join($modelChatRooms::getTableName(), $modelChatRoomUsers::getTableName() . '.chat_room_id', '=', $modelChatRooms::getTableName() . '.id')
                               ->leftJoin($modelChatAttachments::getTableName(), $modelChats::getTableName() . '.id', '=', $modelChatAttachments::getTableName() . '.chat_id')
@@ -270,7 +270,7 @@ class ChatController extends BaseController
                         /*'sender_id'         => $data->sender_id,
                         'receiver_id'       => $data->receiver_id,*/
                         'user_id'           => $opponentId,
-                        'chat_id'           => $data->id,
+                        'chat_id'           => $data->chat_id,
                         'chat_room_id'      => $data->chat_room_id,
                         'name'              => $user->name,
                         'profile'           => !empty($user->profile_image) ? Storage::disk($user->fileSystem)->url($storageFolderName . '/' . $user->profile_image) : NULL,
@@ -286,7 +286,7 @@ class ChatController extends BaseController
             });
         }
 
-        $records = $modelChatRooms::selectRaw("{$modelChats::getTableName()}.id, {$modelChatRooms::getTableName()}.id as chat_room_id, {$modelChats::getTableName()}.updated_at, CASE WHEN {$modelChatAttachments::getTableName()}.mime_type != '' && {$modelChatAttachments::getTableName()}.attachment != '' THEN 'Attachment Sent' WHEN {$modelChatAttachments::getTableName()}.url != '' THEN 'URL Sent' WHEN {$modelChatAttachments::getTableName()}.name != '' && {$modelChatAttachments::getTableName()}.contacts != '' THEN 'Contact Sent' ELSE {$modelChats::getTableName()}.message END AS recent_message, {$modelChatRooms::getTableName()}.is_group, {$modelChatRooms::getTableName()}.title")
+        $records = $modelChatRooms::selectRaw("{$modelChats::getTableName()}.id as chat_id, {$modelChatRooms::getTableName()}.id, {$modelChatRooms::getTableName()}.id as chat_room_id, {$modelChats::getTableName()}.updated_at, CASE WHEN {$modelChatAttachments::getTableName()}.mime_type != '' && {$modelChatAttachments::getTableName()}.attachment != '' THEN 'Attachment Sent' WHEN {$modelChatAttachments::getTableName()}.url != '' THEN 'URL Sent' WHEN {$modelChatAttachments::getTableName()}.name != '' && {$modelChatAttachments::getTableName()}.contacts != '' THEN 'Contact Sent' ELSE {$modelChats::getTableName()}.message END AS recent_message, {$modelChatRooms::getTableName()}.is_group, {$modelChatRooms::getTableName()}.title, {$modelChatRooms::getTableName()}.group_icon, {$modelChatRooms::getTableName()}.group_icon_actual")
                               ->join($modelChatRoomUsers::getTableName(), $modelChatRooms::getTableName() . '.id', '=', $modelChatRoomUsers::getTableName() . '.chat_room_id')
                               ->leftJoin($modelChats::getTableName(), $modelChatRooms::getTableName() . '.id', '=', $modelChats::getTableName() . '.chat_room_id')
                               ->leftJoin($modelChatAttachments::getTableName(), $modelChats::getTableName() . '.id', '=', $modelChatAttachments::getTableName() . '.chat_id')
@@ -300,12 +300,14 @@ class ChatController extends BaseController
         if (!empty($records)) {
             $records->map(function($data) use(&$returnGroupDatas) {
                 $returnGroupDatas[$data->chat_room_id] = [
-                    'chat_id'           => $data->id,
+                    'chat_id'           => $data->chat_id,
                     'chat_room_id'      => $data->chat_room_id,
                     'recent_time'       => strtotime($data->updated_at) * 1000,
                     'recent_message'    => $data->recent_message,
                     'is_group'          => $data->is_group,
-                    'title'             => $data->title
+                    'title'             => $data->title,
+                    'group_icon'        => $data->group_icon,
+                    'group_icon_actual' => $data->group_icon_actual
                 ];
             });
         }
