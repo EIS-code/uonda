@@ -99,7 +99,11 @@ class ChatController extends BaseController
             return $this->returnError(__('Contact required if name present.'));
         } elseif (!empty($data['contacts']) && empty($data['name'])) {
             return $this->returnError(__('Name required if contacts present.'));
-        } elseif (empty($data['url']) && empty($data['attachment']) && empty($data['name']) && empty($data['contacts'])) {
+        }/* elseif (!empty($data['url']) && empty($data['address'])) {
+            return $this->returnError(__('Address required if URL present.'));
+        } elseif (empty($data['url']) && !empty($data['address'])) {
+            return $this->returnError(__('URL required if Address present.'));
+        } */elseif (empty($data['url']) && empty($data['attachment']) && empty($data['name']) && empty($data['contacts'])) {
             return $this->returnError(__('Provide attachment, url or contacts.'));
         }
 
@@ -183,13 +187,15 @@ class ChatController extends BaseController
                     return $this->returnError(__('Chat ' . $group . ' attachment doesn\'t inserted. Try again.'));
 
                 } elseif (!empty($data['url'])) {
-                    $isInserted = $modelChatAttachment->create(['url' => $data['url'], 'chat_id' => $chatId]);
+                    $address = !empty($data['address']) ? $data['address'] : NULL;
+
+                    $isInserted = $modelChatAttachment->create(['url' => $data['url'], 'address' => $address, 'chat_id' => $chatId]);
 
                     if ($isInserted) {
-                        return $this->returnSuccess(__('Chat ' . $group . ' URL inserted successfully!'), $isInserted);
+                        return $this->returnSuccess(__('Chat ' . $group . ' URL & Address inserted successfully!'), $isInserted);
                     }
 
-                    return $this->returnError(__('Chat ' . $group . ' URL doesn\'t inserted. Try again.'));
+                    return $this->returnError(__('Chat ' . $group . ' URL & Address doesn\'t inserted. Try again.'));
 
                 } elseif (!empty($data['name']) && !empty($data['contacts'])) {
                     $isInserted = $modelChatAttachment->create(['name' => $data['name'], 'contacts' => $data['contacts'], 'chat_id' => $chatId]);
