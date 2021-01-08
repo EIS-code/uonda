@@ -257,16 +257,19 @@ class ChatController extends BaseController
 
                 if ($data->sender_id == $userId) {
                     if (!empty($users[$data->receiver_id])) {
-                        $user = $users[$data->receiver_id];
+                        $opponentId = $data->receiver_id;
+                        $user       = $users[$data->receiver_id];
                     }
                 } elseif (!empty($users[$data->sender_id])) {
-                    $user = $users[$data->sender_id];
+                    $opponentId = $data->sender_id;
+                    $user       = $users[$data->sender_id];
                 }
 
                 if (!empty($user)) {
                     $returnDatas[$user->id] = [
-                        'sender_id'         => $data->sender_id,
-                        'receiver_id'       => $data->receiver_id,
+                        /*'sender_id'         => $data->sender_id,
+                        'receiver_id'       => $data->receiver_id,*/
+                        'user_id'           => $opponentId,
                         'chat_id'           => $data->id,
                         'chat_room_id'      => $data->chat_room_id,
                         'name'              => $user->name,
