@@ -17,7 +17,7 @@ class Notification extends BaseModel
      * @var array
      */
     protected $fillable = [
-        'title', 'message', 'payload', 'device_token', 'is_success', 'apns_id', 'error_infos', 'user_id', 'created_by', 'is_read'
+        'title', 'message', 'payload', 'device_token', 'is_success', 'apns_id', 'error_infos', 'user_id', 'created_by', 'is_read', 'created_at', 'updated_at'
     ];
 
     const IS_READ   = '1';

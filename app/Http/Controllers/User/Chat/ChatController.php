@@ -409,11 +409,11 @@ class ChatController extends BaseController
                 }
 
                 if (!empty($record->attachment)) {
-                    $record->attachment = Storage::disk($modelChatAttachment->fileSystem)->url($storageFolderName . '/' . $record->id . '/' . $record->attachment);;
+                    $record->attachment = Storage::disk($modelChatAttachment->fileSystem)->url($storageFolderName . '/' . $record->id . '/' . $record->attachment);
                 }
 
                 if (!empty($record->profile)) {
-                    $record->profile = Storage::disk($model->fileSystem)->url($storageFolderNameUser . '/' . $record->profile);;
+                    $record->profile = Storage::disk($model->fileSystem)->url($storageFolderNameUser . '/' . $record->profile);
                 }
 
                 if (!empty($record->profile_icon)) {

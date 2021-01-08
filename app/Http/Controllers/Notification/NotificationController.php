@@ -17,6 +17,7 @@ use LaravelFCM\Message\OptionsBuilder;
 use LaravelFCM\Message\PayloadDataBuilder;
 use LaravelFCM\Message\PayloadNotificationBuilder;
 use FCM;
+use Illuminate\Support\Facades\Storage;
 
 class NotificationController extends BaseController
 {
@@ -155,15 +156,37 @@ class NotificationController extends BaseController
 
     public function getNotifications(Request $request)
     {
-        $model  = new Notification();
-        $data   = $request->all();
-        $userId = !empty($data['user_id']) ? (int)$data['user_id'] : false;
+        $model     = new Notification();
+        $modelUser = new User();
+        $data      = $request->all();
+        $userId    = !empty($data['user_id']) ? (int)$data['user_id'] : false;
 
         if (empty($userId)) {
             return $this->returnError(__('User id is required.'));
         }
 
-        $notifications = $model::where('user_id', (int)$userId)->where('is_read', $model::IS_UNREAD)->where('is_success', $model::IS_SUCCESS)->get();
+        $notifications = $model::selectRaw($model::getTableName() . '.*, ' . $modelUser->getTableName() . '.profile, ' . $modelUser->getTableName() . '.profile_icon')
+                               ->where('user_id', (int)$userId)->where('is_read', $model::IS_UNREAD)->where('is_success', $model::IS_SUCCESS)
+                               ->join($modelUser->getTableName(), $model::getTableName() . '.user_id', '=', $modelUser->getTableName() . '.id')->get();
+
+        if (!empty($notifications) && !$notifications->isEmpty($notifications)) {
+            $storageFolderNameUser     = (str_ireplace("\\", "/", $modelUser->profile));
+            $storageFolderNameUserIcon = (str_ireplace("\\", "/", $modelUser->profileIcon));
+
+            $notifications->map(function($data) use($modelUser, $storageFolderNameUser, $storageFolderNameUserIcon) {
+                if (!empty($data->profile)) {
+                    $data->profile = Storage::disk($modelUser->fileSystem)->url($storageFolderNameUser . '/' . $data->profile);
+                }
+
+                if (!empty($data->profile_icon)) {
+                    $data->profile_icon = Storage::disk($modelUser->fileSystem)->url($storageFolderNameUserIcon . '/' . $data->profile_icon);
+                }
+
+                if (!empty($data->updated_at) && strtotime($data->updated_at) > 0) {
+                    $data->time = strtotime($data->updated_at) * 1000;
+                }
+            });
+        }
 
         return $this->returnSuccess(__('Notifications get successfully!'), $notifications);
     }
