@@ -361,7 +361,7 @@ class ChatController extends BaseController
                 ORDER BY c.updated_at ASC");
         }*/
 
-        $records = DB::select("SELECT c.id, c.message, cru.sender_id, cru.receiver_id, c.created_at, c.updated_at, ca.mime_type, ca.attachment, ca.url, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' WHEN c.message != '' THEN 'text' ELSE NULL END AS message_type, u.name as user_name, u.profile
+        $records = DB::select("SELECT c.id, c.message, cru.sender_id, cru.receiver_id, c.created_at, c.updated_at, ca.mime_type, ca.attachment, ca.url, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' WHEN c.message != '' THEN 'text' ELSE NULL END AS message_type, u.name as user_name, u.profile, u.profile_icon
                 FROM `" . $modelChatRoomUsers::getTableName() . "` AS cru
                 JOIN `" . $modelChats::getTableName() . "` AS c ON cru.id = c.chat_room_user_id
                 JOIN `" . $modelChatRooms::getTableName() . "` AS cr ON cru.chat_room_id = cr.id
@@ -371,8 +371,9 @@ class ChatController extends BaseController
                 ORDER BY c.updated_at ASC");
 
         if (!empty($records)) {
-            $storageFolderName     = (str_ireplace("\\", "/", $modelChatAttachment->folder));
-            $storageFolderNameUser = (str_ireplace("\\", "/", $model->profile));
+            $storageFolderName         = (str_ireplace("\\", "/", $modelChatAttachment->folder));
+            $storageFolderNameUser     = (str_ireplace("\\", "/", $model->profile));
+            $storageFolderNameUserIcon = (str_ireplace("\\", "/", $model->profileIcon));
 
             foreach ($records as &$record) {
                 if (!empty($record->created_at) && strtotime($record->created_at) > 0) {
@@ -389,6 +390,10 @@ class ChatController extends BaseController
 
                 if (!empty($record->profile)) {
                     $record->profile = Storage::disk($model->fileSystem)->url($storageFolderNameUser . '/' . $record->profile);;
+                }
+
+                if (!empty($record->profile_icon)) {
+                    $record->profile_icon = Storage::disk($model->fileSystem)->url($storageFolderNameUserIcon . '/' . $record->profile_icon);;
                 }
             }
 
