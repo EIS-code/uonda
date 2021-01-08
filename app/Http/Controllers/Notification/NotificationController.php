@@ -184,6 +184,8 @@ class NotificationController extends BaseController
 
                 if (!empty($data->updated_at) && strtotime($data->updated_at) > 0) {
                     $data->time = strtotime($data->updated_at) * 1000;
+                } else {
+                    $data->time = 0;
                 }
             });
         }
