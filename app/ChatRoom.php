@@ -59,7 +59,7 @@ class ChatRoom extends BaseModel
         }
 
         $storageFolderName = (str_ireplace("\\", "/", $this->folder));
-        return Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $this->id . '/' . $value);
+        return Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $this->id . '/icon/' . $value);
     }
 
     public function getGroupIconActualAttribute($value)
@@ -69,6 +69,6 @@ class ChatRoom extends BaseModel
         }
 
         $storageFolderName = (str_ireplace("\\", "/", $this->folder));
-        return Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $this->id . '/icon/' . $value);
+        return Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $this->id . '/' . $value);
     }
 }
