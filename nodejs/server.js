@@ -265,11 +265,16 @@ io.on('connection', function (socket) {
                                     return errorFun(err14.message);
                                 }
 
-                                resultChat[0].sender_id  = senderId;
-                                resultChat[0].receiverId = receiverId;
+                                if (resultChat.length > 0) {
+                                    resultChat[0].sender_id  = senderId;
+                                    resultChat[0].receiverId = receiverId;
 
-                                io.sockets.to(roomId).emit('messageAcknowledge', resultChat[0]);
-                                io.sockets.to('individualJoin-' + receiverId).emit('messageRecieve', resultChat[0]);
+                                    io.sockets.to(roomId).emit('messageAcknowledge', resultChat[0]);
+                                    io.sockets.to('individualJoin-' + receiverId).emit('messageRecieve', resultChat[0]);
+                                }
+
+                                io.sockets.to(roomId).emit('messageAcknowledge', []);
+                                io.sockets.to('individualJoin-' + receiverId).emit('messageRecieve', []);
                             });
                         }
                     });
