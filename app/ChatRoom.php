@@ -71,4 +71,14 @@ class ChatRoom extends BaseModel
         $storageFolderName = (str_ireplace("\\", "/", $this->folder));
         return Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $this->id . '/' . $value);
     }
+
+    public function chatRoomUsers()
+    {
+        return $this->hasMany('App\ChatRoomUser', 'chat_room_id', 'id');
+    }
+
+    public function totalGroupParticipants(int $id)
+    {
+        return $this->find($id)->chatRoomUsers->count();
+    }
 }

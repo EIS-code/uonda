@@ -304,16 +304,17 @@ class ChatController extends BaseController
         $returnGroupDatas = [];
 
         if (!empty($records)) {
-            $records->map(function($data) use(&$returnGroupDatas) {
+            $records->map(function($data) use(&$returnGroupDatas, $modelChatRooms) {
                 $returnGroupDatas[$data->chat_room_id] = [
-                    'chat_id'           => $data->chat_id,
-                    'chat_room_id'      => $data->chat_room_id,
-                    'recent_time'       => strtotime($data->updated_at) * 1000,
-                    'recent_message'    => $data->recent_message,
-                    'is_group'          => $data->is_group,
-                    'title'             => $data->title,
-                    'group_icon'        => $data->group_icon,
-                    'group_icon_actual' => $data->group_icon_actual
+                    'chat_id'            => $data->chat_id,
+                    'chat_room_id'       => $data->chat_room_id,
+                    'recent_time'        => strtotime($data->updated_at) * 1000,
+                    'recent_message'     => $data->recent_message,
+                    'is_group'           => $data->is_group,
+                    'title'              => $data->title,
+                    'group_icon'         => $data->group_icon,
+                    'group_icon_actual'  => $data->group_icon_actual,
+                    'total_participants' => $modelChatRooms->totalGroupParticipants($data->chat_room_id)
                 ];
             });
         }
