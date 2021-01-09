@@ -106,6 +106,8 @@ class User extends Authenticatable
         self::OAUTH_APPLE    => 'Apple'
     ];
 
+    const ADMIN_DEVICE_TOKEN = 'admin';
+
     public function __construct(array $attributes = array())
     {
         parent::__construct($attributes);
@@ -392,5 +394,16 @@ class User extends Authenticatable
         }
 
         return $user->save();
+    }
+
+    public static function getDeviceToken(int $id)
+    {
+        $user = self::find($id);
+
+        if (!empty($user)) {
+            return $user->device_token;
+        }
+
+        return NULL;
     }
 }

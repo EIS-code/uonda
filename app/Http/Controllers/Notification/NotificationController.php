@@ -23,15 +23,21 @@ class NotificationController extends BaseController
 {
     public function storeScreenshot(Request $request)
     {
-        $data  = $request->all();
-        $model = new Notification();
+        $data          = $request->all();
+        $model         = new Notification();
+        $userId        = !empty($data['user_id']) ? (int)$data['user_id'] : false;
+        $requestUserId = !empty($data['request_user_id']) ? (int)$data['request_user_id'] : false;
 
-        $modelName = new ReflectionClass((new User));
-        $modelName = $modelName->getName();
+        $data['user_id'] = $requestUserId;
 
-        $data['message']  = __('Screenshot captured.');
-        $data['model']    = $modelName;
-        $data['model_id'] = $data['user_id'];
+        $data['message']    = __('Screenshot captured.');
+        $data['created_by'] = $userId;
+
+        if (!empty($data['is_admin']) && $data['is_admin'] == '1') {
+            $data['device_token'] = User::ADMIN_DEVICE_TOKEN;
+        } elseif (!empty($data['user_id'])) {
+            $data['device_token'] = User::getDeviceToken($requestUserId);
+        }
 
         $validator = $model->validator($data);
 
