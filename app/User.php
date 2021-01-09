@@ -11,6 +11,7 @@ use App\City;
 use App\UserSetting;
 use App\ApiKey;
 use App\UserBlockProfile;
+use App\Notification;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 
@@ -54,7 +55,7 @@ class User extends Authenticatable
      *
      * @var array
      */
-    public $appends = ['encrypted_user_id', 'permissions'];
+    public $appends = ['encrypted_user_id', 'permissions', 'total_notifications', 'total_read_notifications', 'total_unread_notifications'];
 
     const MALE = 'm';
     const FEMALE = 'f';
@@ -221,6 +222,30 @@ class User extends Authenticatable
     public function userDocuments()
     {
         return $this->hasMany('App\UserDocument', 'user_id', 'id');
+    }
+
+    public function notifications($isAll = false, $isRead = Notification::IS_UNREAD, $isSuccess = Notification::IS_SUCCESS)
+    {
+        if ($isAll) {
+            return $this->hasMany('App\Notification', 'user_id', 'id');
+        } else {
+            return $this->hasMany('App\Notification', 'user_id', 'id')->where('is_read', $isRead)->where('is_success', $isSuccess);
+        }
+    }
+
+    public function getTotalReadNotificationsAttribute()
+    {
+        return $this->notifications(false, Notification::IS_READ)->count();
+    }
+
+    public function getTotalNotificationsAttribute()
+    {
+        return $this->notifications(true)->count();
+    }
+
+    public function getTotalUnreadNotificationsAttribute()
+    {
+        return $this->notifications->count();
     }
 
     //get encrypted user id

@@ -20,6 +20,13 @@ class Notification extends BaseModel
         'title', 'message', 'payload', 'device_token', 'is_success', 'apns_id', 'error_infos', 'user_id', 'created_by', 'is_read', 'created_at', 'updated_at'
     ];
 
+    /**
+     * The attributes that should be appends to model object.
+     *
+     * @var array
+     */
+    public $appends = ['total_notifications', 'total_read_notifications', 'total_unread_notifications'];
+
     const IS_READ   = '1';
     const IS_UNREAD = '0';
     public $isRead = [
@@ -72,5 +79,29 @@ class Notification extends BaseModel
         }
 
         return $this->isSuccess[$value];
+    }
+
+    public function notifications($isAll = false, $isRead = self::IS_UNREAD, $isSuccess = self::IS_SUCCESS)
+    {
+        if ($isAll) {
+            return $this->where('user_id', $this->user_id);
+        } else {
+            return $this->where('user_id', $this->user_id)->where('is_read', $isRead)->where('is_success', $isSuccess);
+        }
+    }
+
+    public function getTotalReadNotificationsAttribute()
+    {
+        return $this->notifications(false, self::IS_READ)->count();
+    }
+
+    public function getTotalNotificationsAttribute()
+    {
+        return $this->notifications(true)->count();
+    }
+
+    public function getTotalUnreadNotificationsAttribute()
+    {
+        return $this->notifications()->count();
     }
 }

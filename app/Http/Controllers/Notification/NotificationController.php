@@ -167,9 +167,11 @@ class NotificationController extends BaseController
 
         $notifications = $model::selectRaw($model::getTableName() . '.*, ' . $modelUser->getTableName() . '.profile, ' . $modelUser->getTableName() . '.profile_icon')
                                ->where('user_id', (int)$userId)->where('is_read', $model::IS_UNREAD)->where('is_success', $model::IS_SUCCESS)
-                               ->join($modelUser->getTableName(), $model::getTableName() . '.user_id', '=', $modelUser->getTableName() . '.id')->get();
+                               ->join($modelUser->getTableName(), $model::getTableName() . '.created_by', '=', $modelUser->getTableName() . '.id')->get();
 
         if (!empty($notifications) && !$notifications->isEmpty($notifications)) {
+            $notifications->makeHidden(['total_notifications', 'total_read_notifications', 'total_unread_notifications']);
+
             $storageFolderNameUser     = (str_ireplace("\\", "/", $modelUser->profile));
             $storageFolderNameUserIcon = (str_ireplace("\\", "/", $modelUser->profileIcon));
 
@@ -208,10 +210,15 @@ class NotificationController extends BaseController
             return $this->returnError(__('Notification id is required.'));
         }
 
-        $remove = $model::where('user_id', (int)$userId)->where('id', (int)$id)->limit(1)->delete();
+        $notification = $model::where('user_id', (int)$userId)->where('id', (int)$id)->first();
+        $userId       = !empty($notification) ? $notification->user_id : false;
 
-        if ($remove) {
-            return $this->returnSuccess(__('Notification removed successfully!'));
+        if (!empty($userId)) {
+            $remove = $notification->delete();
+
+            if ($remove) {
+                return $this->returnSuccess(__('Notification removed successfully!'), $this->getDetails(0, $userId, true));
+            }
         }
 
         return $this->returnError(__('Notification could\'t found.'));
@@ -232,12 +239,48 @@ class NotificationController extends BaseController
             return $this->returnError(__('Notification id is required.'));
         }
 
-        $isRead = $model::where('user_id', (int)$userId)->where('id', (int)$id)->update(['is_read' => $model::IS_READ]);
+        $notification = $model::where('user_id', (int)$userId)->where('id', (int)$id);
+        $isRead       = $notification->update(['is_read' => $model::IS_READ]);
 
         if ($isRead) {
-            return $this->returnSuccess(__('Notification read successfully!'));
+            $notification = $notification->first();
+
+            return $this->returnSuccess(__('Notification read successfully!'), $this->getDetails($notification->id, false, true));
         }
 
         return $this->returnError(__('Notification could\'t found.'));
+    }
+
+    public function getDetails(int $id, $userId = false, $totalOnly = false, $isApi = false)
+    {
+        $model = new Notification();
+
+        if (empty($id) && !empty($userId)) {
+            $notification = $model::where('user_id', $userId)->first();
+        } else {
+            $notification = $model::find($id);
+        }
+
+        if (!empty($notification)) {
+            if ($isApi) {
+                if ($totalOnly) {
+                    return $this->returnSuccess(__('Notification details get successfully!'), ['total_notifications' => $notification->total_notifications, 'total_read_notifications' => $notification->total_read_notifications, 'total_unread_notifications' => $notification->total_unread_notifications]);
+                }
+
+                return $this->returnSuccess(__('Notification details get successfully!'), $notification);
+            }
+
+            if ($totalOnly) {
+                return ['total_notifications' => $notification->total_notifications, 'total_read_notifications' => $notification->total_read_notifications, 'total_unread_notifications' => $notification->total_unread_notifications];
+            }
+
+            return $notification;
+        }
+
+        if ($isApi) {
+            return $this->returnNull();
+        }
+
+        return $notification;
     }
 }
