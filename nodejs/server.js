@@ -50,8 +50,10 @@ let modelUsers          = 'users',
     modelChatAttachment = 'chat_attachments';
 
 // Global variables.
-var isError     = false,
-    onlineUsers = {};
+var isError       = false,
+    onlineUsers   = {},
+    appUrl        = env.config(envPath).parsed.APP_URL,
+    attachmentUrl = removeTrailingSlash(appUrl) + '/' + 'storage' + '/' + 'user' + '/' + 'chat' + '/' + 'attachment' + '/';
 
 /*io.use((socket, next)=>{
 
@@ -215,6 +217,10 @@ io.on('connection', function (socket) {
                                         return errorFun(err6.message);
                                     }
 
+                                    if (resultChat[0]['attachment'].length > 0) {
+                                        resultChat[0]['attachment'] = buildAttachmentUrl(resultChat[0].id, resultChat[0]['attachment']);
+                                    }
+
                                     // senderData = {type: "new-message", message: resultChat[0], user: resultSenderUser[0]};
                                     resultChat[0].sender_id  = senderId;
                                     resultChat[0].receiverId = receiverId;
@@ -229,6 +235,10 @@ io.on('connection', function (socket) {
                                 connection.query(sqlGetReceiverUser, async function (err7, resultReceiverUser, fields) {
                                     if (err7) {
                                         return errorFun(err7.message);
+                                    }
+
+                                    if (resultChat[0]['attachment'].length > 0) {
+                                        resultChat[0]['attachment'] = buildAttachmentUrl(resultChat[0].id, resultChat[0]['attachment']);
                                     }
 
                                     // receiverData = {type: "new-message", message: resultChat[0], 'user': resultReceiverUser[0]};
@@ -266,15 +276,19 @@ io.on('connection', function (socket) {
                                 }
 
                                 if (resultChat.length > 0) {
+                                    if (resultChat[0]['attachment'].length > 0) {
+                                        resultChat[0]['attachment'] = buildAttachmentUrl(resultChat[0].id, resultChat[0]['attachment']);
+                                    }
+
                                     resultChat[0].sender_id  = senderId;
                                     resultChat[0].receiverId = receiverId;
 
                                     io.sockets.to(roomId).emit('messageAcknowledge', resultChat[0]);
                                     io.sockets.to('individualJoin-' + receiverId).emit('messageRecieve', resultChat[0]);
+                                } else {
+                                    io.sockets.to(roomId).emit('messageAcknowledge', []);
+                                    io.sockets.to('individualJoin-' + receiverId).emit('messageRecieve', []);
                                 }
-
-                                io.sockets.to(roomId).emit('messageAcknowledge', []);
-                                io.sockets.to('individualJoin-' + receiverId).emit('messageRecieve', []);
                             });
                         }
                     });
@@ -394,6 +408,10 @@ io.on('connection', function (socket) {
                                     var senderData   = {},
                                         receiverData = {};
 
+                                    if (resultChat[0]['attachment'].length > 0) {
+                                        resultChat[0]['attachment'] = buildAttachmentUrl(resultChat[0].id, resultChat[0]['attachment']);
+                                    }
+
                                     resultChat[0].sender_id = senderId;
                                     resultChat[0].groupId   = chatRoomId;
 
@@ -427,6 +445,10 @@ io.on('connection', function (socket) {
                                 connection.query(sqlGetChat, async function (err14, resultChat, fields) {
                                     if (err14) {
                                         return errorFun(err14.message);
+                                    }
+
+                                    if (resultChat[0]['attachment'].length > 0) {
+                                        resultChat[0]['attachment'] = buildAttachmentUrl(resultChat[0].id, resultChat[0]['attachment']);
                                     }
 
                                     resultChat[0].sender_id = senderId;
@@ -520,4 +542,12 @@ function generateUuid(count) {
     }
 
     return str;
+}
+function removeTrailingSlash(url)
+{
+    return url.replace(/\/$/, "");
+}
+function buildAttachmentUrl(id, file)
+{
+    return attachmentUrl + id + '/' + file;
 }
