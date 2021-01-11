@@ -173,6 +173,7 @@ class ChatController extends BaseController
                         }
 
                         $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                        $fileName  = removeSpaces($fileName);
                         $storeFile = $attachment->storeAs($modelChatAttachment->folder . '\\' . $chatId, $fileName, $modelChatAttachment->fileSystem);
 
                         if ($storeFile) {
