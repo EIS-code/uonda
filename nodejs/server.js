@@ -217,7 +217,7 @@ io.on('connection', function (socket) {
                                         return errorFun(err6.message);
                                     }
 
-                                    if (resultChat[0]['attachment'].length > 0) {
+                                    if (resultChat[0]['attachment'] !== null && resultChat[0]['attachment'].length > 0) {
                                         resultChat[0]['attachment'] = buildAttachmentUrl(resultChat[0].id, resultChat[0]['attachment']);
                                     }
 
@@ -237,7 +237,7 @@ io.on('connection', function (socket) {
                                         return errorFun(err7.message);
                                     }
 
-                                    if (resultChat[0]['attachment'].length > 0) {
+                                    if (resultChat[0]['attachment'] !== null && resultChat[0]['attachment'].length > 0) {
                                         resultChat[0]['attachment'] = buildAttachmentUrl(resultChat[0].id, resultChat[0]['attachment']);
                                     }
 
@@ -276,7 +276,7 @@ io.on('connection', function (socket) {
                                 }
 
                                 if (resultChat.length > 0) {
-                                    if (resultChat[0]['attachment'].length > 0) {
+                                    if (resultChat[0]['attachment'] !== null && resultChat[0]['attachment'].length > 0) {
                                         resultChat[0]['attachment'] = buildAttachmentUrl(resultChat[0].id, resultChat[0]['attachment']);
                                     }
 
@@ -408,7 +408,7 @@ io.on('connection', function (socket) {
                                     var senderData   = {},
                                         receiverData = {};
 
-                                    if (resultChat[0]['attachment'].length > 0) {
+                                    if (resultChat[0]['attachment'] !== null && resultChat[0]['attachment'].length > 0) {
                                         resultChat[0]['attachment'] = buildAttachmentUrl(resultChat[0].id, resultChat[0]['attachment']);
                                     }
 
@@ -447,7 +447,7 @@ io.on('connection', function (socket) {
                                         return errorFun(err14.message);
                                     }
 
-                                    if (resultChat[0]['attachment'].length > 0) {
+                                    if (resultChat[0]['attachment'] !== null && resultChat[0]['attachment'].length > 0) {
                                         resultChat[0]['attachment'] = buildAttachmentUrl(resultChat[0].id, resultChat[0]['attachment']);
                                     }
 
