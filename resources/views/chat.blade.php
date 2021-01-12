@@ -60,6 +60,10 @@
             console.log(data);
         });
 
+        socket.on('error', function (data) {
+            console.log(data);
+        });
+
         socket.on('roomId', function (data) {
             // console.log('roomId : ' + data);
         });
@@ -79,7 +83,7 @@
             }
         });
 
-        // socket.emit('messageSendAttachment', {id: 244});
+        socket.emit('messageSendAttachment', {id: 274});
 
         socket.on('messageAcknowledge', function (data) {
             console.log("messageAcknowledge");

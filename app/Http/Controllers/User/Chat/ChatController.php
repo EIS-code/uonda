@@ -27,10 +27,12 @@ class ChatController extends BaseController
 
     public function index()
     {
-        $user = auth()->user();
+        $user    = auth()->user();
+        $request = request();
 
         $userId = auth()->user()->id;
-        $sendBy = $userId == 3 ? 4 : 3;
+        // $sendBy = $userId == 3 ? 4 : 3;
+        $sendBy = $request->get('receiver_id', ($userId == 3 ? 4 : 3));
 
         return view('chat', compact('userId', 'sendBy'));
     }
