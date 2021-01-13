@@ -97,7 +97,7 @@ class NotificationController extends BaseController
 
         // $deviceTokens = 'fgMpeCBXJkjuiV5dB9Kz7k:APA91bHEOD2POyDAza0KsT5vPYiRA5k45nDna8tAXJT3oz91JSZCfYmdAlVrRLf2bDI9LsqOMDindw8AGPb06rvm_YcI632AbzQmeTkzJQnqGRSzYCChEzdCxyknRCE7yc7KmjFL_ec0';
 
-        $notifications = new PushokNotification($payload, $user->device_token);
+        $notifications = new PushokNotification($payload, (string)$user->device_token);
 
         $client = new Client($authProvider, $production = false);
         $client->addNotifications([$notifications]);

@@ -5,9 +5,12 @@ namespace App;
 use Illuminate\Support\Facades\Validator;
 use App\ChatRoom;
 use App\ChatRoomUser;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Chat extends BaseModel
 {
+    use SoftDeletes;
+
     /**
      * The attributes that are mass assignable.
      *

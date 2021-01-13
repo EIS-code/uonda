@@ -10,12 +10,14 @@ use App\ChatRoomUser;
 use App\ChatRoom;
 use App\ChatAttachment;
 use App\User;
+use App\ChatDelete;
 use LRedis;
 use DB;
 use Illuminate\Support\Facades\Storage;
 // use Illuminate\Broadcasting\BroadcastManager;
 // use Illuminate\Support\Facades\Event;
 use Illuminate\Http\UploadedFile;
+use Carbon\Carbon;
 
 class ChatController extends BaseController
 {
@@ -437,5 +439,84 @@ class ChatController extends BaseController
         }
 
         return $this->returnSuccess(__('User chat history get successfully!'), $records);
+    }
+
+    public function removeChat(Request $request)
+    {
+        $modelChats          = new Chat();
+        $modelChatAttachment = new ChatAttachment();
+        $modelChatRooms      = new ChatRoom();
+        $modelChatRoomUsers  = new ChatRoomUser();
+        $modelChatDelets     = new ChatDelete();
+        $data                = $request->all();
+        $now                 = new Carbon();
+
+        $userId     = !empty($data['user_id']) ? (int)$data['user_id'] : false;;
+        $receiverId = !empty($data['receiver_id']) ? (int)$data['receiver_id'] : false;
+        $groupId    = !empty($data['group_id']) ? (int)$data['group_id'] : false;
+
+        if (empty($userId)) {
+            return $this->returnError(__("User id is required."));
+        }
+
+        /*if (empty($groupId)) {
+            return $this->returnError(__('Group id is required.'));
+        }*/
+
+        if (empty($receiverId) && empty($groupId)) {
+            return $this->returnError(__('Receiver id or Group id required.'));
+        }
+
+        if (!empty($receiverId)) {
+            $chats = $modelChats::select($modelChats::getTableName() . '.id')
+                                ->join($modelChatRoomUsers::getTableName(), $modelChats::getTableName() . '.chat_room_user_id', '=', $modelChatRoomUsers::getTableName() . '.id')
+                                ->leftJoin($modelChatDelets::getTableName(), $modelChats::getTableName() . '.id', '=', $modelChatDelets::getTableName() . '.chat_id')
+                                ->where(function($query) use($receiverId, $modelChatRoomUsers, $userId) {
+                                        $query->where($modelChatRoomUsers::getTableName() . '.sender_id', $receiverId)
+                                              ->orWhere($modelChatRoomUsers::getTableName() . '.receiver_id', $receiverId)
+                                              ->whereRaw("(({$modelChatRoomUsers::getTableName()}.sender_id = {$userId} AND {$modelChatRoomUsers::getTableName()}.receiver_id = {$receiverId}) OR ({$modelChatRoomUsers::getTableName()}.receiver_id = {$userId} AND {$modelChatRoomUsers::getTableName()}.sender_id = {$receiverId}))");
+                                    })
+                                    ->whereNull($modelChatDelets::getTableName() . '.id')
+                                ->get();
+        } else {
+            $chats = $modelChats::select($modelChats::getTableName() . '.id')
+                                ->join($modelChatRoomUsers::getTableName(), $modelChats::getTableName() . '.chat_room_user_id', '=', $modelChatRoomUsers::getTableName() . '.id')
+                                ->leftJoin($modelChatDelets::getTableName(), $modelChats::getTableName() . '.id', '=', $modelChatDelets::getTableName() . '.chat_id')
+                                ->where($modelChatRoomUsers::getTableName() . '.chat_room_id', $groupId)
+                                ->whereNull($modelChatDelets::getTableName() . '.id')
+                                ->get();
+        }
+
+        if (!empty($chats) && !$chats->isEmpty()) {
+            $chatIds      = $chats->pluck('id');
+            $errorMessage = NULL;
+            $delete       = [];
+
+            foreach ($chatIds as $index => $chatId) {
+                $delete[$index] = [
+                    'chat_id'    => $chatId,
+                    'user_id'    => $userId,
+                    'created_at' => $now,
+                    'updated_at' => $now
+                ];
+
+                $validator = $modelChatDelets->validators($delete[$index]);
+
+                if ($validator->fails()) {
+                    $errorMessage = $validator->errors()->first();
+                    break;
+                }
+            }
+
+            if (!empty($errorMessage)) {
+                return $this->returnError($errorMessage);
+            } elseif (!empty($delete)) {
+                if ($modelChatDelets::insert($delete)) {
+                    return $this->returnSuccess(__('User chat removed successfully!'));
+                }
+            }
+        }
+
+        return $this->returnError(__('Something went wrong!'));
     }
 }

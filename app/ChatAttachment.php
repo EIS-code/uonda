@@ -5,9 +5,12 @@ namespace App;
 use Illuminate\Support\Facades\Validator;
 use App\Chat;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ChatAttachment extends BaseModel
 {
+    use SoftDeletes;
+
     /**
      * The attributes that are mass assignable.
      *
