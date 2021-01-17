@@ -14,3 +14,16 @@
     cursor: pointer;
     color: #d41f1f !important;
 }
+.table-icons {
+    float: right;
+}
+.search-component {
+    margin-right: 13px;
+    height: 33px;
+}
+.pagination {
+    float: right;
+}
+.select2.select2-container.select2-container--default {
+    width: 100% !important;
+}

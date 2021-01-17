@@ -14,7 +14,7 @@
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
     <!-- Styles -->
     <link href="{{ asset('css/main.css') }}" rel="stylesheet">
     <link href="{{ asset('css/custom.css') }}" rel="stylesheet">
@@ -194,6 +194,11 @@
                                     <i class="metismenu-icon pe-7s-light"></i>Groups
                                 </a>
                             </li>
+                            <li class="{{ Request::is('chat*') ? 'mm-active' : '' }}">
+                                <a href="{{ route('chats.index') }}" >
+                                    <i class="metismenu-icon pe-7s-light"></i>Chat Groups
+                                </a>
+                            </li>
                         </li>
                     </ul>
                 </div>
@@ -217,6 +222,7 @@
 <script type="text/javascript" src="{{ asset('js/jquery.min.js') }}"></script>
 <script src="https://cdn.ckeditor.com/4.15.1/standard/ckeditor.js"></script>
 <script src="https://cdn.ckeditor.com/ckeditor5/21.0.0/decoupled-document/ckeditor.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
 @stack('custom-scripts')
 </body>
 </html>

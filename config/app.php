@@ -237,6 +237,7 @@ return [
         'Image' => Intervention\Image\Facades\Image::class,
         'FCM'      => LaravelFCM\Facades\FCM::class,
         'FCMGroup' => LaravelFCM\Facades\FCMGroup::class,
+        'Helper' => App\Helper\Helper::class,
 
     ],
 

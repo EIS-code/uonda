@@ -18,6 +18,8 @@ class ChatRoom extends BaseModel
         'uuid', 'title', 'group_icon', 'group_icon_actual', 'is_group'
     ];
 
+    protected $appends = ['encrypted_chat_id'];
+
     const IS_NOT_GROUP = '0';
     const IS_GROUP     = '1';
 
@@ -35,7 +37,7 @@ class ChatRoom extends BaseModel
     {
         $validator = Validator::make($data, [
             'uuid'              => ['required', 'string', 'max:255'],
-            'title'             => ['nullable', 'integer', 'exists:' . (new ChatRoom())->getTableName() . ',id'],
+            'title'             => ['nullable', 'string'],
             'group_icon'        => ['nullable', 'mimes:' . implode(",", $this->allowedExtensions)],
             'group_icon_actual' => ['nullable', 'mimes:' . implode(",", $this->allowedExtensions)],
             'is_group'          => ['in:' . implode(",", array_keys($this->isGroup))],
@@ -52,23 +54,34 @@ class ChatRoom extends BaseModel
         return $validator;
     }
 
-    public function getGroupIconAttribute($value)
-    {
-        if (empty($value)) {
-            return $value;
-        }
+    // public function getGroupIconAttribute($value)
+    // {
+    //     if (empty($value)) {
+    //         return $value;
+    //     }
 
-        $storageFolderName = (str_ireplace("\\", "/", $this->folder));
-        return Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $this->id . '/' . $value);
+    //     $storageFolderName = (str_ireplace("\\", "/", $this->folder));
+    //     return Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $this->id . '/' . $value);
+    // }
+
+    // public function getGroupIconActualAttribute($value)
+    // {
+    //     if (empty($value)) {
+    //         return $value;
+    //     }
+
+    //     $storageFolderName = (str_ireplace("\\", "/", $this->folder));
+    //     return Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $this->id . '/icon/' . $value);
+    // }
+
+    //get encrypted chat id
+    public function getEncryptedChatIdAttribute()
+    {
+        return encrypt($this->id);
     }
 
-    public function getGroupIconActualAttribute($value)
+    public function ChatRoomUsers()
     {
-        if (empty($value)) {
-            return $value;
-        }
-
-        $storageFolderName = (str_ireplace("\\", "/", $this->folder));
-        return Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $this->id . '/icon/' . $value);
+        return $this->hasMany('App\ChatRoomUser', 'chat_room_id', 'id');
     }
 }

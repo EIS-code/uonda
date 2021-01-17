@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use App\User;
 use App\School;
 use App\Country;
@@ -16,9 +17,23 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::where('is_admin', 0)->get();
+        $columns=Schema::getColumnListing('users');
+        $orderBy = ($request->input('sortBy') && in_array($request->input('sortBy'), $columns))?$request->input('sortBy'):'id';
+        $orderOrder = ($request->input('sortOrder') && ($request->input('sortOrder') == 'asc' || $request->input('sortOrder') == 'desc'))?$request->input('sortOrder'):'asc';
+        $limit = env('PAGINATION_PER_PAGE_RECORDS') ? env('PAGINATION_PER_PAGE_RECORDS') : 200;
+        $search = ($request->input('search') && $request->input('search') != '')?$request->input('search'):'';
+        $users = User::where('is_admin', 0);
+        $users->where(function($query) use ($search){
+            if($search) {
+                $searchColumn = ['name', 'email'];
+                foreach ($searchColumn as $singleSearchColumn) {
+                    $query->orWhere($singleSearchColumn, "LIKE", '%' . $search . '%');
+                }
+            }
+        });
+        $users = $users->orderBy($orderBy, $orderOrder)->paginate($limit);
         return view('pages.users.index', compact('users'));
     }
 

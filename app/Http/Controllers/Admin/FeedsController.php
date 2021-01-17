@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Feed;
 use Illuminate\Http\UploadedFile;
 use Storage;
+use App\Jobs\CreateFeedNotification;
 
 class FeedsController extends Controller
 {
@@ -82,7 +83,7 @@ class FeedsController extends Controller
                 }
             }
         }
-
+        CreateFeedNotification::dispatch($feed->id)->delay(now()->addSeconds(2));
         $request->session()->flash('alert-success', 'Feed successfully created');
         return redirect()->route('feeds.index');
     }

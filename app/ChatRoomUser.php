@@ -12,4 +12,8 @@ class ChatRoomUser extends BaseModel
     protected $fillable = [
         'chat_room_id', 'sender_id', 'receiver_id'
     ];
+
+    public function Users() {
+        return $this->belongsTo(User::class, 'sender_id', 'id');
+    }
 }
