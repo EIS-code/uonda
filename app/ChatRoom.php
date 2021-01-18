@@ -80,8 +80,13 @@ class ChatRoom extends BaseModel
         return encrypt($this->id);
     }
 
-    public function ChatRoomUsers()
+    public function chatRoomUsers()
     {
         return $this->hasMany('App\ChatRoomUser', 'chat_room_id', 'id');
+    }
+
+    public function totalGroupParticipants(int $id)
+    {
+        return $this->find($id)->chatRoomUsers->count();
     }
 }

@@ -47,11 +47,14 @@ let modelUsers          = 'users',
     modelChatRooms      = 'chat_rooms',
     modelChatRoomUsers  = 'chat_room_users',
     modelChats          = 'chats',
-    modelChatAttachment = 'chat_attachments';
+    modelChatAttachment = 'chat_attachments',
+    modelChatDelete     = 'chat_delets';
 
 // Global variables.
-var isError     = false,
-    onlineUsers = {};
+var isError       = false,
+    onlineUsers   = {},
+    appUrl        = env.config(envPath).parsed.APP_URL,
+    attachmentUrl = removeTrailingSlash(appUrl) + '/' + 'storage' + '/' + 'user' + '/' + 'chat' + '/' + 'attachment' + '/';
 
 /*io.use((socket, next)=>{
 
@@ -198,7 +201,7 @@ io.on('connection', function (socket) {
                             }
 
                             // let sqlGetChat = "SELECT id, message FROM `" + modelChats + "` as c WHERE c.`id` = '" + insertChat.insertId + "' LIMIT 1";
-                            let sqlGetChat = "SELECT c.id, c.message, ca.mime_type, ca.attachment, ca.url, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' ELSE NULL END AS message_type FROM `" + modelChats + "` AS c LEFT JOIN `" + modelChatAttachment + "` AS ca ON c.id = ca.chat_id WHERE c.`id` = '" + insertChat.insertId + "' LIMIT 1";
+                            let sqlGetChat = "SELECT c.id, c.message, ca.mime_type, ca.attachment, ca.url, ca.address, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' ELSE NULL END AS message_type FROM `" + modelChats + "` AS c LEFT JOIN `" + modelChatAttachment + "` AS ca ON c.id = ca.chat_id WHERE c.`id` = '" + insertChat.insertId + "' LIMIT 1";
 
                             connection.query(sqlGetChat, async function (err5, resultChat, fields) {
                                 if (err5) {
@@ -215,6 +218,10 @@ io.on('connection', function (socket) {
                                         return errorFun(err6.message);
                                     }
 
+                                    if (resultChat[0]['attachment'] !== null && resultChat[0]['attachment'].length > 0) {
+                                        resultChat[0]['attachment'] = buildAttachmentUrl(resultChat[0].id, resultChat[0]['attachment']);
+                                    }
+
                                     // senderData = {type: "new-message", message: resultChat[0], user: resultSenderUser[0]};
                                     resultChat[0].sender_id  = senderId;
                                     resultChat[0].receiverId = receiverId;
@@ -229,6 +236,10 @@ io.on('connection', function (socket) {
                                 connection.query(sqlGetReceiverUser, async function (err7, resultReceiverUser, fields) {
                                     if (err7) {
                                         return errorFun(err7.message);
+                                    }
+
+                                    if (resultChat[0]['attachment'] !== null && resultChat[0]['attachment'].length > 0) {
+                                        resultChat[0]['attachment'] = buildAttachmentUrl(resultChat[0].id, resultChat[0]['attachment']);
                                     }
 
                                     // receiverData = {type: "new-message", message: resultChat[0], 'user': resultReceiverUser[0]};
@@ -258,7 +269,7 @@ io.on('connection', function (socket) {
                         }
 
                         if (!isError) {
-                            let sqlGetChat = "SELECT c.id, c.message, ca.mime_type, ca.attachment, ca.url, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' ELSE NULL END AS message_type FROM `" + modelChats + "` AS c LEFT JOIN `" + modelChatAttachment + "` AS ca ON c.id = ca.chat_id WHERE c.`id` = '" + chatId + "' LIMIT 1";
+                            let sqlGetChat = "SELECT c.id, c.message, ca.mime_type, ca.attachment, ca.url, ca.address, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' ELSE NULL END AS message_type FROM `" + modelChats + "` AS c LEFT JOIN `" + modelChatDelete + "` AS cd ON `c`.`id` = `cd`.`chat_id` AND `cd`.`user_id` = '" + senderId + "' LEFT JOIN `" + modelChatAttachment + "` AS ca ON c.id = ca.chat_id WHERE c.`id` = '" + chatId + "' AND `cd`.`id` IS NULL LIMIT 1";
 
                             connection.query(sqlGetChat, async function (err14, resultChat, fields) {
                                 if (err14) {
@@ -266,15 +277,19 @@ io.on('connection', function (socket) {
                                 }
 
                                 if (resultChat.length > 0) {
+                                    if (resultChat[0]['attachment'] !== null && resultChat[0]['attachment'].length > 0) {
+                                        resultChat[0]['attachment'] = buildAttachmentUrl(resultChat[0].id, resultChat[0]['attachment']);
+                                    }
+
                                     resultChat[0].sender_id  = senderId;
                                     resultChat[0].receiverId = receiverId;
 
                                     io.sockets.to(roomId).emit('messageAcknowledge', resultChat[0]);
                                     io.sockets.to('individualJoin-' + receiverId).emit('messageRecieve', resultChat[0]);
+                                } else {
+                                    io.sockets.to(roomId).emit('messageAcknowledge', []);
+                                    io.sockets.to('individualJoin-' + receiverId).emit('messageRecieve', []);
                                 }
-
-                                io.sockets.to(roomId).emit('messageAcknowledge', []);
-                                io.sockets.to('individualJoin-' + receiverId).emit('messageRecieve', []);
                             });
                         }
                     });
@@ -384,7 +399,7 @@ io.on('connection', function (socket) {
                                     return errorFun(err3.message);
                                 }
 
-                                let sqlGetChat = "SELECT c.id, c.message, ca.mime_type, ca.attachment, ca.url, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' ELSE NULL END AS message_type FROM `" + modelChats + "` AS c LEFT JOIN `" + modelChatAttachment + "` AS ca ON c.id = ca.chat_id WHERE c.`id` = '" + insertChat.insertId + "' LIMIT 1";
+                                let sqlGetChat = "SELECT c.id, c.message, ca.mime_type, ca.attachment, ca.address, ca.url, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' ELSE NULL END AS message_type FROM `" + modelChats + "` AS c LEFT JOIN `" + modelChatAttachment + "` AS ca ON c.id = ca.chat_id WHERE c.`id` = '" + insertChat.insertId + "' LIMIT 1";
 
                                 connection.query(sqlGetChat, async function (err4, resultChat, fields) {
                                     if (err4) {
@@ -393,6 +408,10 @@ io.on('connection', function (socket) {
 
                                     var senderData   = {},
                                         receiverData = {};
+
+                                    if (resultChat[0]['attachment'] !== null && resultChat[0]['attachment'].length > 0) {
+                                        resultChat[0]['attachment'] = buildAttachmentUrl(resultChat[0].id, resultChat[0]['attachment']);
+                                    }
 
                                     resultChat[0].sender_id = senderId;
                                     resultChat[0].groupId   = chatRoomId;
@@ -422,11 +441,16 @@ io.on('connection', function (socket) {
                             }
 
                             if (!isError) {
-                                let sqlGetChat = "SELECT c.id, c.message, ca.mime_type, ca.attachment, ca.url, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' ELSE NULL END AS message_type FROM `" + modelChats + "` AS c LEFT JOIN `" + modelChatAttachment + "` AS ca ON c.id = ca.chat_id WHERE c.`id` = '" + chatId + "' LIMIT 1";
+                                // let sqlGetChat = "SELECT c.id, c.message, ca.mime_type, ca.attachment, ca.url, ca.address, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' ELSE NULL END AS message_type FROM `" + modelChats + "` AS c LEFT JOIN `" + modelChatAttachment + "` AS ca ON c.id = ca.chat_id WHERE c.`id` = '" + chatId + "' LIMIT 1";
+                                let sqlGetChat = "SELECT c.id, c.message, ca.mime_type, ca.attachment, ca.url, ca.address, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' ELSE NULL END AS message_type FROM `" + modelChats + "` AS c LEFT JOIN `" + modelChatDelete + "` AS cd ON `c`.`id` = `cd`.`chat_id` AND `cd`.`user_id` = '" + senderId + "' LEFT JOIN `" + modelChatAttachment + "` AS ca ON c.id = ca.chat_id WHERE c.`id` = '" + chatId + "' AND `cd`.`id` IS NULL LIMIT 1";
 
                                 connection.query(sqlGetChat, async function (err14, resultChat, fields) {
                                     if (err14) {
                                         return errorFun(err14.message);
+                                    }
+
+                                    if (resultChat[0]['attachment'] !== null && resultChat[0]['attachment'].length > 0) {
+                                        resultChat[0]['attachment'] = buildAttachmentUrl(resultChat[0].id, resultChat[0]['attachment']);
                                     }
 
                                     resultChat[0].sender_id = senderId;
@@ -520,4 +544,12 @@ function generateUuid(count) {
     }
 
     return str;
+}
+function removeTrailingSlash(url)
+{
+    return url.replace(/\/$/, "");
+}
+function buildAttachmentUrl(id, file)
+{
+    return attachmentUrl + id + '/' + file;
 }

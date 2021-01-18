@@ -5,16 +5,19 @@ namespace App;
 use Illuminate\Support\Facades\Validator;
 use App\Chat;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ChatAttachment extends BaseModel
 {
+    use SoftDeletes;
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'mime_type', 'attachment', 'url', 'name', 'contacts', 'chat_id'
+        'mime_type', 'attachment', 'url', 'address', 'name', 'contacts', 'chat_id'
     ];
 
     public $fileSystem = 'public';

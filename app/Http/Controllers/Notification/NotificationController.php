@@ -17,20 +17,27 @@ use LaravelFCM\Message\OptionsBuilder;
 use LaravelFCM\Message\PayloadDataBuilder;
 use LaravelFCM\Message\PayloadNotificationBuilder;
 use FCM;
+use Illuminate\Support\Facades\Storage;
 
 class NotificationController extends BaseController
 {
     public function storeScreenshot(Request $request)
     {
-        $data  = $request->all();
-        $model = new Notification();
+        $data          = $request->all();
+        $model         = new Notification();
+        $userId        = !empty($data['user_id']) ? (int)$data['user_id'] : false;
+        $requestUserId = !empty($data['request_user_id']) ? (int)$data['request_user_id'] : false;
 
-        $modelName = new ReflectionClass((new User));
-        $modelName = $modelName->getName();
+        $data['user_id'] = $requestUserId;
 
-        $data['message']  = __('Screenshot captured.');
-        $data['model']    = $modelName;
-        $data['model_id'] = $data['user_id'];
+        $data['message']    = __('Screenshot captured.');
+        $data['created_by'] = $userId;
+
+        if (!empty($data['is_admin']) && $data['is_admin'] == '1') {
+            $data['device_token'] = User::ADMIN_DEVICE_TOKEN;
+        } elseif (!empty($data['user_id'])) {
+            $data['device_token'] = User::getDeviceToken($requestUserId);
+        }
 
         $validator = $model->validator($data);
 
@@ -90,7 +97,7 @@ class NotificationController extends BaseController
 
         // $deviceTokens = 'fgMpeCBXJkjuiV5dB9Kz7k:APA91bHEOD2POyDAza0KsT5vPYiRA5k45nDna8tAXJT3oz91JSZCfYmdAlVrRLf2bDI9LsqOMDindw8AGPb06rvm_YcI632AbzQmeTkzJQnqGRSzYCChEzdCxyknRCE7yc7KmjFL_ec0';
 
-        $notifications = new PushokNotification($payload, $user->device_token);
+        $notifications = new PushokNotification($payload, (string)$user->device_token);
 
         $client = new Client($authProvider, $production = false);
         $client->addNotifications([$notifications]);
@@ -155,15 +162,41 @@ class NotificationController extends BaseController
 
     public function getNotifications(Request $request)
     {
-        $model  = new Notification();
-        $data   = $request->all();
-        $userId = !empty($data['user_id']) ? (int)$data['user_id'] : false;
+        $model     = new Notification();
+        $modelUser = new User();
+        $data      = $request->all();
+        $userId    = !empty($data['user_id']) ? (int)$data['user_id'] : false;
 
         if (empty($userId)) {
             return $this->returnError(__('User id is required.'));
         }
 
-        $notifications = $model::where('user_id', (int)$userId)->where('is_read', $model::IS_UNREAD)->where('is_success', $model::IS_SUCCESS)->get();
+        $notifications = $model::selectRaw($model::getTableName() . '.*, ' . $modelUser->getTableName() . '.profile, ' . $modelUser->getTableName() . '.profile_icon')
+                               ->where('user_id', (int)$userId)->where('is_read', $model::IS_UNREAD)->where('is_success', $model::IS_SUCCESS)
+                               ->join($modelUser->getTableName(), $model::getTableName() . '.created_by', '=', $modelUser->getTableName() . '.id')->get();
+
+        if (!empty($notifications) && !$notifications->isEmpty($notifications)) {
+            $notifications->makeHidden(['total_notifications', 'total_read_notifications', 'total_unread_notifications']);
+
+            $storageFolderNameUser     = (str_ireplace("\\", "/", $modelUser->profile));
+            $storageFolderNameUserIcon = (str_ireplace("\\", "/", $modelUser->profileIcon));
+
+            $notifications->map(function($data) use($modelUser, $storageFolderNameUser, $storageFolderNameUserIcon) {
+                if (!empty($data->profile)) {
+                    $data->profile = Storage::disk($modelUser->fileSystem)->url($storageFolderNameUser . '/' . $data->profile);
+                }
+
+                if (!empty($data->profile_icon)) {
+                    $data->profile_icon = Storage::disk($modelUser->fileSystem)->url($storageFolderNameUserIcon . '/' . $data->profile_icon);
+                }
+
+                if (!empty($data->updated_at) && strtotime($data->updated_at) > 0) {
+                    $data->time = strtotime($data->updated_at) * 1000;
+                } else {
+                    $data->time = 0;
+                }
+            });
+        }
 
         return $this->returnSuccess(__('Notifications get successfully!'), $notifications);
     }
@@ -183,10 +216,15 @@ class NotificationController extends BaseController
             return $this->returnError(__('Notification id is required.'));
         }
 
-        $remove = $model::where('user_id', (int)$userId)->where('id', (int)$id)->limit(1)->delete();
+        $notification = $model::where('user_id', (int)$userId)->where('id', (int)$id)->first();
+        $userId       = !empty($notification) ? $notification->user_id : false;
 
-        if ($remove) {
-            return $this->returnSuccess(__('Notification removed successfully!'));
+        if (!empty($userId)) {
+            $remove = $notification->delete();
+
+            if ($remove) {
+                return $this->returnSuccess(__('Notification removed successfully!'), $this->getDetails(0, $userId, true));
+            }
         }
 
         return $this->returnError(__('Notification could\'t found.'));
@@ -207,12 +245,48 @@ class NotificationController extends BaseController
             return $this->returnError(__('Notification id is required.'));
         }
 
-        $isRead = $model::where('user_id', (int)$userId)->where('id', (int)$id)->update(['is_read' => $model::IS_READ]);
+        $notification = $model::where('user_id', (int)$userId)->where('id', (int)$id);
+        $isRead       = $notification->update(['is_read' => $model::IS_READ]);
 
         if ($isRead) {
-            return $this->returnSuccess(__('Notification read successfully!'));
+            $notification = $notification->first();
+
+            return $this->returnSuccess(__('Notification read successfully!'), $this->getDetails($notification->id, false, true));
         }
 
         return $this->returnError(__('Notification could\'t found.'));
+    }
+
+    public function getDetails(int $id, $userId = false, $totalOnly = false, $isApi = false)
+    {
+        $model = new Notification();
+
+        if (empty($id) && !empty($userId)) {
+            $notification = $model::where('user_id', $userId)->first();
+        } else {
+            $notification = $model::find($id);
+        }
+
+        if (!empty($notification)) {
+            if ($isApi) {
+                if ($totalOnly) {
+                    return $this->returnSuccess(__('Notification details get successfully!'), ['total_notifications' => $notification->total_notifications, 'total_read_notifications' => $notification->total_read_notifications, 'total_unread_notifications' => $notification->total_unread_notifications]);
+                }
+
+                return $this->returnSuccess(__('Notification details get successfully!'), $notification);
+            }
+
+            if ($totalOnly) {
+                return ['total_notifications' => $notification->total_notifications, 'total_read_notifications' => $notification->total_read_notifications, 'total_unread_notifications' => $notification->total_unread_notifications];
+            }
+
+            return $notification;
+        }
+
+        if ($isApi) {
+            return $this->returnNull();
+        }
+
+        return $notification;
     }
 }

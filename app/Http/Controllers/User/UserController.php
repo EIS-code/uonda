@@ -47,6 +47,7 @@ class UserController extends BaseController
 
                         if (!empty($pathInfos['extension'])) {
                             $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                            $fileName  = removeSpaces($fileName);
                             $storeFile = $documentGraduation->storeAs($modelDocument->graduation, $fileName, $modelDocument->fileSystem);
 
                             if ($storeFile) {
@@ -64,6 +65,7 @@ class UserController extends BaseController
 
                         if (!empty($pathInfos['extension'])) {
                             $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                            $fileName  = removeSpaces($fileName);
                             $storeFile = $documentStudentIdCard->storeAs($modelDocument->studentIdCard, $fileName, $modelDocument->fileSystem);
 
                             if ($storeFile) {
@@ -81,6 +83,7 @@ class UserController extends BaseController
 
                         if (!empty($pathInfos['extension'])) {
                             $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                            $fileName  = removeSpaces($fileName);
                             $storeFile = $documentPhotoInUniform->storeAs($modelDocument->photoInUniform, $fileName, $modelDocument->fileSystem);
 
                             if ($storeFile) {
@@ -98,6 +101,7 @@ class UserController extends BaseController
 
                         if (!empty($pathInfos['extension'])) {
                             $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                            $fileName  = removeSpaces($fileName);
                             $storeFile = $documentClassPhoto->storeAs($modelDocument->classPhoto, $fileName, $modelDocument->fileSystem);
 
                             if ($storeFile) {
@@ -282,6 +286,7 @@ class UserController extends BaseController
 
                 if (!empty($folder)) {
                     $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                    $fileName  = removeSpaces($fileName);
                     $storeFile = $document->storeAs($folder, $fileName, $model->fileSystem);
 
                     if ($storeFile) {
@@ -335,6 +340,7 @@ class UserController extends BaseController
 
                     if (!empty($folder)) {
                         $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                        $fileName  = removeSpaces($fileName);
                         $storeFile = $document->storeAs($folder, $fileName, $model->fileSystem);
 
                         if ($storeFile) {
@@ -548,6 +554,7 @@ class UserController extends BaseController
 
                             if (!empty($folder)) {
                                 $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                                $fileName  = removeSpaces($fileName);
                                 $storeFile = $document->storeAs($folder, $fileName, $modelDocument->fileSystem);
 
                                 if ($storeFile) {
@@ -572,6 +579,7 @@ class UserController extends BaseController
 
                         if (!empty($folder)) {
                             $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                            $fileName  = removeSpaces($fileName);
                             $storeFile = $profile->storeAs($folder, $fileName, $model->fileSystem);
 
                             if ($storeFile) {

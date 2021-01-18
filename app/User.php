@@ -11,6 +11,7 @@ use App\City;
 use App\UserSetting;
 use App\ApiKey;
 use App\UserBlockProfile;
+use App\Notification;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 
@@ -24,7 +25,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'user_name', 'email', 'password', 'referral_code', 'current_location', 'nation', 'gender', 'birthday', 'school_id', 'state_id', 'country_id', 'city_id',
+        'name', 'user_name', 'email', 'password', 'referral_code', 'current_location', 'nation', 'gender', 'birthday', 'short_bio', 'school_id', 'state_id', 'country_id', 'city_id',
         'current_status', 'company', 'job_position', 'university', 'field_of_study', 'profile', 'profile_icon', 'personal_flag', 'school_flag', 'other_flag', 'latitude', 'longitude', 'device_token', 'device_type', 'app_version', 'oauth_uid', 'oauth_provider', 'is_online'
     ];
 
@@ -54,7 +55,7 @@ class User extends Authenticatable
      *
      * @var array
      */
-    public $appends = ['encrypted_user_id', 'permissions'];
+    public $appends = ['encrypted_user_id', 'permissions', 'total_notifications', 'total_read_notifications', 'total_unread_notifications'];
 
     const MALE = 'm';
     const FEMALE = 'f';
@@ -105,6 +106,8 @@ class User extends Authenticatable
         self::OAUTH_APPLE    => 'Apple'
     ];
 
+    const ADMIN_DEVICE_TOKEN = 'admin';
+
     public function __construct(array $attributes = array())
     {
         parent::__construct($attributes);
@@ -148,6 +151,7 @@ class User extends Authenticatable
             'nation'           => array_merge(['string', 'max:255'], !empty($requiredFileds['nation']) ? $requiredFileds['nation'] : ['nullable']),
             'gender'           => array_merge(['in:' . implode(",", array_keys($this->genders))], !empty($requiredFileds['gender']) ? $requiredFileds['gender'] : ['nullable']),
             'birthday'         => array_merge([], !empty($requiredFileds['string']) ? $requiredFileds['string'] : ['nullable']),
+            'short_bio'        => array_merge(['string'], !empty($requiredFileds['short_bio']) ? $requiredFileds['short_bio'] : ['nullable']),
             'school_id'        => array_merge(['integer', 'exists:' . School::getTableName() . ',id'], !empty($requiredFileds['school_id']) ? $requiredFileds['school_id'] : ['nullable']),
             'country_id'       => array_merge(['integer', 'exists:' . Country::getTableName() . ',id'], !empty($requiredFileds['country_id']) ? $requiredFileds['country_id'] : ['nullable']),
             'state_id'         => array_merge(['integer', 'exists:' . State::getTableName() . ',id'], !empty($requiredFileds['state_id']) ? $requiredFileds['state_id'] : ['nullable']),
@@ -221,6 +225,30 @@ class User extends Authenticatable
     public function userDocuments()
     {
         return $this->hasMany('App\UserDocument', 'user_id', 'id');
+    }
+
+    public function notifications($isAll = false, $isRead = Notification::IS_UNREAD, $isSuccess = Notification::IS_SUCCESS)
+    {
+        if ($isAll) {
+            return $this->hasMany('App\Notification', 'user_id', 'id');
+        } else {
+            return $this->hasMany('App\Notification', 'user_id', 'id')->where('is_read', $isRead)->where('is_success', $isSuccess);
+        }
+    }
+
+    public function getTotalReadNotificationsAttribute()
+    {
+        return $this->notifications(false, Notification::IS_READ)->count();
+    }
+
+    public function getTotalNotificationsAttribute()
+    {
+        return $this->notifications(true)->count();
+    }
+
+    public function getTotalUnreadNotificationsAttribute()
+    {
+        return $this->notifications->count();
     }
 
     //get encrypted user id
@@ -367,5 +395,16 @@ class User extends Authenticatable
         }
 
         return $user->save();
+    }
+
+    public static function getDeviceToken(int $id)
+    {
+        $user = self::find($id);
+
+        if (!empty($user)) {
+            return $user->device_token;
+        }
+
+        return NULL;
     }
 }

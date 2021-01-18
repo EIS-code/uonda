@@ -45,7 +45,7 @@
     var chatRoute = '{{ route("user.chat.send") }}';
     var senderId   = '{{ $userId }}';
     var receiverId = '{{ $sendBy }}';
-    var groupId = '13';
+    var groupId = '37';
 
     socket.on('connect', function() {
         console.log("connected !!");
@@ -57,6 +57,10 @@
         socket.emit('doOnline', senderId);
 
         socket.on('error-' + senderId, function (data) {
+            console.log(data);
+        });
+
+        socket.on('error', function (data) {
             console.log(data);
         });
 
@@ -79,7 +83,7 @@
             }
         });
 
-        socket.emit('messageSendAttachment', {id: 234});
+        socket.emit('messageSendAttachment', {id: 274});
 
         socket.on('messageAcknowledge', function (data) {
             console.log("messageAcknowledge");

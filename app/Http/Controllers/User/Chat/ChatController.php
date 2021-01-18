@@ -10,12 +10,14 @@ use App\ChatRoomUser;
 use App\ChatRoom;
 use App\ChatAttachment;
 use App\User;
+use App\ChatDelete;
 use LRedis;
 use DB;
 use Illuminate\Support\Facades\Storage;
 // use Illuminate\Broadcasting\BroadcastManager;
 // use Illuminate\Support\Facades\Event;
 use Illuminate\Http\UploadedFile;
+use Carbon\Carbon;
 
 class ChatController extends BaseController
 {
@@ -27,10 +29,12 @@ class ChatController extends BaseController
 
     public function index()
     {
-        $user = auth()->user();
+        $user    = auth()->user();
+        $request = request();
 
         $userId = auth()->user()->id;
-        $sendBy = $userId == 3 ? 4 : 3;
+        // $sendBy = $userId == 3 ? 4 : 3;
+        $sendBy = $request->get('receiver_id', ($userId == 3 ? 4 : 3));
 
         return view('chat', compact('userId', 'sendBy'));
     }
@@ -99,7 +103,11 @@ class ChatController extends BaseController
             return $this->returnError(__('Contact required if name present.'));
         } elseif (!empty($data['contacts']) && empty($data['name'])) {
             return $this->returnError(__('Name required if contacts present.'));
-        } elseif (empty($data['url']) && empty($data['attachment']) && empty($data['name']) && empty($data['contacts'])) {
+        }/* elseif (!empty($data['url']) && empty($data['address'])) {
+            return $this->returnError(__('Address required if URL present.'));
+        } elseif (empty($data['url']) && !empty($data['address'])) {
+            return $this->returnError(__('URL required if Address present.'));
+        } */elseif (empty($data['url']) && empty($data['attachment']) && empty($data['name']) && empty($data['contacts'])) {
             return $this->returnError(__('Provide attachment, url or contacts.'));
         }
 
@@ -169,6 +177,7 @@ class ChatController extends BaseController
                         }
 
                         $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                        $fileName  = removeSpaces($fileName);
                         $storeFile = $attachment->storeAs($modelChatAttachment->folder . '\\' . $chatId, $fileName, $modelChatAttachment->fileSystem);
 
                         if ($storeFile) {
@@ -183,13 +192,15 @@ class ChatController extends BaseController
                     return $this->returnError(__('Chat ' . $group . ' attachment doesn\'t inserted. Try again.'));
 
                 } elseif (!empty($data['url'])) {
-                    $isInserted = $modelChatAttachment->create(['url' => $data['url'], 'chat_id' => $chatId]);
+                    $address = !empty($data['address']) ? $data['address'] : NULL;
+
+                    $isInserted = $modelChatAttachment->create(['url' => $data['url'], 'address' => $address, 'chat_id' => $chatId]);
 
                     if ($isInserted) {
-                        return $this->returnSuccess(__('Chat ' . $group . ' URL inserted successfully!'), $isInserted);
+                        return $this->returnSuccess(__('Chat ' . $group . ' URL & Address inserted successfully!'), $isInserted);
                     }
 
-                    return $this->returnError(__('Chat ' . $group . ' URL doesn\'t inserted. Try again.'));
+                    return $this->returnError(__('Chat ' . $group . ' URL & Address doesn\'t inserted. Try again.'));
 
                 } elseif (!empty($data['name']) && !empty($data['contacts'])) {
                     $isInserted = $modelChatAttachment->create(['name' => $data['name'], 'contacts' => $data['contacts'], 'chat_id' => $chatId]);
@@ -218,6 +229,7 @@ class ChatController extends BaseController
         $modelChats           = new Chat();
         $modelChatRooms       = new ChatRoom();
         $modelChatAttachments = new ChatAttachment();
+        $modelChatDelets     = new ChatDelete();
 
         $userId = $request->get('user_id', false);
 
@@ -239,9 +251,14 @@ class ChatController extends BaseController
         $records = $modelChats::selectRaw("{$modelChats::getTableName()}.id as chat_id, {$modelChatRoomUsers::getTableName()}.sender_id, {$modelChatRoomUsers::getTableName()}.receiver_id, {$modelChatRooms::getTableName()}.id as chat_room_id, {$modelChats::getTableName()}.updated_at, CASE WHEN {$modelChatAttachments::getTableName()}.mime_type != '' && {$modelChatAttachments::getTableName()}.attachment != '' THEN 'Attachment Sent' WHEN {$modelChatAttachments::getTableName()}.url != '' THEN 'URL Sent' WHEN {$modelChatAttachments::getTableName()}.name != '' && {$modelChatAttachments::getTableName()}.contacts != '' THEN 'Contact Sent' ELSE {$modelChats::getTableName()}.message END AS recent_message, {$modelChatRooms::getTableName()}.is_group, {$modelChatRooms::getTableName()}.title")
                               ->join($modelChatRoomUsers::getTableName(), $modelChats::getTableName() . '.chat_room_user_id', '=', $modelChatRoomUsers::getTableName() . '.id')
                               ->join($modelChatRooms::getTableName(), $modelChatRoomUsers::getTableName() . '.chat_room_id', '=', $modelChatRooms::getTableName() . '.id')
+                              ->leftJoin($modelChatDelets::getTableName(), function($leftJoin) use($modelChats, $modelChatDelets, $userId) {
+                                  $leftJoin->on($modelChats::getTableName() . '.id', '=', $modelChatDelets::getTableName() . '.chat_id')
+                                           ->where($modelChatDelets::getTableName() . '.user_id', $userId);
+                              })
                               ->leftJoin($modelChatAttachments::getTableName(), $modelChats::getTableName() . '.id', '=', $modelChatAttachments::getTableName() . '.chat_id')
-                              ->whereRaw($modelChatRoomUsers::getTableName() . '.receiver_id = ' . $userId . ' OR ' . $modelChatRoomUsers::getTableName() . '.sender_id = ' . $userId)
+                              ->whereRaw('(' . $modelChatRoomUsers::getTableName() . '.receiver_id = ' . $userId . ' OR ' . $modelChatRoomUsers::getTableName() . '.sender_id = ' . $userId . ')')
                               ->where($modelChatRooms::getTableName() . '.is_group', $modelChatRooms::IS_NOT_GROUP)
+                              ->whereNull($modelChatDelets::getTableName() . '.id')
                               ->orderBy($modelChats::getTableName() . '.updated_at', 'ASC')
                               ->get();
 
@@ -289,25 +306,31 @@ class ChatController extends BaseController
         $records = $modelChatRooms::selectRaw("{$modelChats::getTableName()}.id as chat_id, {$modelChatRooms::getTableName()}.id, {$modelChatRooms::getTableName()}.id as chat_room_id, {$modelChats::getTableName()}.updated_at, CASE WHEN {$modelChatAttachments::getTableName()}.mime_type != '' && {$modelChatAttachments::getTableName()}.attachment != '' THEN 'Attachment Sent' WHEN {$modelChatAttachments::getTableName()}.url != '' THEN 'URL Sent' WHEN {$modelChatAttachments::getTableName()}.name != '' && {$modelChatAttachments::getTableName()}.contacts != '' THEN 'Contact Sent' ELSE {$modelChats::getTableName()}.message END AS recent_message, {$modelChatRooms::getTableName()}.is_group, {$modelChatRooms::getTableName()}.title, {$modelChatRooms::getTableName()}.group_icon, {$modelChatRooms::getTableName()}.group_icon_actual")
                               ->join($modelChatRoomUsers::getTableName(), $modelChatRooms::getTableName() . '.id', '=', $modelChatRoomUsers::getTableName() . '.chat_room_id')
                               ->leftJoin($modelChats::getTableName(), $modelChatRooms::getTableName() . '.id', '=', $modelChats::getTableName() . '.chat_room_id')
+                              ->leftJoin($modelChatDelets::getTableName(), function($leftJoin) use($modelChats, $modelChatDelets, $userId) {
+                                  $leftJoin->on($modelChats::getTableName() . '.id', '=', $modelChatDelets::getTableName() . '.chat_id')
+                                           ->where($modelChatDelets::getTableName() . '.user_id', $userId);
+                              })
                               ->leftJoin($modelChatAttachments::getTableName(), $modelChats::getTableName() . '.id', '=', $modelChatAttachments::getTableName() . '.chat_id')
                               ->where($modelChatRooms::getTableName() . '.is_group', $modelChatRooms::IS_GROUP)
                               ->where($modelChatRoomUsers::getTableName() . '.sender_id', $userId)
+                              ->whereNull($modelChatDelets::getTableName() . '.id')
                               ->orderBy($modelChats::getTableName() . '.updated_at', 'ASC')
                               ->get();
 
         $returnGroupDatas = [];
 
         if (!empty($records)) {
-            $records->map(function($data) use(&$returnGroupDatas) {
+            $records->map(function($data) use(&$returnGroupDatas, $modelChatRooms) {
                 $returnGroupDatas[$data->chat_room_id] = [
-                    'chat_id'           => $data->chat_id,
-                    'chat_room_id'      => $data->chat_room_id,
-                    'recent_time'       => strtotime($data->updated_at) * 1000,
-                    'recent_message'    => $data->recent_message,
-                    'is_group'          => $data->is_group,
-                    'title'             => $data->title,
-                    'group_icon'        => $data->group_icon,
-                    'group_icon_actual' => $data->group_icon_actual
+                    'chat_id'            => $data->chat_id,
+                    'chat_room_id'       => $data->chat_room_id,
+                    'recent_time'        => strtotime($data->updated_at) * 1000,
+                    'recent_message'     => $data->recent_message,
+                    'is_group'           => $data->is_group,
+                    'title'              => $data->title,
+                    'group_icon'         => $data->group_icon,
+                    'group_icon_actual'  => $data->group_icon_actual,
+                    'total_participants' => $modelChatRooms->totalGroupParticipants($data->chat_room_id)
                 ];
             });
         }
@@ -334,6 +357,7 @@ class ChatController extends BaseController
         $modelChatAttachment = new ChatAttachment();
         $modelChatRooms      = new ChatRoom();
         $model               = new User();
+        $modelChatDelets     = new ChatDelete();
         $data                = $request->all();
 
         $userId     = !empty($data['user_id']) ? (int)$data['user_id'] : false;;
@@ -344,13 +368,13 @@ class ChatController extends BaseController
             return $this->returnError(__("User id is required."));
         }
 
-        if (empty($groupId)) {
+        /*if (empty($groupId)) {
             return $this->returnError(__('Group id is required.'));
-        }
-
-        /*if (empty($receiverId) && empty($groupId)) {
-            return $this->returnError(__('Receiver id or Group id required.'));
         }*/
+
+        if (empty($receiverId) && empty($groupId)) {
+            return $this->returnError(__('Receiver id or Group id required.'));
+        }
 
         // , CASE cru.sender_id WHEN '4' THEN 'sender' ELSE 'receiver' END AS sender_receiver_flag
 
@@ -368,14 +392,27 @@ class ChatController extends BaseController
                 ORDER BY c.updated_at ASC");
         }*/
 
-        $records = DB::select("SELECT c.id, c.message, cru.sender_id, cru.receiver_id, c.created_at, c.updated_at, ca.mime_type, ca.attachment, ca.url, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' WHEN c.message != '' THEN 'text' ELSE NULL END AS message_type, u.name as user_name, u.profile, u.profile_icon
-                FROM `" . $modelChatRoomUsers::getTableName() . "` AS cru
-                JOIN `" . $modelChats::getTableName() . "` AS c ON cru.id = c.chat_room_user_id
-                JOIN `" . $modelChatRooms::getTableName() . "` AS cr ON cru.chat_room_id = cr.id
-                JOIN `" . $model->getTableName() . "` AS u ON cru.sender_id = u.id
-                LEFT JOIN `" . $modelChatAttachment::getTableName() . "` AS ca ON c.id = ca.chat_id
-                WHERE cr.id = '" . (int)$groupId . "'
-                ORDER BY c.updated_at ASC");
+        if (!empty($receiverId)) {
+            $records = DB::select("SELECT c.id, c.message, cru.sender_id, cru.receiver_id, c.created_at, c.updated_at, ca.mime_type, ca.attachment, ca.url, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' WHEN c.message != '' THEN 'text' ELSE NULL END AS message_type, u.name as user_name, u.profile, u.profile_icon
+                    FROM `" . $modelChatRoomUsers::getTableName() . "` AS cru
+                    JOIN `" . $modelChats::getTableName() . "` AS c ON cru.id = c.chat_room_user_id
+                    JOIN `" . $modelChatRooms::getTableName() . "` AS cr ON cru.chat_room_id = cr.id
+                    JOIN `" . $model->getTableName() . "` AS u ON cru.sender_id = u.id
+                    LEFT JOIN `" . $modelChatDelets::getTableName() . "` as cd ON c.id = cd.chat_id AND cd.user_id = '" . $userId . "'
+                    LEFT JOIN `" . $modelChatAttachment::getTableName() . "` AS ca ON c.id = ca.chat_id
+                    WHERE ((cru.`sender_id` = '" . $userId . "' AND cru.`receiver_id` = '" . $receiverId . "') OR (cru.`sender_id` = '" . $receiverId . "' AND cru.`receiver_id` = '" . $userId . "')) AND cr.is_group = '" . $modelChatRooms::IS_NOT_GROUP . "' AND cd.id IS NULL
+                    ORDER BY c.updated_at ASC");
+        } else {
+            $records = DB::select("SELECT c.id, c.message, cru.sender_id, cru.receiver_id, c.created_at, c.updated_at, ca.mime_type, ca.attachment, ca.url, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' WHEN c.message != '' THEN 'text' ELSE NULL END AS message_type, u.name as user_name, u.profile, u.profile_icon
+                    FROM `" . $modelChatRoomUsers::getTableName() . "` AS cru
+                    JOIN `" . $modelChats::getTableName() . "` AS c ON cru.id = c.chat_room_user_id
+                    JOIN `" . $modelChatRooms::getTableName() . "` AS cr ON cru.chat_room_id = cr.id
+                    JOIN `" . $model->getTableName() . "` AS u ON cru.sender_id = u.id
+                    LEFT JOIN `" . $modelChatDelets::getTableName() . "` as cd ON c.id = cd.chat_id AND cd.user_id = '" . $userId . "'
+                    LEFT JOIN `" . $modelChatAttachment::getTableName() . "` AS ca ON c.id = ca.chat_id
+                    WHERE cr.id = '" . (int)$groupId . "' AND cd.id IS NULL
+                    ORDER BY c.updated_at ASC");
+        }
 
         if (!empty($records)) {
             $storageFolderName         = (str_ireplace("\\", "/", $modelChatAttachment->folder));
@@ -392,11 +429,11 @@ class ChatController extends BaseController
                 }
 
                 if (!empty($record->attachment)) {
-                    $record->attachment = Storage::disk($modelChatAttachment->fileSystem)->url($storageFolderName . '/' . $record->id . '/' . $record->attachment);;
+                    $record->attachment = Storage::disk($modelChatAttachment->fileSystem)->url($storageFolderName . '/' . $record->id . '/' . $record->attachment);
                 }
 
                 if (!empty($record->profile)) {
-                    $record->profile = Storage::disk($model->fileSystem)->url($storageFolderNameUser . '/' . $record->profile);;
+                    $record->profile = Storage::disk($model->fileSystem)->url($storageFolderNameUser . '/' . $record->profile);
                 }
 
                 if (!empty($record->profile_icon)) {
@@ -416,5 +453,84 @@ class ChatController extends BaseController
         }
 
         return $this->returnSuccess(__('User chat history get successfully!'), $records);
+    }
+
+    public function removeChat(Request $request)
+    {
+        $modelChats          = new Chat();
+        $modelChatAttachment = new ChatAttachment();
+        $modelChatRooms      = new ChatRoom();
+        $modelChatRoomUsers  = new ChatRoomUser();
+        $modelChatDelets     = new ChatDelete();
+        $data                = $request->all();
+        $now                 = new Carbon();
+
+        $userId     = !empty($data['user_id']) ? (int)$data['user_id'] : false;;
+        $receiverId = !empty($data['receiver_id']) ? (int)$data['receiver_id'] : false;
+        $groupId    = !empty($data['group_id']) ? (int)$data['group_id'] : false;
+
+        if (empty($userId)) {
+            return $this->returnError(__("User id is required."));
+        }
+
+        /*if (empty($groupId)) {
+            return $this->returnError(__('Group id is required.'));
+        }*/
+
+        if (empty($receiverId) && empty($groupId)) {
+            return $this->returnError(__('Receiver id or Group id required.'));
+        }
+
+        if (!empty($receiverId)) {
+            $chats = $modelChats::select($modelChats::getTableName() . '.id')
+                                ->join($modelChatRoomUsers::getTableName(), $modelChats::getTableName() . '.chat_room_user_id', '=', $modelChatRoomUsers::getTableName() . '.id')
+                                ->leftJoin($modelChatDelets::getTableName(), $modelChats::getTableName() . '.id', '=', $modelChatDelets::getTableName() . '.chat_id')
+                                ->where(function($query) use($receiverId, $modelChatRoomUsers, $userId) {
+                                        $query->where($modelChatRoomUsers::getTableName() . '.sender_id', $receiverId)
+                                              ->orWhere($modelChatRoomUsers::getTableName() . '.receiver_id', $receiverId)
+                                              ->whereRaw("(({$modelChatRoomUsers::getTableName()}.sender_id = {$userId} AND {$modelChatRoomUsers::getTableName()}.receiver_id = {$receiverId}) OR ({$modelChatRoomUsers::getTableName()}.receiver_id = {$userId} AND {$modelChatRoomUsers::getTableName()}.sender_id = {$receiverId}))");
+                                    })
+                                    ->whereNull($modelChatDelets::getTableName() . '.id')
+                                ->get();
+        } else {
+            $chats = $modelChats::select($modelChats::getTableName() . '.id')
+                                ->join($modelChatRoomUsers::getTableName(), $modelChats::getTableName() . '.chat_room_user_id', '=', $modelChatRoomUsers::getTableName() . '.id')
+                                ->leftJoin($modelChatDelets::getTableName(), $modelChats::getTableName() . '.id', '=', $modelChatDelets::getTableName() . '.chat_id')
+                                ->where($modelChatRoomUsers::getTableName() . '.chat_room_id', $groupId)
+                                ->whereNull($modelChatDelets::getTableName() . '.id')
+                                ->get();
+        }
+
+        if (!empty($chats) && !$chats->isEmpty()) {
+            $chatIds      = $chats->pluck('id');
+            $errorMessage = NULL;
+            $delete       = [];
+
+            foreach ($chatIds as $index => $chatId) {
+                $delete[$index] = [
+                    'chat_id'    => $chatId,
+                    'user_id'    => $userId,
+                    'created_at' => $now,
+                    'updated_at' => $now
+                ];
+
+                $validator = $modelChatDelets->validators($delete[$index]);
+
+                if ($validator->fails()) {
+                    $errorMessage = $validator->errors()->first();
+                    break;
+                }
+            }
+
+            if (!empty($errorMessage)) {
+                return $this->returnError($errorMessage);
+            } elseif (!empty($delete)) {
+                if ($modelChatDelets::insert($delete)) {
+                    return $this->returnSuccess(__('User chat removed successfully!'));
+                }
+            }
+        }
+
+        return $this->returnError(__('Something went wrong!'));
     }
 }
