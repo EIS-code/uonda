@@ -75,9 +75,9 @@ class NotificationController extends BaseController
         $user = $modelUsers::find($userId);
 
         $options = [
-            'key_id' => env('PUSH_NOTIFICATION_IOS_KEY'),
-            'team_id' => env('PUSH_NOTIFICATION_IOS_TEAM_ID'),
-            'app_bundle_id' => env('PUSH_NOTIFICATION_IOS_APP_BUNDLE_ID'),
+            'key_id' => env('PUSH_NOTIFICATION_IOS_KEY', 'YZJF23QQMZ'),
+            'team_id' => env('PUSH_NOTIFICATION_IOS_TEAM_ID', '92Q7N837Q6'),
+            'app_bundle_id' => env('PUSH_NOTIFICATION_IOS_APP_BUNDLE_ID', 'com.terraheal'),
             'private_key_path' => base_path('iOS/Push Notifications/AuthKey_YZJF23QQMZ.p8'),
             'private_key_secret' => null
         ];
