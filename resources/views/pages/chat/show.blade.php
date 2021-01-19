@@ -38,7 +38,7 @@
                         <tr>
                             <th> Group Icon </th>
                             <td> 
-                                <img width="250" src="{{ URL::asset('storage/'. $chat_room->group_icon) }}">
+                                <img width="250" src="{{ $chat_room->group_icon }}">
                             </td>
                         </tr>
                     @endif
@@ -46,7 +46,7 @@
                         <tr>
                             <th> Group Icon Actual</th>
                             <td> 
-                                <img width="250" src="{{ URL::asset('storage/'. $chat_room->group_icon_actual) }}">
+                                <img width="250" src="{{ $chat_room->group_icon_actual }}">
                             </td>
                         </tr>
                     @endif

@@ -54,25 +54,25 @@ class ChatRoom extends BaseModel
         return $validator;
     }
 
-    // public function getGroupIconAttribute($value)
-    // {
-    //     if (empty($value)) {
-    //         return $value;
-    //     }
+    public function getGroupIconAttribute($value)
+    {
+        if (empty($value)) {
+            return $value;
+        }
 
-    //     $storageFolderName = (str_ireplace("\\", "/", $this->folder));
-    //     return Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $this->id . '/' . $value);
-    // }
+        $storageFolderName = (str_ireplace("\\", "/", $this->folder));
+        return Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $this->id . '/' . $value);
+    }
 
-    // public function getGroupIconActualAttribute($value)
-    // {
-    //     if (empty($value)) {
-    //         return $value;
-    //     }
+    public function getGroupIconActualAttribute($value)
+    {
+        if (empty($value)) {
+            return $value;
+        }
 
-    //     $storageFolderName = (str_ireplace("\\", "/", $this->folder));
-    //     return Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $this->id . '/icon/' . $value);
-    // }
+        $storageFolderName = (str_ireplace("\\", "/", $this->folder));
+        return Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $this->id . '/icon/' . $value);
+    }
 
     //get encrypted chat id
     public function getEncryptedChatIdAttribute()
