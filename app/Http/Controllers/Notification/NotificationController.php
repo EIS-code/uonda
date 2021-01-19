@@ -35,8 +35,10 @@ class NotificationController extends BaseController
 
         if (!empty($data['is_admin']) && $data['is_admin'] == '1') {
             $data['device_token'] = User::ADMIN_DEVICE_TOKEN;
+            $deviceType           = 'web';
         } elseif (!empty($data['user_id'])) {
             $data['device_token'] = User::getDeviceToken($requestUserId);
+            $deviceType           = User::getDeviceType($requestUserId);
         }
 
         $validator = $model->validator($data);
@@ -48,6 +50,18 @@ class NotificationController extends BaseController
         $create = $model->create($data);
 
         if ($create) {
+            switch ($deviceType) {
+                case 'web':
+
+                    break;
+                case 'ios':
+                    break;
+                case 'android':
+                    break;
+                default:
+                    break;
+            }
+
             return $this->returnSuccess(__('Notification create successfully!'), $create);
         }
 
@@ -143,6 +157,7 @@ class NotificationController extends BaseController
         $notification = $notificationBuilder->build();
         $data = $dataBuilder->build();
 
+        // $token = 'BEa3RHd5xjklxJtWLhRmBl8sZvk-2ysLzxk2xn9t0NbDd8ow4ezspa_2hSgj01Yo0y7n_z54EiGZz4VLRpWLfiY';
         $token = $user->device_token;
 
         $downstreamResponse = FCM::sendTo($token, $option, $notification, $data);

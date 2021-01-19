@@ -407,4 +407,15 @@ class User extends Authenticatable
 
         return NULL;
     }
+
+    public static function getDeviceType(int $id)
+    {
+        $user = self::find($id);
+
+        if (!empty($user)) {
+            return strtolower($user->device_type);
+        }
+
+        return NULL;
+    }
 }
