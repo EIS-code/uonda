@@ -115,8 +115,6 @@ class ChatController extends Controller
     public function show($id)
     {
         $chat_room = ChatRoom::with(['ChatRoomUsers.Users'])->find(decrypt($id));
-        $chat_room->group_icon_actual = $chat_room->folder . '/' . $chat_room->id . '/icon/' . $chat_room->group_icon_actual;
-        $chat_room->group_icon = $chat_room->folder . '/' . $chat_room->id . '/' . $chat_room->group_icon;
         return view('pages.chat.show', compact('chat_room'));
     }
 
@@ -131,7 +129,6 @@ class ChatController extends Controller
         $chat_room = ChatRoom::with(['ChatRoomUsers'])->find(decrypt($id));
         $chat_room_data = $chat_room->ChatRoomUsers->pluck('sender_id')->toArray();
         $users = User::where('is_admin', 0)->get();
-        $chat_room->group_icon_actual = $chat_room->folder . '/' . $chat_room->id . '/icon/' . $chat_room->group_icon_actual;
         return view('pages.chat.edit', compact('chat_room', 'users', 'chat_room_data'));
     }
 
@@ -168,8 +165,11 @@ class ChatController extends Controller
 
             $attachment = $data['group_icon'];
             if(!empty($prevIcon)) {
-                Storage::delete($chat_room->fileSystem . '/'. $chat_room->folder .'/' .$id .'/'. $prevIcon);
-                Storage::delete($chat_room->fileSystem . '/'. $chat_room->folder .'/' .$id .'/icon//'. $prevIcon);
+                $array = explode('/', $prevIcon);
+                $key = array_key_last($array);
+                $image = $array[$key];
+                Storage::delete($chat_room->fileSystem . '/'. $chat_room->folder .'/' .$id .'/'. $image);
+                Storage::delete($chat_room->fileSystem . '/'. $chat_room->folder .'/' .$id .'/icon//'. $image);
             }
             $pathInfos = pathinfo($attachment->getClientOriginalName());
 

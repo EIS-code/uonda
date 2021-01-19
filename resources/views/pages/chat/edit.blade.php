@@ -40,7 +40,7 @@
             </div>
             @if(!empty($chat_room->group_icon_actual))
                 <div class="">
-                    <img width="250" src="{{ URL::asset('storage/'. $chat_room->group_icon_actual) }}">
+                    <img width="250" src="{{ $chat_room->group_icon_actual }}">
                 </div>
             @endif
             <div class="form-group">
