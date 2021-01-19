@@ -95,10 +95,10 @@ class CreateFeedNotification implements ShouldQueue
         if (!empty($ios_users)) {
             Log::info('Ios');
             $options = [
-                'key_id' => env('Key'), // The Key ID obtained from Apple developer account
-                'team_id' => env('Team_ID'), // The Team ID obtained from Apple developer account
-                'app_bundle_id' => ' com.terraheal', // The bundle ID for app obtained from Apple developer account
-                'private_key_path' => storage_path('AuthKey_YZJF23QQMZ.p8'), // Path to private key
+                'key_id' => env('PUSH_NOTIFUCTION_IOS_KEY'), // The Key ID obtained from Apple developer account
+                'team_id' => env('PUSH_NOTIFUCTION_IOS_TEAM_ID'), // The Team ID obtained from Apple developer account
+                'app_bundle_id' => env('PUSH_NOTIFUCTION_IOS_APP_BUNDLE_ID'), // The bundle ID for app obtained from Apple developer account
+                'private_key_path' => base_path('iOS/Push Notifications/AuthKey_YZJF23QQMZ.p8'), // Path to private key
                 'private_key_secret' => null // Private key secret
             ];
             
