@@ -75,9 +75,9 @@ class NotificationController extends BaseController
         $user = $modelUsers::find($userId);
 
         $options = [
-            'key_id' => env('PUSH_NOTIFUCTION_IOS_KEY'),
-            'team_id' => env('PUSH_NOTIFUCTION_IOS_TEAM_ID'),
-            'app_bundle_id' => env('PUSH_NOTIFUCTION_IOS_APP_BUNDLE_ID'),
+            'key_id' => env('PUSH_NOTIFICATION_IOS_KEY'),
+            'team_id' => env('PUSH_NOTIFICATION_IOS_TEAM_ID'),
+            'app_bundle_id' => env('PUSH_NOTIFICATION_IOS_APP_BUNDLE_ID'),
             'private_key_path' => base_path('iOS/Push Notifications/AuthKey_YZJF23QQMZ.p8'),
             'private_key_secret' => null
         ];
@@ -103,6 +103,8 @@ class NotificationController extends BaseController
         $client->addNotifications([$notifications]);
 
         $responses = $client->push();
+
+        $res = [];
 
         foreach ($responses as $response) {
             $res[] = $response->getApnsId();
