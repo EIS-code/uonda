@@ -11,6 +11,7 @@ use App\ChatRoom;
 use App\ChatAttachment;
 use App\User;
 use App\ChatDelete;
+use App\UserBlockProfile;
 use LRedis;
 use DB;
 use Illuminate\Support\Facades\Storage;
@@ -269,7 +270,8 @@ class ChatController extends BaseController
             $userIds = $userIds->merge($records->pluck('receiver_id'));
             $users   = $model::selectRaw('*, profile as profile_image, profile_icon as profile_image_icon')->whereIn('id', $userIds->unique())->get()->keyBy('id');
 
-            $records->map(function($data) use($users, $userId, $storageFolderName, $storageFolderNameIcon, &$returnDatas) {
+            $records->map(function($data) use($users, $userId, $storageFolderName, $storageFolderNameIcon, $model, &$returnDatas) {
+
                 $user = false;
 
                 if ($data->sender_id == $userId) {
@@ -280,6 +282,10 @@ class ChatController extends BaseController
                 } elseif (!empty($users[$data->sender_id])) {
                     $opponentId = $data->sender_id;
                     $user       = $users[$data->sender_id];
+                }
+
+                if ($model->isBlocked($userId, $opponentId)) {
+                    return false;
                 }
 
                 if (!empty($user)) {
@@ -358,6 +364,7 @@ class ChatController extends BaseController
         $modelChatRooms      = new ChatRoom();
         $model               = new User();
         $modelChatDelets     = new ChatDelete();
+        $modelUserBlockProfiles = new UserBlockProfile();
         $data                = $request->all();
 
         $userId     = !empty($data['user_id']) ? (int)$data['user_id'] : false;;
@@ -398,9 +405,10 @@ class ChatController extends BaseController
                     JOIN `" . $modelChats::getTableName() . "` AS c ON cru.id = c.chat_room_user_id
                     JOIN `" . $modelChatRooms::getTableName() . "` AS cr ON cru.chat_room_id = cr.id
                     JOIN `" . $model->getTableName() . "` AS u ON cru.sender_id = u.id
+                    LEFT JOIN `" . $modelUserBlockProfiles::getTableName() . "` as ubp ON u.id = ubp.user_id AND (ubp.blocked_by = '" . $userId . "' OR ubp.blocked_by = '" . $receiverId . "')
                     LEFT JOIN `" . $modelChatDelets::getTableName() . "` as cd ON c.id = cd.chat_id AND cd.user_id = '" . $userId . "'
                     LEFT JOIN `" . $modelChatAttachment::getTableName() . "` AS ca ON c.id = ca.chat_id
-                    WHERE ((cru.`sender_id` = '" . $userId . "' AND cru.`receiver_id` = '" . $receiverId . "') OR (cru.`sender_id` = '" . $receiverId . "' AND cru.`receiver_id` = '" . $userId . "')) AND cr.is_group = '" . $modelChatRooms::IS_NOT_GROUP . "' AND cd.id IS NULL
+                    WHERE ((cru.`sender_id` = '" . $userId . "' AND cru.`receiver_id` = '" . $receiverId . "') OR (cru.`sender_id` = '" . $receiverId . "' AND cru.`receiver_id` = '" . $userId . "')) AND cr.is_group = '" . $modelChatRooms::IS_NOT_GROUP . "' AND cd.id IS NULL AND ubp.id IS NULL
                     ORDER BY c.updated_at ASC");
         } else {
             $records = DB::select("SELECT c.id, c.message, cru.sender_id, cru.receiver_id, c.created_at, c.updated_at, ca.mime_type, ca.attachment, ca.url, ca.address, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' WHEN c.message != '' THEN 'text' ELSE NULL END AS message_type, u.name as user_name, u.profile, u.profile_icon
