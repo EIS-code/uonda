@@ -10,6 +10,7 @@ use App\UserSetting;
 use App\City;
 use App\School;
 use App\ApiKey;
+use App\UserBlockProfile;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\UploadedFile;
 use Carbon\Carbon;
@@ -636,7 +637,10 @@ class UserController extends BaseController
         $model       = new User();
         $schoolModel = new School();
         $cityModel   = new City();
+        $userBlockProfilesModel = new UserBlockProfile();
         $data        = $request->all();
+
+        $userId = !empty($data['user_id']) ? (int)$data['user_id'] : false;
 
         // Check proper latitude & longitude
         $latitude = false;
@@ -723,7 +727,20 @@ class UserController extends BaseController
         }
 
         $query->join($schoolModel::getTableName(), $model->getTableName() . '.school_id', '=', $schoolModel::getTableName() . '.id');
+        $query->leftJoin($userBlockProfilesModel::getTableName(), function($leftJoin) use($model, $userBlockProfilesModel, $userId) {
+            $leftJoin->on($model->getTableName() . '.id', '=', $userBlockProfilesModel::getTableName() . '.user_id')
+                     ->where(function($where) use($model, $userBlockProfilesModel, $userId) {
+                        $where->where($userBlockProfilesModel::getTableName() . '.user_id', '=', $userId)
+                              ->orWhere($userBlockProfilesModel::getTableName() . '.blocked_by', '=', $userId);
+                     });
+        });
         $query->leftJoin($cityModel::getTableName(), $model->getTableName() . '.city_id', '=', $cityModel::getTableName() . '.id');
+
+        $query->whereNull($userBlockProfilesModel::getTableName() . '.id');
+
+        $query->where($model->getTableName() . '.id', '!=', $userId);
+
+        $query->where($model->getTableName() . '.id', '!=', $model::IS_ADMIN);
 
         $records = $query->selectRaw($selectStatements)->get();
 

@@ -106,6 +106,9 @@ class User extends Authenticatable
         self::OAUTH_APPLE    => 'Apple'
     ];
 
+    const IS_ADMIN = '1';
+    const IS_USER = '0';
+
     const ADMIN_DEVICE_TOKEN = 'admin';
 
     public function __construct(array $attributes = array())
