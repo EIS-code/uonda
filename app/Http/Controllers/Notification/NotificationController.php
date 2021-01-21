@@ -35,8 +35,10 @@ class NotificationController extends BaseController
 
         if (!empty($data['is_admin']) && $data['is_admin'] == '1') {
             $data['device_token'] = User::ADMIN_DEVICE_TOKEN;
+            $deviceType           = 'web';
         } elseif (!empty($data['user_id'])) {
             $data['device_token'] = User::getDeviceToken($requestUserId);
+            $deviceType           = User::getDeviceType($requestUserId);
         }
 
         $validator = $model->validator($data);
@@ -48,6 +50,18 @@ class NotificationController extends BaseController
         $create = $model->create($data);
 
         if ($create) {
+            switch ($deviceType) {
+                case 'web':
+
+                    break;
+                case 'ios':
+                    break;
+                case 'android':
+                    break;
+                default:
+                    break;
+            }
+
             return $this->returnSuccess(__('Notification create successfully!'), $create);
         }
 
@@ -75,9 +89,9 @@ class NotificationController extends BaseController
         $user = $modelUsers::find($userId);
 
         $options = [
-            'key_id' => env('PUSH_NOTIFUCTION_IOS_KEY'),
-            'team_id' => env('PUSH_NOTIFUCTION_IOS_TEAM_ID'),
-            'app_bundle_id' => env('PUSH_NOTIFUCTION_IOS_APP_BUNDLE_ID'),
+            'key_id' => env('PUSH_NOTIFICATION_IOS_KEY', 'YZJF23QQMZ'),
+            'team_id' => env('PUSH_NOTIFICATION_IOS_TEAM_ID', '92Q7N837Q6'),
+            'app_bundle_id' => env('PUSH_NOTIFICATION_IOS_APP_BUNDLE_ID', 'com.terraheal'),
             'private_key_path' => base_path('iOS/Push Notifications/AuthKey_YZJF23QQMZ.p8'),
             'private_key_secret' => null
         ];
@@ -103,6 +117,8 @@ class NotificationController extends BaseController
         $client->addNotifications([$notifications]);
 
         $responses = $client->push();
+
+        $res = [];
 
         foreach ($responses as $response) {
             $res[] = $response->getApnsId();
@@ -141,6 +157,7 @@ class NotificationController extends BaseController
         $notification = $notificationBuilder->build();
         $data = $dataBuilder->build();
 
+        // $token = 'BEa3RHd5xjklxJtWLhRmBl8sZvk-2ysLzxk2xn9t0NbDd8ow4ezspa_2hSgj01Yo0y7n_z54EiGZz4VLRpWLfiY';
         $token = $user->device_token;
 
         $downstreamResponse = FCM::sendTo($token, $option, $notification, $data);
