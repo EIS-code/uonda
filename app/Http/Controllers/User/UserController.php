@@ -654,7 +654,7 @@ class UserController extends BaseController
         }
 
         $query            = $model::query();
-        $selectStatements = "{$model->getTableName()}.id, {$model->getTableName()}.name, {$model->getTableName()}.user_name, {$model->getTableName()}.profile, {$schoolModel::getTableName()}.name as school, {$model->getTableName()}.latitude, {$model->getTableName()}.longitude, {$model->getTableName()}.current_location, {$cityModel::getTableName()}.name as city";
+        $selectStatements = "{$model->getTableName()}.id, {$model->getTableName()}.name, {$model->getTableName()}.user_name, {$model->getTableName()}.profile, {$schoolModel::getTableName()}.name as school, {$model->getTableName()}.latitude, {$model->getTableName()}.longitude, {$model->getTableName()}.current_location, {$cityModel::getTableName()}.name as city, {$model->getTableName()}.job_position, {$model->getTableName()}.company , {$model->getTableName()}.university, {$model->getTableName()}.is_online";
 
         /*$schoolName = $request->get('school_name', false);
         if (!empty($schoolName)) {
@@ -699,6 +699,23 @@ class UserController extends BaseController
                     $query->where($schoolModel::getTableName() . '.name', 'LIKE', '%' . $keyword . '%');
                     break;
                 case "location":
+                    $latitude = $longitude = false;
+                    break;
+                case 'job_position':
+                    $latitude = $longitude = false;
+
+                    $query->where($model->getTableName() . '.job_position', 'LIKE', '%' . $keyword . '%');
+                    break;
+                case 'company':
+                    $latitude = $longitude = false;
+
+                    $query->where($model->getTableName() . '.company', 'LIKE', '%' . $keyword . '%');
+                    break;
+                case 'university':
+                    $latitude = $longitude = false;
+
+                    $query->where($model->getTableName() . '.university', 'LIKE', '%' . $keyword . '%');
+                    break;
                 case "person":
                     if ($type == "person") {
                         $latitude = $longitude = false;
