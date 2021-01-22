@@ -83,7 +83,7 @@
             }
         });
 
-        socket.emit('messageSendAttachment', {id: 274});
+        // socket.emit('messageSendAttachment', {id: 274});
 
         socket.on('messageAcknowledge', function (data) {
             console.log("messageAcknowledge");
