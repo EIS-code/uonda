@@ -400,6 +400,16 @@ class ChatController extends BaseController
         }*/
 
         if (!empty($receiverId)) {
+            echo "SELECT c.id, c.message, cru.sender_id, cru.receiver_id, c.created_at, c.updated_at, ca.mime_type, ca.attachment, ca.url, ca.address, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' WHEN c.message != '' THEN 'text' ELSE NULL END AS message_type, u.name as user_name, u.profile, u.profile_icon
+                    FROM `" . $modelChatRoomUsers::getTableName() . "` AS cru
+                    JOIN `" . $modelChats::getTableName() . "` AS c ON cru.id = c.chat_room_user_id
+                    JOIN `" . $modelChatRooms::getTableName() . "` AS cr ON cru.chat_room_id = cr.id
+                    JOIN `" . $model->getTableName() . "` AS u ON cru.sender_id = u.id
+                    LEFT JOIN `" . $modelUserBlockProfiles::getTableName() . "` as ubp ON u.id = ubp.user_id AND (ubp.blocked_by = '" . $userId . "' OR ubp.blocked_by = '" . $receiverId . "') AND ubp.is_block = " . $modelUserBlockProfiles::IS_BLOCK . "
+                    LEFT JOIN `" . $modelChatDelets::getTableName() . "` as cd ON c.id = cd.chat_id AND cd.user_id = '" . $userId . "'
+                    LEFT JOIN `" . $modelChatAttachment::getTableName() . "` AS ca ON c.id = ca.chat_id
+                    WHERE ((cru.`sender_id` = '" . $userId . "' AND cru.`receiver_id` = '" . $receiverId . "') OR (cru.`sender_id` = '" . $receiverId . "' AND cru.`receiver_id` = '" . $userId . "')) AND cr.is_group = '" . $modelChatRooms::IS_NOT_GROUP . "' AND cd.id IS NULL AND ubp.id IS NULL
+                    ORDER BY c.updated_at ASC";exit;
             $records = DB::select("SELECT c.id, c.message, cru.sender_id, cru.receiver_id, c.created_at, c.updated_at, ca.mime_type, ca.attachment, ca.url, ca.address, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' WHEN c.message != '' THEN 'text' ELSE NULL END AS message_type, u.name as user_name, u.profile, u.profile_icon
                     FROM `" . $modelChatRoomUsers::getTableName() . "` AS cru
                     JOIN `" . $modelChats::getTableName() . "` AS c ON cru.id = c.chat_room_user_id
