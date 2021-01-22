@@ -760,7 +760,7 @@ class UserController extends BaseController
 
         $query->where($model->getTableName() . '.id', '!=', $model::IS_ADMIN);
 
-        $records = $query->selectRaw($selectStatements)->toSql();
+        $records = $query->selectRaw($selectStatements)->get();
 
         if (!empty($records) && !$records->isEmpty()) {
             $records->makeHidden(['permissions', 'encrypted_user_id']);
