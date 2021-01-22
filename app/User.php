@@ -366,7 +366,7 @@ class User extends Authenticatable
                               ->where('user_id', (int)$userId);
                       });
             }
-        )->where('is_block', $userBlockProfilesModel::IS_BLOCK)->first();
+        )->where('is_block', (string)$userBlockProfilesModel::IS_BLOCK)->first();
 
         return !empty($checkBlocked);
     }
