@@ -227,7 +227,7 @@ io.on('connection', function (socket) {
                                     resultChat[0].receiverId = receiverId;
 
                                     senderData = resultChat[0];
-
+console.log('messageAcknowledge' + roomId);
                                     io.sockets.to(roomId).emit('messageAcknowledge', senderData);
                                 });
 
@@ -247,7 +247,7 @@ io.on('connection', function (socket) {
                                     resultChat[0].receiverId = receiverId;
 
                                     receiverData = resultChat[0];
-
+console.log('individualJoin-' + receiverId);
                                     io.sockets.to('individualJoin-' + receiverId).emit('messageRecieve', receiverData);
                                     // io.sockets.to(roomId).emit('messageRecieve', receiverData);
                                 });
@@ -283,10 +283,11 @@ io.on('connection', function (socket) {
 
                                     resultChat[0].sender_id  = senderId;
                                     resultChat[0].receiverId = receiverId;
-
+console.log('messageSendAttachment : messageAcknowledge');
                                     io.sockets.to(roomId).emit('messageAcknowledge', resultChat[0]);
                                     io.sockets.to('individualJoin-' + receiverId).emit('messageRecieve', resultChat[0]);
                                 } else {
+console.log('messageSendAttachment1 : messageAcknowledge1');
                                     io.sockets.to(roomId).emit('messageAcknowledge', []);
                                     io.sockets.to('individualJoin-' + receiverId).emit('messageRecieve', []);
                                 }
