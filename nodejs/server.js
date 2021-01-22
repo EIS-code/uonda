@@ -227,7 +227,7 @@ io.on('connection', function (socket) {
                                     resultChat[0].receiverId = receiverId;
 
                                     senderData = resultChat[0];
-console.log('messageAcknowledge' + roomId);
+console.log('messageAcknowledge-' + ' : ' + roomId);
                                     io.sockets.to(roomId).emit('messageAcknowledge', senderData);
                                 });
 
@@ -247,7 +247,7 @@ console.log('messageAcknowledge' + roomId);
                                     resultChat[0].receiverId = receiverId;
 
                                     receiverData = resultChat[0];
-console.log('individualJoin-' + receiverId);
+console.log('messageRecieve-' + ' : individualJoin-' + receiverId);
                                     io.sockets.to('individualJoin-' + receiverId).emit('messageRecieve', receiverData);
                                     // io.sockets.to(roomId).emit('messageRecieve', receiverData);
                                 });
