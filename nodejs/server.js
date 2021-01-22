@@ -115,6 +115,7 @@ io.on('connection', function (socket) {
 
         // Join Rooms
         var roomId = 'individualJoin-' + senderId;
+        socket.leave(roomId);
         socket.join(roomId);
 
         // Emit room id.
@@ -333,8 +334,6 @@ console.log('messageSendAttachment1 : messageAcknowledge1');
 
         // Join Rooms
         var roomId = 'groupJoin-' + groupId;
-        console.log(socket.rooms.indexOf(sendAttachment));
-        socket.leave(roomId);
         socket.join(roomId);
 
         // Emit room id.
