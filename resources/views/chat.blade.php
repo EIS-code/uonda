@@ -65,7 +65,7 @@
         });
 
         socket.on('roomId', function (data) {
-            console.log('roomId : ' + data);
+            console.log('roomId : ' + data.id);
         });
 
         /*socket.emit('messageHistory');
