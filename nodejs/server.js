@@ -88,7 +88,7 @@ io.on('connection', function (socket) {
         });
     });
 
-    socket.on('individualJoin', function(joinData) {
+    socket.once('individualJoin', function(joinData) {
 
         if (typeof joinData === typeof undefined) {
             io.emit('error', {error: "Provide senderId and receiverId."});
@@ -115,7 +115,6 @@ io.on('connection', function (socket) {
 
         // Join Rooms
         var roomId = 'individualJoin-' + senderId;
-        socket.leave(roomId);
         socket.join(roomId);
 
         // Emit room id.
@@ -228,7 +227,7 @@ io.on('connection', function (socket) {
                                     resultChat[0].receiverId = receiverId;
 
                                     senderData = resultChat[0];
-console.log('messageAcknowledge-' + ' : ' + roomId);
+
                                     io.sockets.to(roomId).emit('messageAcknowledge', senderData);
                                 });
 
@@ -248,7 +247,7 @@ console.log('messageAcknowledge-' + ' : ' + roomId);
                                     resultChat[0].receiverId = receiverId;
 
                                     receiverData = resultChat[0];
-console.log('messageRecieve-' + ' : individualJoin-' + receiverId);
+
                                     io.sockets.to('individualJoin-' + receiverId).emit('messageRecieve', receiverData);
                                     // io.sockets.to(roomId).emit('messageRecieve', receiverData);
                                 });
@@ -284,11 +283,11 @@ console.log('messageRecieve-' + ' : individualJoin-' + receiverId);
 
                                     resultChat[0].sender_id  = senderId;
                                     resultChat[0].receiverId = receiverId;
-console.log('messageSendAttachment : messageAcknowledge');
+
                                     io.sockets.to(roomId).emit('messageAcknowledge', resultChat[0]);
                                     io.sockets.to('individualJoin-' + receiverId).emit('messageRecieve', resultChat[0]);
                                 } else {
-console.log('messageSendAttachment1 : messageAcknowledge1');
+
                                     io.sockets.to(roomId).emit('messageAcknowledge', []);
                                     io.sockets.to('individualJoin-' + receiverId).emit('messageRecieve', []);
                                 }
@@ -316,7 +315,7 @@ console.log('messageSendAttachment1 : messageAcknowledge1');
 
     isError = false;
 
-    socket.on('groupJoin', function(groupData) {
+    socket.once('groupJoin', function(groupData) {
         if (typeof groupData.groupId === typeof undefined) {
             io.emit('error', {error: "Provide groupId."});
             isError = true;
