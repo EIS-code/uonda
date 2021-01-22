@@ -405,7 +405,7 @@ class ChatController extends BaseController
                     JOIN `" . $modelChats::getTableName() . "` AS c ON cru.id = c.chat_room_user_id
                     JOIN `" . $modelChatRooms::getTableName() . "` AS cr ON cru.chat_room_id = cr.id
                     JOIN `" . $model->getTableName() . "` AS u ON cru.sender_id = u.id
-                    LEFT JOIN `" . $modelUserBlockProfiles::getTableName() . "` as ubp ON u.id = ubp.user_id AND (ubp.blocked_by = '" . $userId . "' OR ubp.blocked_by = '" . $receiverId . "')
+                    LEFT JOIN `" . $modelUserBlockProfiles::getTableName() . "` as ubp ON u.id = ubp.user_id AND (ubp.blocked_by = '" . $userId . "' OR ubp.blocked_by = '" . $receiverId . "') AND ubp.is_block = " . $modelUserBlockProfiles::IS_BLOCK . "
                     LEFT JOIN `" . $modelChatDelets::getTableName() . "` as cd ON c.id = cd.chat_id AND cd.user_id = '" . $userId . "'
                     LEFT JOIN `" . $modelChatAttachment::getTableName() . "` AS ca ON c.id = ca.chat_id
                     WHERE ((cru.`sender_id` = '" . $userId . "' AND cru.`receiver_id` = '" . $receiverId . "') OR (cru.`sender_id` = '" . $receiverId . "' AND cru.`receiver_id` = '" . $userId . "')) AND cr.is_group = '" . $modelChatRooms::IS_NOT_GROUP . "' AND cd.id IS NULL AND ubp.id IS NULL

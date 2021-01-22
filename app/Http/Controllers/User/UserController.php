@@ -746,6 +746,7 @@ class UserController extends BaseController
         $query->join($schoolModel::getTableName(), $model->getTableName() . '.school_id', '=', $schoolModel::getTableName() . '.id');
         $query->leftJoin($userBlockProfilesModel::getTableName(), function($leftJoin) use($model, $userBlockProfilesModel, $userId) {
             $leftJoin->on($model->getTableName() . '.id', '=', $userBlockProfilesModel::getTableName() . '.user_id')
+                     ->where($userBlockProfilesModel::getTableName() . '.is_block', $userBlockProfilesModel::IS_BLOCK)
                      ->where(function($where) use($model, $userBlockProfilesModel, $userId) {
                         $where->where($userBlockProfilesModel::getTableName() . '.user_id', '=', $userId)
                               ->orWhere($userBlockProfilesModel::getTableName() . '.blocked_by', '=', $userId);
@@ -759,7 +760,7 @@ class UserController extends BaseController
 
         $query->where($model->getTableName() . '.id', '!=', $model::IS_ADMIN);
 
-        $records = $query->selectRaw($selectStatements)->get();
+        $records = $query->selectRaw($selectStatements)->toSql();
 
         if (!empty($records) && !$records->isEmpty()) {
             $records->makeHidden(['permissions', 'encrypted_user_id']);
