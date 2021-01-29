@@ -23,10 +23,12 @@ class LocationController extends BaseController
 
     public function getCity(Request $request)
     {
-        $stateId = $request->get('state_id', false);
+        $countryId = $request->get('country_id', false);
 
-        if (!empty($stateId)) {
-            $cities = City::where('state_id', (int)$stateId)->get();
+        if (!empty($countryId)) {
+            $cities = City::with('state')->whereHas('state', function($q) use ($countryId) {
+                $q->where('country_id', $countryId);
+            })->get();
         } else {
             $cities = City::all();
         }

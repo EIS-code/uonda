@@ -442,6 +442,8 @@ class UserController extends BaseController
             array_push($user->appends, 'state_name');
             array_push($user->appends, 'city_name');
             array_push($user->appends, 'school_name');
+            array_push($user->appends, 'origin_country_name');
+            array_push($user->appends, 'origin_city_name');
 
             if ($isApi) {
                 // Set device informations if request having.
@@ -828,5 +830,53 @@ class UserController extends BaseController
         }
 
         return $this->returnError(__('Something went wrong!'));
+    }
+
+    //Function to save the location of user
+    public function saveOriginLocation(Request $request) {
+        $model = new User();
+        $data  = $request->all();
+        
+        if (empty($data['user_id']) || !is_numeric($data['user_id'])) {
+            return $this->returnError(__('User id seems incorrect.'));
+        }
+
+        $userId = (int)$data['user_id'];
+        unset($data['user_id']);
+
+        $user = $model::find($userId);
+        $data['name'] = $user->name;
+        if (!empty($user)) {
+            $fillableFields = $model->getFillable();
+
+            $requiredFileds = [
+                'country_id'      => ['required'],
+                'city_id'  => ['required'],
+                'origin_country_id'      => ['required'],
+                'origin_city_id'  => ['required'],
+            ];
+
+            foreach ($data as $field => $value) {
+                if (in_array($field, $fillableFields)) {
+                    $requiredFileds[$field] = ['required'];
+                }
+            }
+            $validator = $model->validator($data, $requiredFileds);
+
+            if ($validator->fails()) {
+                return $this->returnError($validator->errors()->first());
+            }
+
+            foreach ($data as $field => $value) {
+                if (in_array($field, $fillableFields)) {
+                    $user->{$field} = $value;
+                }
+            }
+        }
+        if ($user->save()) {
+            $msg = NULL;
+            return $this->returnSuccess(__('User location details updated successfully') . $msg . '!', $this->getDetails($user->id));
+        }
+        return $this->returnNull();
     }
 }

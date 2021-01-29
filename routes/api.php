@@ -65,6 +65,10 @@ Route::group(['middleware' => ['web.auth.api']], function () {
             Route::group(['prefix' => 'document'], function () {
                 Route::post('/remove', 'UserController@removeDocument')->name('user.profile.unblock');
             });
+
+            Route::group(['prefix' => 'origin'], function () {
+                Route::post('/save', 'UserController@saveOriginLocation')->name('user.location.save');
+            });
         });
 
         Route::group(['prefix' => 'setting'], function () {
