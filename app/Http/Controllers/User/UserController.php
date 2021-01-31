@@ -208,8 +208,8 @@ class UserController extends BaseController
             'name'             => ['nullable'],
             'password'         => ['nullable'],
             'email'            => ['nullable'],
-            'current_location' => ['required'],
-            'nation'           => ['required'],
+            'current_location' => ['nullable'],
+            'nation'           => ['nullable'],
             'gender'           => ['required'],
             'birthday'         => ['nullable'],
             'country_id'       => ['nullable'],
@@ -233,20 +233,19 @@ class UserController extends BaseController
 
         $user = $model::find($data['user_id']);
 
-        $user->current_location = $data['current_location'];
-        $user->nation           = $data['nation'];
+        // $user->current_location = $data['current_location'];
+        // $user->nation           = $data['nation'];
         $user->gender           = $data['gender'];
-        $user->birthday         = !empty($data['birthday']) ? Carbon::createFromTimestamp($data['birthday'])->toDateTime() : NULL;
+        $user->birthday         = !empty($data['birthday']) ? $data['birthday'] : NULL;
         $user->current_status   = isset($data['current_status']) ? (int)$data['current_status'] : 0;
         $user->company          = !empty($data['company']) ? $data['company'] : NULL;
         $user->job_position     = !empty($data['job_position']) ? $data['job_position'] : NULL;
         $user->university       = !empty($data['university']) ? $data['university'] : NULL;
         $user->field_of_study   = !empty($data['field_of_study']) ? $data['field_of_study'] : NULL;
         $user->other_flag       = $model::OTHER_FLAG_DONE;
-        $user->country_id       = !empty($data['country_id']) ? $data['country_id'] : NULL;
-        $user->state_id         = !empty($data['state_id']) ? $data['state_id'] : NULL;
-        $user->city_id          = !empty($data['city_id']) ? $data['city_id'] : NULL;
-
+        // $user->country_id       = !empty($data['country_id']) ? $data['country_id'] : NULL;
+        // $user->state_id         = !empty($data['state_id']) ? $data['state_id'] : NULL;
+        // $user->city_id          = !empty($data['city_id']) ? $data['city_id'] : NULL;
         if ($user->save()) {
             return $this->returnSuccess(__('User other details saved successfully!'), $this->getDetails($user->id));
         }

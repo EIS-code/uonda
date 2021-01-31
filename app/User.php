@@ -12,6 +12,7 @@ use App\UserSetting;
 use App\ApiKey;
 use App\UserBlockProfile;
 use App\Notification;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 
@@ -222,6 +223,12 @@ class User extends Authenticatable
     public function school()
     {
         return $this->hasOne('App\School', 'id', 'school_id');
+    }
+
+    //To set the birthday in date format
+    public function setBirthdayAttribute($value)
+    {
+        $this->attributes['birthday'] = Carbon::createFromTimestamp($value)->format('Y-m-d');
     }
 
     public function getGenderAttribute($value)
