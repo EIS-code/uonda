@@ -12,7 +12,7 @@ class FeedController extends BaseController
     {
         $model = new Feed();
 
-        $feeds = $model::all();
+        $feeds = $model::orderBy('id', 'DESC')->get();
 
         if (!empty($feeds)) {
             return $this->returnSuccess(__('Feeds get successfully!'), $feeds);

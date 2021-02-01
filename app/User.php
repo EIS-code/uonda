@@ -95,16 +95,18 @@ class User extends Authenticatable
     public $profile                  = 'user\\profile';
     public $profileIcon              = 'user\\profile\\icons';
 
-    const OAUTH_NONE     = '0';
-    const OAUTH_GOOGLE   = '1';
-    const OAUTH_FACEBOOK = '2';
-    const OAUTH_APPLE    = '3';
+    const OAUTH_NONE        = '0';
+    const OAUTH_GOOGLE      = '1';
+    const OAUTH_FACEBOOK    = '2';
+    const OAUTH_APPLE       = '3';
+    const OAUTH_INSTAGRAM   = '4';
 
     public $oauthProviders = [
-        self::OAUTH_NONE     => 'None',
-        self::OAUTH_GOOGLE   => 'Google',
-        self::OAUTH_FACEBOOK => 'Facebook',
-        self::OAUTH_APPLE    => 'Apple'
+        self::OAUTH_NONE        => 'None',
+        self::OAUTH_GOOGLE      => 'Google',
+        self::OAUTH_FACEBOOK    => 'Facebook',
+        self::OAUTH_APPLE       => 'Apple',
+        self::OAUTH_INSTAGRAM   => 'Instagram'
     ];
 
     const IS_ADMIN = '1';

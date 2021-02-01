@@ -473,8 +473,7 @@ class UserController extends BaseController
         $userId = (int)$data['user_id'];
 
         $user = $model::select('id', 'personal_flag', 'school_flag', 'other_flag')->with('userDocuments')->find($userId);
-        $user->api_keys = ApiKey::getApiKey($user->id);
-
+        $user->api_keys = ApiKey::generateKey($user->id);
         if (!empty($user)) {
             $user->makeVisible(['personal_flag', 'school_flag', 'other_flag']);
 
