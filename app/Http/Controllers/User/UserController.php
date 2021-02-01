@@ -473,6 +473,7 @@ class UserController extends BaseController
         $userId = (int)$data['user_id'];
 
         $user = $model::select('id', 'personal_flag', 'school_flag', 'other_flag')->with('userDocuments')->find($userId);
+        $user->api_keys = ApiKey::getApiKey($user->id);
 
         if (!empty($user)) {
             $user->makeVisible(['personal_flag', 'school_flag', 'other_flag']);
@@ -874,7 +875,9 @@ class UserController extends BaseController
         }
         if ($user->save()) {
             $msg = NULL;
-            return $this->returnSuccess(__('User location details updated successfully') . $msg . '!', $this->getDetails($user->id));
+            $data = $this->getDetails($user->id);
+            $data->api_key = ApiKey::getApiKey($user->id);
+            return $this->returnSuccess(__('User location details updated successfully') . $msg . '!', $data);
         }
         return $this->returnNull();
     }
