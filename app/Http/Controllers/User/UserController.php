@@ -144,7 +144,7 @@ class UserController extends BaseController
             // Privacy
             UserSetting::create(['user_id' => $userId, 'user_name' => UserSetting::CONSTS_PRIVATE, 'email' => UserSetting::CONSTS_PRIVATE, 'notification' => UserSetting::NOTIFICATION_ON]);
 
-            return $this->returnSuccess(__('User personal details saved successfully!'), $this->getDetails($userId));
+            return $this->returnSuccess(__('User personal details saved successfully!'), $this->getDetails($userId, false, true));
         }
 
         return $this->returnError(__('Something went wrong!'));
