@@ -15,8 +15,8 @@ class CreateFeedLikesTable extends Migration
     {
         Schema::create('feed_likes', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->bigInteger('feed_id');
-            $table->bigInteger('user_id');
+            $table->unsignedBigInteger('feed_id');
+            $table->unsignedBigInteger('user_id');
             $table->timestamps();
             $table->foreign('feed_id')
                     ->references('id')->on('feeds')
