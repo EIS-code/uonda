@@ -237,7 +237,7 @@ class UserController extends BaseController
         // $user->nation           = $data['nation'];
         $user->gender           = $data['gender'];
         $user->birthday         = !empty($data['birthday']) ? $data['birthday'] : NULL;
-        $user->current_status   = isset($data['current_status']) ? (int)$data['current_status'] : 0;
+        $user->current_status   = isset($data['current_status']) ? ''.$data['current_status'] : '0';
         $user->company          = !empty($data['company']) ? $data['company'] : NULL;
         $user->job_position     = !empty($data['job_position']) ? $data['job_position'] : NULL;
         $user->university       = !empty($data['university']) ? $data['university'] : NULL;
@@ -247,7 +247,9 @@ class UserController extends BaseController
         // $user->state_id         = !empty($data['state_id']) ? $data['state_id'] : NULL;
         // $user->city_id          = !empty($data['city_id']) ? $data['city_id'] : NULL;
         if ($user->save()) {
-            return $this->returnSuccess(__('User other details saved successfully!'), $this->getDetails($user->id));
+            $data = $this->getDetails($user->id);
+            $data->api_key = ApiKey::generateKey($user->id);
+            return $this->returnSuccess(__('User other details saved successfully!'), $data);
         }
 
         return $this->returnError(__('Something went wrong!'));
@@ -473,7 +475,7 @@ class UserController extends BaseController
         $userId = (int)$data['user_id'];
 
         $user = $model::select('id', 'personal_flag', 'school_flag', 'other_flag')->with('userDocuments')->find($userId);
-        $user->api_keys = ApiKey::generateKey($user->id);
+        $user->api_key = ApiKey::generateKey($user->id);
         if (!empty($user)) {
             $user->makeVisible(['personal_flag', 'school_flag', 'other_flag']);
 
