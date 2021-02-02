@@ -276,6 +276,14 @@ class User extends Authenticatable
         return $this->notifications->count();
     }
 
+    /**
+     * likes of feed by current user.
+     */
+    public function likedFeeds()
+    {
+        return $this->belongsToMany(Feed::class, 'feed_likes')->withTimestamps();
+    }
+
     //get encrypted user id
     public function getEncryptedUserIdAttribute()
     {

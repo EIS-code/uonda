@@ -133,4 +133,12 @@ class Feed extends BaseModel
 
         return $this->feedTypes[$value];
     }
+
+    /**
+     * likes of feed by some user.
+     */
+    public function likedByUser()
+    {
+        return $this->belongsToMany(User::class, 'feed_likes')->withTimestamps();
+    }
 }
