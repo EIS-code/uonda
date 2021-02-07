@@ -18,6 +18,8 @@ class Email extends BaseModel
         'created_at'
     ];
 
+    protected $appends = ['encrypted_email_id'];
+
     public static function validator(array $data)
     {
         return Validator::make($data, [
@@ -25,5 +27,11 @@ class Email extends BaseModel
             'subject' => ['required', 'string'],
             'body'    => ['required'],
         ]);
+    }
+
+    //get encrypted email id
+    public function getEncryptedEmailIdAttribute()
+    {
+        return encrypt($this->id);
     }
 }

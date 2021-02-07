@@ -9,6 +9,7 @@ use App\User;
 use App\School;
 use App\Country;
 use App\City;
+use App\UserBlockProfile;
 
 class UserController extends Controller
 {
@@ -135,5 +136,11 @@ class UserController extends Controller
         User::where('id', decrypt($id))->delete();
 		$request->session()->flash('success','User deleted successfully');
 		return redirect(url()->previous());
+    }
+
+    //
+    public function showBlockedUser(Request $request) {
+        $block_profiles = UserBlockProfile::with(['user', 'blockedUser'])->get();
+        return view('pages.users.blocked-user-listing', compact('block_profiles'));
     }
 }
