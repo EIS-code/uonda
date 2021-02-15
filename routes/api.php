@@ -121,6 +121,10 @@ Route::group(['middleware' => ['web.auth.api']], function () {
         Route::post('/like', 'FeedController@setFeedLikes')->name('feed-like-dislikes');
     });
 
+    Route::group(['prefix' => 'promotion', 'namespace' => 'Promotion'], function () {
+        Route::get('/get', 'PromotionController@getPromotions')->name('getPromotions');
+    });
+
     Route::group(['prefix' => 'notification', 'namespace' => 'Notification'], function () {
         Route::group(['prefix' => 'screenshot'], function () {
             Route::post('/store', 'NotificationController@storeScreenshot')->name('notification.store.screenshot');
