@@ -34,6 +34,7 @@ Route::group(['middleware' => ['auth']], function(){
     Route::resource('emails', 'Admin\EmailController');
     Route::resource('reports-questions', 'Admin\UserReportsQuestionController');
     Route::get('users-reports', 'Admin\UserReportsQuestionController@showUserReports')->name('users-reports');
+    Route::resource('promotions', 'Admin\PromotionController');
 
     Route::group(['prefix' => 'user', 'namespace' => 'User'], function () {
         Route::group(['prefix' => 'chat', 'namespace' => 'Chat'], function () {

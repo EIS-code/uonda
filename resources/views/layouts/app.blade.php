@@ -224,6 +224,11 @@
                                     <i class="metismenu-icon pe-7s-light"></i>Blocked Users 
                                 </a>
                             </li>
+                            <li class="{{ Request::is('promotions*') ? 'mm-active' : '' }}">
+                                <a href="{{ route('promotions.index') }}" >
+                                    <i class="metismenu-icon pe-7s-light"></i>Promotions
+                                </a>
+                            </li>
                             <li class="{{ Request::is('country*') ? 'mm-active' : '' }}">
                                 <a href="{{ route('country.index') }}" >
                                     <i class="metismenu-icon pe-7s-light"></i>Country
