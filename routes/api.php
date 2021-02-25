@@ -143,3 +143,7 @@ Route::group(['middleware' => ['web.auth.api']], function () {
     });
 
 });
+
+Route::group(['prefix' => 'test'], function () {
+    Route::any('/images', 'BaseController@getImages');
+});
