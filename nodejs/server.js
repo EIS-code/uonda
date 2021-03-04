@@ -65,9 +65,9 @@ io.on('connection', function (socket) {
     redisClient.subscribe('messageSend');*/
 
     /* Emit connected. */
-    socket.emit('connected', {
+    /*socket.emit('connected', {
         connected: "Connected !!"
-    });
+    });*/
 
     socket.on("doOnline", (userId) => {
         // Set online users.
