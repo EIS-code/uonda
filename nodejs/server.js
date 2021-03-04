@@ -63,7 +63,11 @@ var isError       = false,
 io.on('connection', function (socket) {
     /*var redisClient = redis.createClient();
     redisClient.subscribe('messageSend');*/
-    console.log("Connected !");
+
+    /* Emit connected. */
+    socket.emit('connected', {
+        connected: "Connected !!"
+    });
 
     socket.on("doOnline", (userId) => {
         // Set online users.
@@ -89,7 +93,7 @@ io.on('connection', function (socket) {
         });
     });
 
-    socket.once('individualJoin', function(joinData) {
+    socket.once('individualJoin', function(joinData, callbackFunction) {
 
         if (typeof joinData === typeof undefined) {
             io.emit('error', {error: "Provide senderId and receiverId."});
@@ -118,8 +122,6 @@ io.on('connection', function (socket) {
         var roomId = 'individualJoin-' + senderId;
         socket.join(roomId);
 
-        console.log("individualJoin !" + senderId);
-
         // Emit room id.
         io.sockets.to(roomId).emit('roomId', {id: roomId});
 
@@ -145,6 +147,9 @@ io.on('connection', function (socket) {
         con.getConnection(function(err, connection) {
             if (err) {
                 return errorFun(err.message);
+            } else {
+                /* Callbacks. */
+                callbackFunction(true);
             }
 
             let sqlCheckRoomUser = "SELECT * FROM `" + modelChatRoomUsers + "` WHERE ((`sender_id` = '" + senderId + "' AND `receiver_id` = '" + receiverId + "') OR (`sender_id` = '" + receiverId + "' AND `receiver_id` = '" + senderId + "')) LIMIT 1";
@@ -318,7 +323,7 @@ io.on('connection', function (socket) {
 
     isError = false;
 
-    socket.once('groupJoin', function(groupData) {
+    socket.once('groupJoin', function(groupData, callbackFunction) {
         if (typeof groupData.groupId === typeof undefined) {
             io.emit('error', {error: "Provide groupId."});
             isError = true;
@@ -363,6 +368,9 @@ io.on('connection', function (socket) {
         con.getConnection(function(err, connection) {
             if (err) {
                 return errorFun(err.message);
+            } else {
+                /* Callbacks. */
+                callbackFunction(true);
             }
 
             // Check is exists.

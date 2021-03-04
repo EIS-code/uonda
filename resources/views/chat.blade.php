@@ -48,59 +48,67 @@
     var groupId = '37';
 
     socket.on('connect', function() {
-        console.log("connected !!");
-
-        socket.emit('individualJoin', {'senderId': senderId, 'receiverId': receiverId});
-
-        // socket.emit('groupJoin', {groupId: groupId, 'senderId': senderId});
-
-        socket.emit('doOnline', senderId);
-
-        socket.on('error-' + senderId, function (data) {
-            console.log(data);
-        });
-
-        socket.on('error', function (data) {
-            console.log(data);
-        });
-
-        socket.on('roomId', function (data) {
-            console.log('roomId : ' + data.id);
-        });
-
-        /*socket.emit('messageHistory');
-
-        socket.on('messageDetails', function (data) {
+        socket.on('connected', function (data) {
             // console.log(data);
-        });*/
 
-        socket.on('messageRecieve', function (data) {
-            console.log("messageRecieve");
-            console.log(data);
+            socket.emit('individualJoin', {'senderId': senderId, 'receiverId': receiverId}, function (responseData) {
+                if (responseData) {
+                    socket.emit('doOnline', senderId);
 
-            if (data.sender_id != senderId) {
-                $( "#messages" ).append( "<strong> TEST :</strong><p>"+data.message+"</p>" );
-            }
-        });
+                    socket.on('error-' + senderId, function (data) {
+                        console.log(data);
+                    });
 
-        // socket.emit('messageSendAttachment', {id: 274});
+                    socket.on('error', function (data) {
+                        console.log(data);
+                    });
 
-        socket.on('messageAcknowledge', function (data) {
-            console.log("messageAcknowledge");
-            console.log(data);
+                    socket.on('roomId', function (data) {
+                        // console.log('roomId : ' + data.id);
+                    });
 
-            $( "#messages" ).append( "<strong> TEST :</strong><p>"+data.message+"</p>" );
-        });
+                    /*socket.emit('messageHistory');
 
-        /*socket.on('messageAcknowledge-' + senderId, function (data) {
-            console.log("messageAcknowledge");
-            console.log(data);
+                    socket.on('messageDetails', function (data) {
+                        // console.log(data);
+                    });*/
 
-            $( "#messages" ).append( "<strong> TEST :</strong><p>"+data.message+"</p>" );
-        });*/
+                    socket.on('messageRecieve', function (data) {
+                        // console.log("messageRecieve");
+                        // console.log(data);
 
-        socket.on('getOnline', function (data) {
-            console.log(data);
+                        if (data.sender_id != senderId) {
+                            $( "#messages" ).append( "<strong> TEST :</strong><p>"+data.message+"</p>" );
+                        }
+                    });
+
+                    // socket.emit('messageSendAttachment', {id: 274});
+
+                    socket.on('messageAcknowledge', function (data) {
+                        // console.log("messageAcknowledge");
+                        // console.log(data);
+
+                        $( "#messages" ).append( "<strong> TEST :</strong><p>"+data.message+"</p>" );
+                    });
+
+                    /*socket.on('messageAcknowledge-' + senderId, function (data) {
+                        console.log("messageAcknowledge");
+                        console.log(data);
+
+                        $( "#messages" ).append( "<strong> TEST :</strong><p>"+data.message+"</p>" );
+                    });*/
+
+                    socket.on('getOnline', function (data) {
+                        // console.log(data);
+                    });
+                }
+            });
+
+            socket.emit('groupJoin', {groupId: groupId, 'senderId': senderId}, function (responseData) {
+                if (responseData) {
+                    console.log(responseData);
+                }
+            });
         });
     });
 
