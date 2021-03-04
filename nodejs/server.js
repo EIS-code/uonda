@@ -63,6 +63,7 @@ var isError       = false,
 io.on('connection', function (socket) {
     /*var redisClient = redis.createClient();
     redisClient.subscribe('messageSend');*/
+    console.log("Connected !");
 
     socket.on("doOnline", (userId) => {
         // Set online users.
@@ -116,6 +117,8 @@ io.on('connection', function (socket) {
         // Join Rooms
         var roomId = 'individualJoin-' + senderId;
         socket.join(roomId);
+
+        console.log("individualJoin !" + senderId);
 
         // Emit room id.
         io.sockets.to(roomId).emit('roomId', {id: roomId});
