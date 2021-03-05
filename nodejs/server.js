@@ -119,7 +119,8 @@ io.on('connection', function (socket) {
         }
 
         // Join Rooms
-        var roomId = 'individualJoin-' + senderId + "-" + receiverId;
+        var roomId          = 'individualJoin-' + senderId + "-" + receiverId,
+            receiverRoomId  = 'individualJoin-' + receiverId + "-" + senderId;
 
         try {
             if (io.sockets.adapter.rooms[roomId]) {
@@ -268,7 +269,7 @@ io.on('connection', function (socket) {
 
                                     receiverData = resultChat[0];
 
-                                    io.sockets.to('individualJoin-' + receiverId).emit('messageRecieve', receiverData);
+                                    io.sockets.to(receiverRoomId).emit('messageRecieve', receiverData);
                                     // io.sockets.to(roomId).emit('messageRecieve', receiverData);
                                 });
                             });
@@ -305,11 +306,11 @@ io.on('connection', function (socket) {
                                     resultChat[0].receiverId = receiverId;
 
                                     io.sockets.to(roomId).emit('messageAcknowledge', resultChat[0]);
-                                    io.sockets.to('individualJoin-' + receiverId).emit('messageRecieve', resultChat[0]);
+                                    io.sockets.to(receiverRoomId).emit('messageRecieve', resultChat[0]);
                                 } else {
 
                                     io.sockets.to(roomId).emit('messageAcknowledge', []);
-                                    io.sockets.to('individualJoin-' + receiverId).emit('messageRecieve', []);
+                                    io.sockets.to(receiverRoomId).emit('messageRecieve', []);
                                 }
                             });
                         }
