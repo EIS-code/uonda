@@ -93,7 +93,7 @@ io.on('connection', function (socket) {
         });
     });
 
-    socket.once('individualJoin', function(joinData, callbackFunction) {
+    socket.on('individualJoin', function(joinData, callbackFunction) {
 
         if (typeof joinData === typeof undefined) {
             io.emit('error', {error: "Provide senderId and receiverId."});
@@ -124,11 +124,11 @@ io.on('connection', function (socket) {
 
         try {
             if (io.sockets.adapter.rooms[roomId]) {
-                socket.leave(roomId);
+                io.sockets.leave(roomId);
             }
 
             if (io.sockets.adapter.rooms[receiverRoomId]) {
-                socket.leave(receiverRoomId);
+                io.sockets.leave(receiverRoomId);
             }
         } catch(e) {
             /* Handle errors. */
