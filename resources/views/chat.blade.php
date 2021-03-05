@@ -46,12 +46,16 @@
     var senderId   = '{{ $userId }}';
     var receiverId = '{{ $sendBy }}';
     var groupId = '37';
+    var joinData = {};
+    var userName = '{{ auth()->user()->name }}';
 
     socket.on('connect', function() {
         socket.on('connected', function (data) {
             // console.log(data);
 
             socket.emit('individualJoin', {'senderId': senderId, 'receiverId': receiverId}, function (responseData) {
+                joinData = responseData;
+
                 if (responseData) {
                     socket.emit('doOnline', senderId);
 
@@ -77,7 +81,7 @@
                         // console.log("messageRecieve");
                         // console.log(data);
 
-                        $( "#messages" ).append( "<strong> TEST :</strong><p>"+data.message+"</p>" );
+                        $( "#messages" ).append( "<strong> " + userName + " :</strong><p>"+data.message+"</p>" );
                     });
 
                     // socket.emit('messageSendAttachment', {id: 274});
@@ -86,7 +90,7 @@
                         // console.log("messageAcknowledge");
                         // console.log(data);
 
-                        $( "#messages" ).append( "<strong> TEST :</strong><p>"+data.message+"</p>" );
+                        $( "#messages" ).append( "<strong> " + userName + " :</strong><p>"+data.message+"</p>" );
                     });
 
                     /*socket.on('messageAcknowledge-' + senderId, function (data) {
@@ -119,7 +123,7 @@
         if (msg != '') {
             // console.log('messageSend-' + senderId + '-' + receiverId);
 
-            socket.emit('messageSend', {'message': msg});
+            socket.emit('messageSend', Object.assign({}, joinData, {'message': msg}));
             /*$.ajax({
                 type: "POST",
                 url: chatRoute,
