@@ -93,7 +93,7 @@ io.on('connection', function (socket) {
         });
     });
 
-    socket.once('individualJoin', function(joinData, callbackFunction) {
+    socket.on('individualJoin', function(joinData, callbackFunction) {
 
         if (typeof joinData === typeof undefined) {
             io.emit('error', {error: "Provide senderId and receiverId."});
@@ -326,7 +326,7 @@ io.on('connection', function (socket) {
 
     isError = false;
 
-    socket.once('groupJoin', function(groupData, callbackFunction) {
+    socket.on('groupJoin', function(groupData, callbackFunction) {
         if (typeof groupData.groupId === typeof undefined) {
             io.emit('error', {error: "Provide groupId."});
             isError = true;
