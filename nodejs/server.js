@@ -126,6 +126,10 @@ io.on('connection', function (socket) {
             if (io.sockets.adapter.rooms[roomId]) {
                 socket.leave(roomId);
             }
+
+            if (io.sockets.adapter.rooms[receiverRoomId]) {
+                socket.leave(receiverRoomId);
+            }
         } catch(e) {
             /* Handle errors. */
         }
@@ -137,6 +141,8 @@ io.on('connection', function (socket) {
 
         console.log("senderId : " + senderId);
         console.log("receiverId : " + receiverId);
+        console.log(io.sockets.adapter.rooms);
+        console.log("\n");
 
         // Error Handling.
         var errorFun = function(errMessage) {
