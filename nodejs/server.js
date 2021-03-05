@@ -283,6 +283,7 @@ io.on('connection', function (socket) {
                             resultChat[0].receiverId = receiverId;
 
                             senderData = resultChat[0];
+                            console.log(roomId);
                             io.sockets.to(roomId).emit('messageAcknowledge', senderData);
                         });
 
@@ -302,7 +303,7 @@ io.on('connection', function (socket) {
                             resultChat[0].receiverId = receiverId;
 
                             receiverData = resultChat[0];
-
+                            console.log(receiverRoomId);
                             io.sockets.to(receiverRoomId).emit('messageRecieve', receiverData);
                         });
                     });
