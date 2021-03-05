@@ -206,6 +206,7 @@ io.on('connection', function (socket) {
                     }
 
                     /* Callbacks. */
+                    console.log({senderId: senderId, receiverId: receiverId,chatRoomId: chatRoomId, chatRoomUserId: chatRoomUserId});
                     callbackFunction({senderId: senderId, receiverId: receiverId,chatRoomId: chatRoomId, chatRoomUserId: chatRoomUserId});
                 });
             });
@@ -221,6 +222,8 @@ io.on('connection', function (socket) {
             }
 
             socket.on("messageSend", function(data) {
+                console.log(data);
+
                 try {
                     var senderId        = data.senderId,
                         receiverId      = data.receiverId,
@@ -283,7 +286,6 @@ io.on('connection', function (socket) {
                             resultChat[0].receiverId = receiverId;
 
                             senderData = resultChat[0];
-                            console.log(roomId);
                             io.sockets.to(roomId).emit('messageAcknowledge', senderData);
                         });
 
@@ -303,7 +305,6 @@ io.on('connection', function (socket) {
                             resultChat[0].receiverId = receiverId;
 
                             receiverData = resultChat[0];
-                            console.log(receiverRoomId);
                             io.sockets.to(receiverRoomId).emit('messageRecieve', receiverData);
                         });
                     });
