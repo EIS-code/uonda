@@ -93,7 +93,7 @@ io.on('connection', function (socket) {
         });
     });
 
-    socket.on('individualJoin', function(joinData, callbackFunction) {
+    socket.once('individualJoin', function(joinData, callbackFunction) {
 
         if (typeof joinData === typeof undefined) {
             io.emit('error', {error: "Provide senderId and receiverId."});
