@@ -119,7 +119,7 @@ io.on('connection', function (socket) {
         }
 
         // Join Rooms
-        var roomId = 'individualJoin-' + senderId;
+        var roomId = 'individualJoin-' + senderId + "-" + receiverId;
         socket.join(roomId);
 
         // Emit room id.
