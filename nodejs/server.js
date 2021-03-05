@@ -134,7 +134,7 @@ io.on('connection', function (socket) {
             /* Handle errors. */
         }
 
-        socket.join(roomId);
+        io.sockets.join(roomId);
 
         // Emit room id.
         io.sockets.to(roomId).emit('roomId', {id: roomId});
@@ -255,7 +255,7 @@ io.on('connection', function (socket) {
 
                                     senderData = resultChat[0];
 
-                                    socket.to(roomId).emit('messageAcknowledge', senderData);
+                                    io.sockets.to(roomId).emit('messageAcknowledge', senderData);
                                 });
 
                                 let sqlGetReceiverUser = "SELECT `id`, `name`, `user_name`, `email`, `profile` FROM `" + modelUsers + "` WHERE `id` = '" + receiverId + "' LIMIT 1";
@@ -275,7 +275,7 @@ io.on('connection', function (socket) {
 
                                     receiverData = resultChat[0];
 
-                                    socket.to(receiverRoomId).emit('messageRecieve', receiverData);
+                                    io.sockets.to(receiverRoomId).emit('messageRecieve', receiverData);
                                     // io.sockets.to(roomId).emit('messageRecieve', receiverData);
                                 });
                             });
