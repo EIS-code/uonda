@@ -256,6 +256,7 @@ io.on('connection', function (socket) {
 
                                     senderData = resultChat[0];
 
+                                    console.log(roomId);
                                     io.sockets.to(roomId).emit('messageAcknowledge', senderData);
                                 });
 
@@ -276,6 +277,7 @@ io.on('connection', function (socket) {
 
                                     receiverData = resultChat[0];
 
+                                    console.log(receiverRoomId);
                                     io.sockets.to(receiverRoomId).emit('messageRecieve', receiverData);
                                     // io.sockets.to(roomId).emit('messageRecieve', receiverData);
                                 });
