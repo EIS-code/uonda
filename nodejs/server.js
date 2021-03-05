@@ -205,9 +205,11 @@ io.on('connection', function (socket) {
                         chatRoomUserId = checkRoomUser[0].id;
                     }
 
+                    let roomData = {senderId: senderId, receiverId: receiverId,chatRoomId: chatRoomId, chatRoomUserId: chatRoomUserId};
+                    // Emit room data.
+                    io.sockets.to(roomId).emit('roomData', roomData);
                     /* Callbacks. */
-                    console.log({senderId: senderId, receiverId: receiverId,chatRoomId: chatRoomId, chatRoomUserId: chatRoomUserId});
-                    callbackFunction({senderId: senderId, receiverId: receiverId,chatRoomId: chatRoomId, chatRoomUserId: chatRoomUserId});
+                    callbackFunction(roomData);
                 });
             });
 
