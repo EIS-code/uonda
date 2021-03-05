@@ -255,7 +255,7 @@ io.on('connection', function (socket) {
 
                                     senderData = resultChat[0];
 
-                                    io.sockets.to(roomId).emit('messageAcknowledge', senderData);
+                                    socket.to(roomId).emit('messageAcknowledge', senderData);
                                 });
 
                                 let sqlGetReceiverUser = "SELECT `id`, `name`, `user_name`, `email`, `profile` FROM `" + modelUsers + "` WHERE `id` = '" + receiverId + "' LIMIT 1";
@@ -275,7 +275,7 @@ io.on('connection', function (socket) {
 
                                     receiverData = resultChat[0];
 
-                                    io.sockets.to(receiverRoomId).emit('messageRecieve', receiverData);
+                                    socket.to(receiverRoomId).emit('messageRecieve', receiverData);
                                     // io.sockets.to(roomId).emit('messageRecieve', receiverData);
                                 });
                             });
