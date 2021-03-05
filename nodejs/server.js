@@ -204,13 +204,13 @@ io.on('connection', function (socket) {
                     } else {
                         chatRoomUserId = checkRoomUser[0].id;
                     }
-
-                    let roomData = {senderId: senderId, receiverId: receiverId,chatRoomId: chatRoomId, chatRoomUserId: chatRoomUserId};
-                    // Emit room data.
-                    io.sockets.to(roomId).emit('roomData', roomData);
-                    /* Callbacks. */
-                    callbackFunction(roomData);
                 });
+
+                let roomData = {senderId: senderId, receiverId: receiverId, chatRoomId: chatRoomId, chatRoomUserId: chatRoomUserId};
+                // Emit room data.
+                io.sockets.to(roomId).emit('roomData', roomData);
+                /* Callbacks. */
+                callbackFunction(roomData);
             });
 
             connection.release();
