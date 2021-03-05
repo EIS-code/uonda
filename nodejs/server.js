@@ -142,6 +142,7 @@ io.on('connection', function (socket) {
         console.log("senderId : " + senderId);
         console.log("receiverId : " + receiverId);
         console.log(io.sockets.adapter.rooms);
+        console.log(roomId);
         console.log("\n");
 
         // Error Handling.
