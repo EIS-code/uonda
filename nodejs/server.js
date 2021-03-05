@@ -120,6 +120,15 @@ io.on('connection', function (socket) {
 
         // Join Rooms
         var roomId = 'individualJoin-' + senderId + "-" + receiverId;
+
+        try {
+            if (io.sockets.adapter.rooms[roomId]) {
+                socket.leave(roomId);
+            }
+        } catch(e) {
+            /* Handle errors. */
+        }
+
         socket.join(roomId);
 
         // Emit room id.
