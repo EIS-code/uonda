@@ -15,7 +15,7 @@ class AddSocialFieldsInUsersTable extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->text('oauth_uid')->nullable()->after('is_admin');
-            $table->enum('oauth_provider', ['0', '1', '2', '3'])->default('0')->after('oauth_uid')->comment('0: None, 1: Google, 2: Facebook, 3: Apple');
+            $table->enum('oauth_provider', ['0', '1', '2', '3', '4'])->default('0')->after('oauth_uid')->comment('0: None, 1: Google, 2: Facebook, 3: Apple, 4: Instagram');
         });
     }
 

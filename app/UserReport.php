@@ -69,4 +69,14 @@ class UserReport extends BaseModel
 
         return $validator;
     }
+
+    public function ReportQuestions()
+    {
+        return $this->belongsTo('App\UserReportQuestion', 'user_report_question_id', 'id');
+    }
+
+    public function User()
+    {
+        return $this->belongsTo('App\User', 'user_id', 'id');
+    }
 }

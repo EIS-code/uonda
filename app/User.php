@@ -12,6 +12,7 @@ use App\UserSetting;
 use App\ApiKey;
 use App\UserBlockProfile;
 use App\Notification;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 
@@ -25,7 +26,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'user_name', 'email', 'password', 'referral_code', 'current_location', 'nation', 'gender', 'birthday', 'short_bio', 'school_id', 'state_id', 'country_id', 'city_id',
+        'name', 'user_name', 'sur_name', 'email', 'password', 'referral_code', 'current_location', 'nation', 'gender', 'birthday', 'short_bio', 'school_id', 'state_id', 'country_id', 'city_id', 'origin_country_id', 'origin_city_id',
         'current_status', 'company', 'job_position', 'university', 'field_of_study', 'profile', 'profile_icon', 'personal_flag', 'school_flag', 'other_flag', 'latitude', 'longitude', 'device_token', 'device_type', 'app_version', 'oauth_uid', 'oauth_provider', 'is_online'
     ];
 
@@ -94,16 +95,18 @@ class User extends Authenticatable
     public $profile                  = 'user\\profile';
     public $profileIcon              = 'user\\profile\\icons';
 
-    const OAUTH_NONE     = '0';
-    const OAUTH_GOOGLE   = '1';
-    const OAUTH_FACEBOOK = '2';
-    const OAUTH_APPLE    = '3';
+    const OAUTH_NONE        = '0';
+    const OAUTH_GOOGLE      = '1';
+    const OAUTH_FACEBOOK    = '2';
+    const OAUTH_APPLE       = '3';
+    const OAUTH_INSTAGRAM   = '4';
 
     public $oauthProviders = [
-        self::OAUTH_NONE     => 'None',
-        self::OAUTH_GOOGLE   => 'Google',
-        self::OAUTH_FACEBOOK => 'Facebook',
-        self::OAUTH_APPLE    => 'Apple'
+        self::OAUTH_NONE        => 'None',
+        self::OAUTH_GOOGLE      => 'Google',
+        self::OAUTH_FACEBOOK    => 'Facebook',
+        self::OAUTH_APPLE       => 'Apple',
+        self::OAUTH_INSTAGRAM   => 'Instagram'
     ];
 
     const IS_ADMIN = '1';
@@ -147,6 +150,7 @@ class User extends Authenticatable
         $validator = Validator::make($data, array_merge([
             'name'             => array_merge(['string', 'max:255'], !empty($requiredFileds['name']) ? $requiredFileds['name'] : ['required']),
             'user_name'        => array_merge(['string', 'max:255'], !empty($requiredFileds['user_name']) ? $requiredFileds['user_name'] : ['nullable']),
+            'sur_name'        => array_merge(['string', 'max:255'], !empty($requiredFileds['sur_name']) ? $requiredFileds['sur_name'] : ['nullable']),
             'password'         => array_merge(['min:6'], !empty($requiredFileds['password']) ? $requiredFileds['password'] : ['nullable']),
             'email'            => array_merge(['email', 'unique:' . $this->getTableName()], !empty($requiredFileds['email']) ? $requiredFileds['email'] : ['nullable']),
             'referral_code'    => array_merge(['string', 'max:255'], !empty($requiredFileds['referral_code']) ? $requiredFileds['referral_code'] : ['nullable']),
@@ -157,8 +161,10 @@ class User extends Authenticatable
             'short_bio'        => array_merge(['string'], !empty($requiredFileds['short_bio']) ? $requiredFileds['short_bio'] : ['nullable']),
             'school_id'        => array_merge(['integer', 'exists:' . School::getTableName() . ',id'], !empty($requiredFileds['school_id']) ? $requiredFileds['school_id'] : ['nullable']),
             'country_id'       => array_merge(['integer', 'exists:' . Country::getTableName() . ',id'], !empty($requiredFileds['country_id']) ? $requiredFileds['country_id'] : ['nullable']),
+            'origin_country_id'       => array_merge(['integer', 'exists:' . Country::getTableName() . ',id'], !empty($requiredFileds['origin_country_id']) ? $requiredFileds['origin_country_id'] : ['nullable']),
             'state_id'         => array_merge(['integer', 'exists:' . State::getTableName() . ',id'], !empty($requiredFileds['state_id']) ? $requiredFileds['state_id'] : ['nullable']),
             'city_id'          => array_merge(['integer', 'exists:' . City::getTableName() . ',id'], !empty($requiredFileds['city_id']) ? $requiredFileds['city_id'] : ['nullable']),
+            'origin_city_id'          => array_merge(['integer', 'exists:' . City::getTableName() . ',id'], !empty($requiredFileds['origin_city_id']) ? $requiredFileds['origin_city_id'] : ['nullable']),
             'current_status'   => array_merge(['nullable', 'in:0,1,2,3'], !empty($requiredFileds['current_status']) ? $requiredFileds['current_status'] : ['nullable']),
             'company'          => array_merge(['string', 'max:255'], !empty($requiredFileds['company']) ? $requiredFileds['company'] : ['nullable']),
             'job_position'     => array_merge(['string', 'max:255'], !empty($requiredFileds['job_position']) ? $requiredFileds['job_position'] : ['nullable']),
@@ -206,9 +212,25 @@ class User extends Authenticatable
         return $this->hasOne('App\City', 'id', 'city_id');
     }
 
+    public function originCountry()
+    {
+        return $this->hasOne('App\Country', 'id', 'origin_country_id');
+    }
+
+    public function originCity()
+    {
+        return $this->hasOne('App\City', 'id', 'origin_city_id');
+    }
+
     public function school()
     {
         return $this->hasOne('App\School', 'id', 'school_id');
+    }
+
+    //To set the birthday in date format
+    public function setBirthdayAttribute($value)
+    {
+        $this->attributes['birthday'] = Carbon::createFromTimestamp($value)->format('Y-m-d');
     }
 
     public function getGenderAttribute($value)
@@ -252,6 +274,14 @@ class User extends Authenticatable
     public function getTotalUnreadNotificationsAttribute()
     {
         return $this->notifications->count();
+    }
+
+    /**
+     * likes of feed by current user.
+     */
+    public function likedFeeds()
+    {
+        return $this->belongsToMany(Feed::class, 'feed_likes')->withTimestamps();
     }
 
     //get encrypted user id
@@ -305,6 +335,20 @@ class User extends Authenticatable
         $country = $this->country;
 
         return !empty($country) ? $country->name : NULL;
+    }
+
+    public function getOriginCountryNameAttribute()
+    {
+        $originCountry = $this->originCountry;
+
+        return !empty($originCountry) ? $originCountry->name : NULL;
+    }
+
+    public function getOriginCityNameAttribute()
+    {
+        $originCity = $this->originCity;
+
+        return !empty($originCity) ? $originCity->name : NULL;
     }
 
     public function getStateNameAttribute()

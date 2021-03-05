@@ -65,6 +65,10 @@ Route::group(['middleware' => ['web.auth.api']], function () {
             Route::group(['prefix' => 'document'], function () {
                 Route::post('/remove', 'UserController@removeDocument')->name('user.profile.unblock');
             });
+
+            Route::group(['prefix' => 'origin'], function () {
+                Route::post('/save', 'UserController@saveOriginLocation')->name('user.location.save');
+            });
         });
 
         Route::group(['prefix' => 'setting'], function () {
@@ -114,6 +118,11 @@ Route::group(['middleware' => ['web.auth.api']], function () {
 
     Route::group(['prefix' => 'feed', 'namespace' => 'Feed'], function () {
         Route::get('/get', 'FeedController@getFeed')->name('getFeed');
+        Route::post('/like', 'FeedController@setFeedLikes')->name('feed-like-dislikes');
+    });
+
+    Route::group(['prefix' => 'promotion', 'namespace' => 'Promotion'], function () {
+        Route::get('/get', 'PromotionController@getPromotions')->name('getPromotions');
     });
 
     Route::group(['prefix' => 'notification', 'namespace' => 'Notification'], function () {
@@ -133,4 +142,8 @@ Route::group(['middleware' => ['web.auth.api']], function () {
         Route::post('/', 'ContactUsController@store')->name('contactus.store');
     });
 
+});
+
+Route::group(['prefix' => 'test'], function () {
+    Route::any('/images', 'BaseController@getImages');
 });

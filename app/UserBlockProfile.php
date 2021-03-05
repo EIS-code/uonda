@@ -49,4 +49,9 @@ class UserBlockProfile extends BaseModel
     {
         return $this->hasOne('App\User', 'id', 'user_id');
     }
+
+    public function blockedUser()
+    {
+        return $this->hasOne('App\User', 'id', 'blocked_by');
+    }
 }

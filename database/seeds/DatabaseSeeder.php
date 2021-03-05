@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
         // $this->call(ConstantsSeeder::class);
         // $this->call(FeedsSeeder::class);
         // $this->call(UserReportQuestionsSeeder::class);
+        // $this->call(ImageSeeder::class);
         $this->call(DummyUsersSeeder::class);
     }
 }

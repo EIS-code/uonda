@@ -12,6 +12,8 @@ class UserReportQuestion extends BaseModel
         'question_type'
     ];
 
+    protected $appends = ['encrypted_question_id', 'report_question_type'];
+
     const TYPE_BOOLEAN      = '0';
     const TYPE_RADIO        = '1';
     const TYPE_CHECKBOX     = '2';
@@ -45,5 +47,17 @@ class UserReportQuestion extends BaseModel
     public function report(int $userId)
     {
         return $this->hasOne('App\UserReport', 'user_report_question_id', 'id')->where('user_id', $userId);
+    }
+
+    //get encrypted question id
+    public function getEncryptedQuestionIdAttribute()
+    {
+        return encrypt($this->id);
+    }
+
+    //get encrypted question typed
+    public function getReportQuestionTypeAttribute()
+    {
+        return  $this->questionTypes[$this->question_type];
     }
 }

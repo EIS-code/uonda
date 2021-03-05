@@ -14,6 +14,8 @@ class Country extends BaseModel
         'phone_code'
     ];
 
+    protected $appends = ['encrypted_country_id'];
+
     public function validator(array $data, $id = false, $isUpdate = false)
     {
         return Validator::make($data, [
@@ -26,5 +28,11 @@ class Country extends BaseModel
     public function states()
     {
         return $this->belongsToMany('App\State');
+    }
+
+    //get encrypted country id
+    public function getEncryptedCountryIdAttribute()
+    {
+        return encrypt($this->id);
     }
 }

@@ -144,7 +144,7 @@ class UserController extends BaseController
             // Privacy
             UserSetting::create(['user_id' => $userId, 'user_name' => UserSetting::CONSTS_PRIVATE, 'email' => UserSetting::CONSTS_PRIVATE, 'notification' => UserSetting::NOTIFICATION_ON]);
 
-            return $this->returnSuccess(__('User personal details saved successfully!'), $this->getDetails($userId));
+            return $this->returnSuccess(__('User personal details saved successfully!'), $this->getDetails($userId, false, true));
         }
 
         return $this->returnError(__('Something went wrong!'));
@@ -208,8 +208,8 @@ class UserController extends BaseController
             'name'             => ['nullable'],
             'password'         => ['nullable'],
             'email'            => ['nullable'],
-            'current_location' => ['required'],
-            'nation'           => ['required'],
+            'current_location' => ['nullable'],
+            'nation'           => ['nullable'],
             'gender'           => ['required'],
             'birthday'         => ['nullable'],
             'country_id'       => ['nullable'],
@@ -233,22 +233,23 @@ class UserController extends BaseController
 
         $user = $model::find($data['user_id']);
 
-        $user->current_location = $data['current_location'];
-        $user->nation           = $data['nation'];
+        // $user->current_location = $data['current_location'];
+        // $user->nation           = $data['nation'];
         $user->gender           = $data['gender'];
-        $user->birthday         = !empty($data['birthday']) ? Carbon::createFromTimestamp($data['birthday'])->toDateTime() : NULL;
-        $user->current_status   = isset($data['current_status']) ? (int)$data['current_status'] : 0;
+        $user->birthday         = !empty($data['birthday']) ? $data['birthday'] : NULL;
+        $user->current_status   = isset($data['current_status']) ? ''.$data['current_status'] : '0';
         $user->company          = !empty($data['company']) ? $data['company'] : NULL;
         $user->job_position     = !empty($data['job_position']) ? $data['job_position'] : NULL;
         $user->university       = !empty($data['university']) ? $data['university'] : NULL;
         $user->field_of_study   = !empty($data['field_of_study']) ? $data['field_of_study'] : NULL;
         $user->other_flag       = $model::OTHER_FLAG_DONE;
-        $user->country_id       = !empty($data['country_id']) ? $data['country_id'] : NULL;
-        $user->state_id         = !empty($data['state_id']) ? $data['state_id'] : NULL;
-        $user->city_id          = !empty($data['city_id']) ? $data['city_id'] : NULL;
-
+        // $user->country_id       = !empty($data['country_id']) ? $data['country_id'] : NULL;
+        // $user->state_id         = !empty($data['state_id']) ? $data['state_id'] : NULL;
+        // $user->city_id          = !empty($data['city_id']) ? $data['city_id'] : NULL;
         if ($user->save()) {
-            return $this->returnSuccess(__('User other details saved successfully!'), $this->getDetails($user->id));
+            $data = $this->getDetails($user->id);
+            $data->api_key = ApiKey::generateKey($user->id);
+            return $this->returnSuccess(__('User other details saved successfully!'), $data);
         }
 
         return $this->returnError(__('Something went wrong!'));
@@ -442,6 +443,8 @@ class UserController extends BaseController
             array_push($user->appends, 'state_name');
             array_push($user->appends, 'city_name');
             array_push($user->appends, 'school_name');
+            array_push($user->appends, 'origin_country_name');
+            array_push($user->appends, 'origin_city_name');
 
             if ($isApi) {
                 // Set device informations if request having.
@@ -472,7 +475,7 @@ class UserController extends BaseController
         $userId = (int)$data['user_id'];
 
         $user = $model::select('id', 'personal_flag', 'school_flag', 'other_flag')->with('userDocuments')->find($userId);
-
+        $user->api_key = ApiKey::generateKey($user->id);
         if (!empty($user)) {
             $user->makeVisible(['personal_flag', 'school_flag', 'other_flag']);
 
@@ -828,5 +831,55 @@ class UserController extends BaseController
         }
 
         return $this->returnError(__('Something went wrong!'));
+    }
+
+    //Function to save the location of user
+    public function saveOriginLocation(Request $request) {
+        $model = new User();
+        $data  = $request->all();
+        
+        if (empty($data['user_id']) || !is_numeric($data['user_id'])) {
+            return $this->returnError(__('User id seems incorrect.'));
+        }
+
+        $userId = (int)$data['user_id'];
+        unset($data['user_id']);
+
+        $user = $model::find($userId);
+        $data['name'] = $user->name;
+        if (!empty($user)) {
+            $fillableFields = $model->getFillable();
+
+            $requiredFileds = [
+                'country_id'      => ['required'],
+                'city_id'  => ['required'],
+                'origin_country_id'      => ['required'],
+                'origin_city_id'  => ['required'],
+            ];
+
+            foreach ($data as $field => $value) {
+                if (in_array($field, $fillableFields)) {
+                    $requiredFileds[$field] = ['required'];
+                }
+            }
+            $validator = $model->validator($data, $requiredFileds);
+
+            if ($validator->fails()) {
+                return $this->returnError($validator->errors()->first());
+            }
+
+            foreach ($data as $field => $value) {
+                if (in_array($field, $fillableFields)) {
+                    $user->{$field} = $value;
+                }
+            }
+        }
+        if ($user->save()) {
+            $msg = NULL;
+            $data = $this->getDetails($user->id);
+            $data->api_key = ApiKey::getApiKey($user->id);
+            return $this->returnSuccess(__('User location details updated successfully') . $msg . '!', $data);
+        }
+        return $this->returnNull();
     }
 }
