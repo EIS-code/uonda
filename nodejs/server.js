@@ -124,17 +124,17 @@ io.on('connection', function (socket) {
 
         try {
             if (io.sockets.adapter.rooms[roomId]) {
-                io.sockets.leave(roomId);
+                socket.leave(roomId);
             }
 
             if (io.sockets.adapter.rooms[receiverRoomId]) {
-                io.sockets.leave(receiverRoomId);
+                socket.leave(receiverRoomId);
             }
         } catch(e) {
             /* Handle errors. */
         }
 
-        io.sockets.join(roomId);
+        socket.join(roomId);
 
         // Emit room id.
         io.sockets.to(roomId).emit('roomId', {id: roomId});

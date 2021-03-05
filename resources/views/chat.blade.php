@@ -77,9 +77,7 @@
                         // console.log("messageRecieve");
                         // console.log(data);
 
-                        if (data.sender_id != senderId) {
-                            $( "#messages" ).append( "<strong> TEST :</strong><p>"+data.message+"</p>" );
-                        }
+                        $( "#messages" ).append( "<strong> TEST :</strong><p>"+data.message+"</p>" );
                     });
 
                     // socket.emit('messageSendAttachment', {id: 274});
@@ -104,11 +102,11 @@
                 }
             });
 
-            socket.emit('groupJoin', {groupId: groupId, 'senderId': senderId}, function (responseData) {
+            /*socket.emit('groupJoin', {groupId: groupId, 'senderId': senderId}, function (responseData) {
                 if (responseData) {
                     console.log(responseData);
                 }
-            });
+            });*/
         });
     });
 
