@@ -139,11 +139,11 @@ io.on('connection', function (socket) {
         // Emit room id.
         io.sockets.to(roomId).emit('roomId', {id: roomId});
 
-        console.log("senderId : " + senderId);
+        /*console.log("senderId : " + senderId);
         console.log("receiverId : " + receiverId);
         console.log(io.sockets.adapter.rooms);
         console.log(roomId);
-        console.log("\n");
+        console.log("\n");*/
 
         // Error Handling.
         var errorFun = function(errMessage) {
