@@ -429,8 +429,8 @@ class UserController extends BaseController
             return $this->returnError(__('This profile blocked by user.'));
         }
 
-        $user = $model::with('userDocuments')->find($userId);
-
+        $user = $model::with(['userDocuments','userPermission'])->find($userId);
+        
         if (!empty($user)) {
             if ($apiKey) {
                 // Generate API key.
