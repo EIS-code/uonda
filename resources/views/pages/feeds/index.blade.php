@@ -41,6 +41,7 @@
                 <th>No</th>
                 <th>Title</th>
                 <th>Sub title</th>
+                <th>Likes</th>
                 <th>Created On</th>
                 <th>Action</th>
             </tr>
@@ -51,6 +52,7 @@
                         <td>{{ $key  + 1}}</td>
                         <td>{{ ucfirst($feed->title) }}</td>
                         <td>{{ $feed->sub_title }}</td>
+                        <td>{{ count($feed->likedByUser) }}</td>
                         <td>{{ Carbon\Carbon::parse($feed->created_at)->format('jS M Y') }}</td>
                         <td class="icons_list">
                             <a href="{{ route('feeds.edit', $feed->encrypted_feed_id) }}" title="Edit Feed"><span class="material-icons">edit</span></a> 

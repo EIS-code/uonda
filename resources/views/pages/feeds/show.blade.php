@@ -55,6 +55,21 @@
                     @endif
                 </tbody>
             </table>
+            <h4 style="text-align:center">Liked By</h4>
+            <table class="table table-striped course-tables show-details-table">
+                <tbody>
+                    @foreach($feed->likedByUser as $user)
+                        <tr>
+                            <td> <a href="{{ route('users.show', $user->encrypted_user_id) }}" target="_blank">{{$user->name}}</a> </td>
+                        </tr>
+                    @endforeach
+                    @if(count($feed->likedByUser) == 0)
+                        <tr>
+                            <th colspan=2>No Likes by any user</th>
+                        </tr>
+                    @endif
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
