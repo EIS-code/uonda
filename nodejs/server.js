@@ -207,12 +207,12 @@ io.on('connection', function (socket) {
                 });
 
                 if (!isError) {
-                    socket.on("messageSend", function(data) {
+                    socket.on("messageSend", function(message) {
 
                         let now             = mysqlDate(new Date()),
                             timestampsQuery = "`created_at` = '" + now + "', `updated_at` = '" + now + "'";
 
-                        let sqlQuery  = "INSERT INTO `" + modelChats + "` SET `message` = '" + message + "', `chat_room_id` = '" + chatRoomId + "', `chat_room_user_id` = '" + chatRoomUserId + "', " + timestampsQuery;
+                        let sqlQuery  = "INSERT INTO `" + modelChats + "` SET `message` = '" + message.message + "', `chat_room_id` = '" + chatRoomId + "', `chat_room_user_id` = '" + chatRoomUserId + "', " + timestampsQuery;
 
                         connection.query(sqlQuery, async function (err4, insertChat, fields) {
                             if (err4) {
@@ -265,7 +265,7 @@ io.on('connection', function (socket) {
                                     resultChat[0].receiverId = receiverId;
 
                                     receiverData = resultChat[0];
-                                    io.sockets.to(receiverRoomId).emit('messageRecieve-' + receiverId + '-' + senderId, receiverData);
+                                    io.sockets.to(receiverRoomId).emit('messageRecieve-' + senderId + '-' + receiverId, receiverData);
                                 });
                             });
                         });

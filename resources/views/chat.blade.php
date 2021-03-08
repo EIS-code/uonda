@@ -80,7 +80,7 @@
                     // console.log(data);
                 });*/
 
-                socket.on('messageRecieve', function (data) {
+                socket.on('messageRecieve-' + receiverId + '-' + senderId, function (data) {
                     // console.log("messageRecieve");
                     // console.log(data);
 
@@ -89,7 +89,7 @@
 
                 // socket.emit('messageSendAttachment', {id: 274});
 
-                socket.on('messageAcknowledge', function (data) {
+                socket.on('messageAcknowledge-' + senderId, function (data) {
                     // console.log("messageAcknowledge");
                     // console.log(data);
 
