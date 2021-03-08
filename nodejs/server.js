@@ -206,7 +206,8 @@ io.on('connection', function (socket) {
                     }
                 });
 
-                let roomData = {senderId: senderId, receiverId: receiverId, chatRoomId: chatRoomId, chatRoomUserId: chatRoomUserId};
+                var roomData = {senderId: senderId, receiverId: receiverId, chatRoomId: chatRoomId, chatRoomUserId: chatRoomUserId};
+
                 // Emit room data.
                 io.sockets.to(roomId).emit('roomData', roomData);
                 /* Callbacks. */
@@ -224,8 +225,6 @@ io.on('connection', function (socket) {
             }
 
             socket.on("messageSend", function(data) {
-                console.log(data);
-
                 try {
                     var senderId        = data.senderId,
                         receiverId      = data.receiverId,

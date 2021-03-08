@@ -51,60 +51,62 @@
 
     socket.on('connect', function() {
         socket.on('connected', function (data) {
-            // console.log(data);
-
             socket.emit('individualJoin', {'senderId': senderId, 'receiverId': receiverId}, function (responseData) {
                 joinData = responseData;
-
-                if (responseData) {
-                    socket.emit('doOnline', senderId);
-
-                    socket.on('error-' + senderId, function (data) {
-                        console.log(data);
-                    });
-
-                    socket.on('error', function (data) {
-                        console.log(data);
-                    });
-
-                    socket.on('roomId', function (data) {
-                        // console.log('roomId : ' + data.id);
-                    });
-
-                    /*socket.emit('messageHistory');
-
-                    socket.on('messageDetails', function (data) {
-                        // console.log(data);
-                    });*/
-
-                    socket.on('messageRecieve', function (data) {
-                        // console.log("messageRecieve");
-                        // console.log(data);
-
-                        $( "#messages" ).append( "<strong> " + userName + " :</strong><p>"+data.message+"</p>" );
-                    });
-
-                    // socket.emit('messageSendAttachment', {id: 274});
-
-                    socket.on('messageAcknowledge', function (data) {
-                        // console.log("messageAcknowledge");
-                        // console.log(data);
-
-                        $( "#messages" ).append( "<strong> " + userName + " :</strong><p>"+data.message+"</p>" );
-                    });
-
-                    /*socket.on('messageAcknowledge-' + senderId, function (data) {
-                        console.log("messageAcknowledge");
-                        console.log(data);
-
-                        $( "#messages" ).append( "<strong> TEST :</strong><p>"+data.message+"</p>" );
-                    });*/
-
-                    socket.on('getOnline', function (data) {
-                        // console.log(data);
-                    });
-                }
             });
+
+            if (joinData) {
+                socket.emit('doOnline', senderId);
+
+                socket.on('error-' + senderId, function (data) {
+                    console.log(data);
+                });
+
+                socket.on('error', function (data) {
+                    console.log(data);
+                });
+
+                socket.on('roomId', function (data) {
+                    console.log('roomId : ' + data.id);
+                });
+
+                socket.on('roomData', function (data) {
+                    console.log(data);
+                });
+
+                /*socket.emit('messageHistory');
+
+                socket.on('messageDetails', function (data) {
+                    // console.log(data);
+                });*/
+
+                socket.on('messageRecieve', function (data) {
+                    // console.log("messageRecieve");
+                    // console.log(data);
+
+                    $( "#messages" ).append( "<strong> " + userName + " :</strong><p>"+data.message+"</p>" );
+                });
+
+                // socket.emit('messageSendAttachment', {id: 274});
+
+                socket.on('messageAcknowledge', function (data) {
+                    // console.log("messageAcknowledge");
+                    // console.log(data);
+
+                    $( "#messages" ).append( "<strong> " + userName + " :</strong><p>"+data.message+"</p>" );
+                });
+
+                /*socket.on('messageAcknowledge-' + senderId, function (data) {
+                    console.log("messageAcknowledge");
+                    console.log(data);
+
+                    $( "#messages" ).append( "<strong> TEST :</strong><p>"+data.message+"</p>" );
+                });*/
+
+                socket.on('getOnline', function (data) {
+                    // console.log(data);
+                });
+            }
 
             /*socket.emit('groupJoin', {groupId: groupId, 'senderId': senderId}, function (responseData) {
                 if (responseData) {
