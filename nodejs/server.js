@@ -57,13 +57,7 @@ var isError             = false,
     attachmentUrl       = removeTrailingSlash(appUrl) + '/' + 'storage' + '/' + 'user' + '/' + 'chat' + '/' + 'attachment' + '/',
     listenerIndividual  = 'individualJoin';
 
-/*io.use((socket, next)=>{
-
-})*/
-
 io.on('connection', function (socket) {
-    /*var redisClient = redis.createClient();
-    redisClient.subscribe('messageSend');*/
 
     /* Emit connected. */
     socket.emit('connected', {
@@ -110,8 +104,13 @@ io.on('connection', function (socket) {
         }
 
         try {
-            var senderId   = joinData.senderId,
-                receiverId = joinData.receiverId;
+            var senderId              = joinData.senderId,
+                receiverId            = joinData.receiverId,
+                acknowledgeEmitter    = 'messageAcknowledge-' + senderId + '-' + receiverId,
+                messageRecieveEmitter = 'messageRecieve-' + senderId + '-' + receiverId,
+                messageDetailsEmitter = 'messageDetails-' + senderId + '-' + receiverId,
+                roomDataEmitter       = 'roomData-' + senderId + '-' + receiverId,
+                errorEmitter          = 'error-' + senderId + '-' + receiverId;
         } catch(error) {
             io.emit('error', {error: "Provide senderId and receiverId."});
             return false;
@@ -123,25 +122,25 @@ io.on('connection', function (socket) {
             receiverRoomId  = listenerIndividual + '-' + receiverId + "-" + senderId;
 
         try {
-            if (io.sockets.adapter.rooms[roomId]) {
-                socket.leave(roomId);
+            if (!io.sockets.adapter.rooms[roomId]) {
+                // socket.leave(roomId);
+
+                socket.join(roomId);
             }
 
-            if (io.sockets.adapter.rooms[receiverRoomId]) {
+            /*if (io.sockets.adapter.rooms[receiverRoomId]) {
                 socket.leave(receiverRoomId);
-            }
+            }*/
         } catch(e) {
             /* Handle errors. */
         }
-
-        socket.join(roomId);
 
         // Emit room id.
         io.sockets.to(roomId).emit('roomId', {id: roomId});
 
         // Error Handling.
         var errorFun = function(errMessage) {
-            io.sockets.to(roomId).emit('error-' + senderId, {error: errMessage});
+            io.sockets.to(roomId).emit(errorEmitter, {error: errMessage});
 
             isError = true;
 
@@ -207,12 +206,24 @@ io.on('connection', function (socket) {
                 });
 
                 if (!isError) {
-                    socket.on("messageSend", function(message) {
+                    socket.on("messageSend", function(data) {
 
-                        let now             = mysqlDate(new Date()),
-                            timestampsQuery = "`created_at` = '" + now + "', `updated_at` = '" + now + "'";
+                        try {
+                            var message         = data.message,
+                                chatRoomId      = data.chatRoomId,
+                                chatRoomUserId  = data.chatRoomUserId,
+                                senderId        = data.senderId,
+                                receiverId      = data.receiverId;
 
-                        let sqlQuery  = "INSERT INTO `" + modelChats + "` SET `message` = '" + message.message + "', `chat_room_id` = '" + chatRoomId + "', `chat_room_user_id` = '" + chatRoomUserId + "', " + timestampsQuery;
+                            let now             = mysqlDate(new Date()),
+                                timestampsQuery = "`created_at` = '" + now + "', `updated_at` = '" + now + "'";
+                        } catch(error) {
+                            io.emit('error', {error: "Provide chatRoomId, chatRoomUserId, senderId & receiverId."});
+                            return false;
+                            isError = true;
+                        }
+
+                        let sqlQuery  = "INSERT INTO `" + modelChats + "` SET `message` = '" + message + "', `chat_room_id` = '" + chatRoomId + "', `chat_room_user_id` = '" + chatRoomUserId + "', " + timestampsQuery;
 
                         connection.query(sqlQuery, async function (err4, insertChat, fields) {
                             if (err4) {
@@ -246,7 +257,7 @@ io.on('connection', function (socket) {
                                     resultChat[0].receiverId = receiverId;
 
                                     senderData = resultChat[0];
-                                    io.sockets.to(roomId).emit('messageAcknowledge-' + senderId, senderData);
+                                    io.sockets.to(roomId).emit(acknowledgeEmitter, senderData);
                                 });
 
                                 let sqlGetReceiverUser = "SELECT `id`, `name`, `user_name`, `email`, `profile` FROM `" + modelUsers + "` WHERE `id` = '" + receiverId + "' LIMIT 1";
@@ -265,17 +276,20 @@ io.on('connection', function (socket) {
                                     resultChat[0].receiverId = receiverId;
 
                                     receiverData = resultChat[0];
-                                    io.sockets.to(receiverRoomId).emit('messageRecieve-' + senderId + '-' + receiverId, receiverData);
+                                    io.sockets.to(receiverRoomId).emit(messageRecieveEmitter, receiverData);
                                 });
                             });
                         });
                     });
 
                     socket.on("messageSendAttachment", function(data) {
+
                         try {
-                            var chatId = data.id;
+                            var chatId     = data.id,
+                                senderId   = data.senderId,
+                                receiverId = data.receiverId;
                         } catch(error) {
-                            io.emit('error', {error: "Provide chatId."});
+                            io.emit('error', {error: "Provide chatId, senderId & receiverId."});
                             return false;
                             isError = true;
                         }
@@ -296,18 +310,27 @@ io.on('connection', function (socket) {
                                     resultChat[0].sender_id  = senderId;
                                     resultChat[0].receiverId = receiverId;
 
-                                    io.sockets.to(roomId).emit('messageAcknowledge', resultChat[0]);
-                                    io.sockets.to(receiverRoomId).emit('messageRecieve', resultChat[0]);
+                                    io.sockets.to(roomId).emit(acknowledgeEmitter, resultChat[0]);
+                                    io.sockets.to(receiverRoomId).emit(messageRecieveEmitter, resultChat[0]);
                                 } else {
 
-                                    io.sockets.to(roomId).emit('messageAcknowledge', []);
-                                    io.sockets.to(receiverRoomId).emit('messageRecieve', []);
+                                    io.sockets.to(roomId).emit(acknowledgeEmitter, []);
+                                    io.sockets.to(receiverRoomId).emit(messageRecieveEmitter, []);
                                 }
                             });
                         }
                     });
 
                     socket.on("messageHistory", function(data) {
+
+                        try {
+                            var senderId   = data.senderId,
+                                receiverId = data.receiverId;
+                        } catch(error) {
+                            io.emit('error', {error: "Provide senderId & receiverId."});
+                            return false;
+                            isError = true;
+                        }
 
                         let sqlGetChatHistory = "SELECT c.id, c.message, cru.sender_id, cru.receiver_id, CASE cru.sender_id WHEN '" + senderId + "' THEN 'sender' ELSE 'receiver' END AS sender_receiver_flag, c.created_at, c.updated_at FROM `" + modelChatRoomUsers + "` AS cru JOIN `" + modelChats + "` AS c ON cru.id = c.chat_room_user_id WHERE ((cru.`sender_id` = '" + senderId + "' AND cru.`receiver_id` = '" + receiverId + "') OR (cru.`sender_id` = '" + receiverId + "' AND cru.`receiver_id` = '" + senderId + "'))";
 
@@ -316,10 +339,16 @@ io.on('connection', function (socket) {
                                 return errorFun(err9.message);
                             }
 
-                            io.sockets.to(roomId).emit('messageDetails', resultChatHistory);
+                            io.sockets.to(roomId).emit(messageDetailsEmitter, resultChatHistory);
                         });
                     });
                 }
+
+                let roomData = {senderId: senderId, receiverId: receiverId, chatRoomId: chatRoomId, chatRoomUserId: chatRoomUserId};
+                // Emit room data.
+                socket.emit(roomDataEmitter, roomData);
+                /* Callbacks. */
+                callbackFunction(roomData);
             });
 
             connection.release();
@@ -548,10 +577,12 @@ function mysqlDate(dateVal)
 
     return sYear + "-" + sMonth + "-" + sDay + " " + sHour + ":" + sMinute + ":" + sSecond ;
 }
+
 function padValue(value)
 {
     return (value < 10) ? "0" + value : value;
 }
+
 function generateUuid(count) {
     let _sym = 'abcdefghijklmnopqrstuvwxyz1234567890',
         str  = '';
@@ -562,10 +593,12 @@ function generateUuid(count) {
 
     return str;
 }
+
 function removeTrailingSlash(url)
 {
     return url.replace(/\/$/, "");
 }
+
 function buildAttachmentUrl(id, file)
 {
     return attachmentUrl + id + '/' + file;

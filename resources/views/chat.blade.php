@@ -58,7 +58,7 @@
             if (joinData) {
                 socket.emit('doOnline', senderId);
 
-                socket.on('error-' + senderId, function (data) {
+                socket.on('error-' + senderId + '-' + receiverId, function (data) {
                     console.log(data);
                 });
 
@@ -70,7 +70,7 @@
                     console.log('roomId : ' + data.id);
                 });
 
-                socket.on('roomData', function (data) {
+                socket.on('roomData-' + senderId + '-' + receiverId, function (data) {
                     console.log(data);
                 });
 
@@ -89,7 +89,7 @@
 
                 // socket.emit('messageSendAttachment', {id: 274});
 
-                socket.on('messageAcknowledge-' + senderId, function (data) {
+                socket.on('messageAcknowledge-' + senderId + '-' + receiverId, function (data) {
                     // console.log("messageAcknowledge");
                     // console.log(data);
 
