@@ -152,7 +152,7 @@ io.on('connection', function (socket) {
         // Create room.
         var uuid            = generateUuid(10),
             now             = mysqlDate(new Date()),
-            timestampsQuery = "`created_at` = '" + now + "', `updated_at` = '" + now + "'",
+            timestampsQuery = "`created_at` = NOW(), `updated_at` = NOW()",
             chatRoomId      = false,
             chatRoomUserId  = false;
 
@@ -222,7 +222,7 @@ io.on('connection', function (socket) {
         con.getConnection(function(err, connection) {
 
             let now             = mysqlDate(new Date()),
-                timestampsQuery = "`created_at` = '" + now + "', `updated_at` = '" + now + "'";
+                timestampsQuery = "`created_at` = NOW(), `updated_at` = NOW()";
 
             socket.on("messageSend", function(data) {
 
@@ -438,7 +438,7 @@ io.on('connection', function (socket) {
         // Create room.
         var uuid            = generateUuid(10),
             now             = mysqlDate(new Date()),
-            timestampsQuery = "`created_at` = '" + now + "', `updated_at` = '" + now + "'",
+            timestampsQuery = "`created_at` = NOW(), `updated_at` = NOW()",
             chatRoomId      = groupId,
             chatRoomUserId  = false,
             socketIds       = [];
@@ -491,7 +491,7 @@ io.on('connection', function (socket) {
 
                         socket.on("messageSend", function(message) {
                             let now             = mysqlDate(new Date()),
-                                timestampsQuery = "`created_at` = '" + now + "', `updated_at` = '" + now + "'";
+                                timestampsQuery = "`created_at` = NOW(), `updated_at` = NOW()";
 
                             let sqlQuery  = "INSERT INTO `" + modelChats + "` SET `message` = '" + message.message + "', `chat_room_id` = '" + chatRoomId + "', `chat_room_user_id` = '" + chatRoomUserId + "', " + timestampsQuery;
 
