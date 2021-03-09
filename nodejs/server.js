@@ -257,6 +257,7 @@ io.on('connection', function (socket) {
                                     resultChat[0].receiverId = receiverId;
 
                                     senderData = resultChat[0];
+                                    console.log("acknowledgeEmitter", acknowledgeEmitter);
                                     io.sockets.to(roomId).emit(acknowledgeEmitter, senderData);
                                 });
 
@@ -276,6 +277,7 @@ io.on('connection', function (socket) {
                                     resultChat[0].receiverId = receiverId;
 
                                     receiverData = resultChat[0];
+                                    console.log("messageRecieveEmitter", messageRecieveEmitter);
                                     io.sockets.to(receiverRoomId).emit(messageRecieveEmitter, receiverData);
                                 });
                             });
@@ -345,6 +347,7 @@ io.on('connection', function (socket) {
                 }
 
                 let roomData = {senderId: senderId, receiverId: receiverId, chatRoomId: chatRoomId, chatRoomUserId: chatRoomUserId};
+                console.log("roomData : ", roomData);
                 // Emit room data.
                 socket.emit(roomDataEmitter, roomData);
                 /* Callbacks. */
