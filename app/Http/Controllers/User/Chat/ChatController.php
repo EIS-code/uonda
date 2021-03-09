@@ -539,6 +539,7 @@ class ChatController extends BaseController
             }
         }
 
-        return $this->returnError(__('Something went wrong!'));
+        // return $this->returnError(__('Something went wrong!'));
+        return $this->returnSuccess(__('User chat removed successfully!'));
     }
 }

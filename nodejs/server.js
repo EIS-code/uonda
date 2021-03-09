@@ -163,7 +163,7 @@ io.on('connection', function (socket) {
 
             // let sqlCheckRoomUser = "SELECT * FROM `" + modelChatRoomUsers + "` WHERE ((`sender_id` = '" + senderId + "' AND `receiver_id` = '" + receiverId + "') OR (`sender_id` = '" + receiverId + "' AND `receiver_id` = '" + senderId + "')) LIMIT 1";
             let sqlCheckRoomUser = "SELECT * FROM `" + modelChatRoomUsers + "` WHERE ((`sender_id` = '" + senderId + "' AND `receiver_id` = '" + receiverId + "')) LIMIT 1";
-
+console.log("sqlCheckRoomUser : ", sqlCheckRoomUser);
             connection.query(sqlCheckRoomUser, function (err1, chatRoomUser) {
                 if (err1) {
                     return errorFun(err1.message);
@@ -186,7 +186,7 @@ io.on('connection', function (socket) {
 
                 // Check is exists.
                 let sqlCheckRoomUser = "SELECT * FROM `" + modelChatRoomUsers + "` WHERE `sender_id` = '" + senderId + "' AND `receiver_id` = '" + receiverId + "' LIMIT 1";
-
+console.log("sqlCheckRoomUser : ", sqlCheckRoomUser);
                 connection.query(sqlCheckRoomUser, function (err8, checkRoomUser) {
                     if (err8) {
                         return errorFun(err8.message);
@@ -207,7 +207,6 @@ io.on('connection', function (socket) {
                 });
 
                 let roomData = {senderId: senderId, receiverId: receiverId, chatRoomId: chatRoomId, chatRoomUserId: chatRoomUserId};
-                console.log("roomData : ", roomData);
                 // Emit room data.
                 socket.emit(roomDataEmitter, roomData);
                 /* Callbacks. */
@@ -288,7 +287,6 @@ io.on('connection', function (socket) {
                             resultChat[0].receiverId = receiverId;
 
                             senderData = resultChat[0];
-                            console.log("acknowledgeEmitter", acknowledgeEmitter);
                             io.sockets.to(roomId).emit(acknowledgeEmitter, senderData);
                         });
 
@@ -308,7 +306,6 @@ io.on('connection', function (socket) {
                             resultChat[0].receiverId = receiverId;
 
                             receiverData = resultChat[0];
-                            console.log("messageRecieveEmitter", messageRecieveEmitter);
                             io.sockets.to(receiverRoomId).emit(messageRecieveEmitter, receiverData);
                         });
                     });
