@@ -161,8 +161,9 @@ io.on('connection', function (socket) {
                 return errorFun(err.message);
             }
 
-            let sqlCheckRoomUser = "SELECT * FROM `" + modelChatRoomUsers + "` WHERE ((`sender_id` = '" + senderId + "' AND `receiver_id` = '" + receiverId + "') OR (`sender_id` = '" + receiverId + "' AND `receiver_id` = '" + senderId + "')) LIMIT 1";
-console.log("sqlCheckRoomUser : ", sqlCheckRoomUser);
+            // let sqlCheckRoomUser = "SELECT * FROM `" + modelChatRoomUsers + "` WHERE ((`sender_id` = '" + senderId + "' AND `receiver_id` = '" + receiverId + "') OR (`sender_id` = '" + receiverId + "' AND `receiver_id` = '" + senderId + "')) LIMIT 1";
+            let sqlCheckRoomUser = "SELECT * FROM `" + modelChatRoomUsers + "` WHERE ((`sender_id` = '" + senderId + "' AND `receiver_id` = '" + receiverId + "')) LIMIT 1";
+
             connection.query(sqlCheckRoomUser, function (err1, chatRoomUser) {
                 if (err1) {
                     return errorFun(err1.message);
