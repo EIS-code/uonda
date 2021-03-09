@@ -51,11 +51,14 @@ let modelUsers          = 'users',
     modelChatDelete     = 'chat_delets';
 
 // Global variables.
-var isError             = false,
-    onlineUsers         = {},
-    appUrl              = env.config(envPath).parsed.APP_URL,
-    attachmentUrl       = removeTrailingSlash(appUrl) + '/' + 'storage' + '/' + 'user' + '/' + 'chat' + '/' + 'attachment' + '/',
-    listenerIndividual  = 'individualJoin';
+var isError                     = false,
+    onlineUsers                 = {},
+    appUrl                      = env.config(envPath).parsed.APP_URL,
+    attachmentUrl               = removeTrailingSlash(appUrl) + '/' + 'storage' + '/' + 'user' + '/' + 'chat' + '/' + 'attachment' + '/',
+    listenerIndividual          = 'individualJoin',
+    emitterMessageAcknowledge   = 'messageAcknowledge-',
+    emitterMessageReceive       = 'messageRecieve-',
+    emitterMessageDetails       = 'messageDetails-';
 
 io.on('connection', function (socket) {
 
@@ -159,7 +162,7 @@ io.on('connection', function (socket) {
             }
 
             let sqlCheckRoomUser = "SELECT * FROM `" + modelChatRoomUsers + "` WHERE ((`sender_id` = '" + senderId + "' AND `receiver_id` = '" + receiverId + "') OR (`sender_id` = '" + receiverId + "' AND `receiver_id` = '" + senderId + "')) LIMIT 1";
-
+console.log("sqlCheckRoomUser : ", sqlCheckRoomUser);
             connection.query(sqlCheckRoomUser, function (err1, chatRoomUser) {
                 if (err1) {
                     return errorFun(err1.message);
@@ -228,9 +231,9 @@ io.on('connection', function (socket) {
                         chatRoomUserId          = data.chatRoomUserId,
                         senderId                = data.senderId,
                         receiverId              = data.receiverId,
-                        acknowledgeEmitter      = 'messageAcknowledge-' + senderId + '-' + receiverId,
-                        messageRecieveEmitter   = 'messageRecieve-' + senderId + '-' + receiverId,
-                        messageDetailsEmitter   = 'messageDetails-' + senderId + '-' + receiverId,
+                        acknowledgeEmitter      = emitterMessageAcknowledge + senderId + '-' + receiverId,
+                        messageRecieveEmitter   = emitterMessageReceive + senderId + '-' + receiverId,
+                        messageDetailsEmitter   = emitterMessageDetails + senderId + '-' + receiverId,
                         roomId                  = listenerIndividual + '-' + senderId + "-" + receiverId,
                         receiverRoomId          = listenerIndividual + '-' + receiverId + "-" + senderId;
                 } catch(error) {
@@ -319,8 +322,8 @@ io.on('connection', function (socket) {
                         receiverId              = data.receiverId,
                         roomId                  = listenerIndividual + '-' + senderId + "-" + receiverId,
                         receiverRoomId          = listenerIndividual + '-' + receiverId + "-" + senderId,
-                        acknowledgeEmitter      = 'messageAcknowledge-' + senderId + '-' + receiverId,
-                        messageRecieveEmitter   = 'messageRecieve-' + senderId + '-' + receiverId;
+                        acknowledgeEmitter      = emitterMessageAcknowledge + senderId + '-' + receiverId,
+                        messageRecieveEmitter   = emitterMessageReceive + senderId + '-' + receiverId;
                 } catch(error) {
                     io.emit('error', {error: "Provide chatId, senderId & receiverId."});
                     return false;
@@ -372,8 +375,8 @@ io.on('connection', function (socket) {
                         receiverId              = data.receiverId,
                         roomId                  = listenerIndividual + '-' + senderId + "-" + receiverId,
                         receiverRoomId          = listenerIndividual + '-' + receiverId + "-" + senderId,
-                        acknowledgeEmitter      = 'messageAcknowledge-' + senderId + '-' + receiverId,
-                        messageRecieveEmitter   = 'messageRecieve-' + senderId + '-' + receiverId;
+                        acknowledgeEmitter      = emitterMessageAcknowledge + senderId + '-' + receiverId,
+                        messageRecieveEmitter   = emitterMessageReceive + senderId + '-' + receiverId;
                 } catch(error) {
                     io.emit('error', {error: "Provide senderId & receiverId."});
                     return false;
