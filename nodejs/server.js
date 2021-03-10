@@ -168,48 +168,64 @@ io.on('connection', function (socket) {
                     return errorFun(err1.message);
                 }
 
-                if (chatRoomUser.length <= 0) {
-                    let sqlInsertRoom = "INSERT INTO `" + modelChatRooms + "` SET `uuid` = '" + uuid + "', " + timestampsQuery;
+                let oPromise = new Promise(function(resolve, reject) {
+                    if (chatRoomUser.length <= 0) {
+                        let sqlInsertRoom = "INSERT INTO `" + modelChatRooms + "` SET `uuid` = '" + uuid + "', " + timestampsQuery;
 
-                    connection.query(sqlInsertRoom, function (err2, insertRoom) {
-                        if (err2) {
-                            return errorFun(err2.message);
-                        }
-
-                        chatRoomId = insertRoom.insertId;
-                    });
-                } else {
-                    chatRoomId     = chatRoomUser[0].chat_room_id;
-                    chatRoomUserId = chatRoomUser[0].id;
-                }
-
-                // Check is exists.
-                let sqlCheckRoomUser = "SELECT * FROM `" + modelChatRoomUsers + "` WHERE `sender_id` = '" + senderId + "' AND `receiver_id` = '" + receiverId + "' LIMIT 1";
-
-                connection.query(sqlCheckRoomUser, function (err8, checkRoomUser) {
-                    if (err8) {
-                        return errorFun(err8.message);
-                    }
-
-                    if (checkRoomUser.length <= 0) {
-                        let sqlInsertRoomUser = "INSERT INTO `" + modelChatRoomUsers + "` SET `chat_room_id` = '" + chatRoomId + "', `sender_id` = '" + senderId + "', `receiver_id` = '" + receiverId + "', " + timestampsQuery;
-                        connection.query(sqlInsertRoomUser, function (err3, insertRoomUser) {
-                            if (err3) {
-                                return errorFun(err3.message);
+                        connection.query(sqlInsertRoom, function (err2, insertRoom) {
+                            if (err2) {
+                                return errorFun(err2.message);
                             }
 
-                            chatRoomUserId = insertRoomUser.insertId;
+                            chatRoomId = insertRoom.insertId;
+
+                            resolve();
                         });
                     } else {
-                        chatRoomUserId = checkRoomUser[0].id;
+                        chatRoomId     = chatRoomUser[0].chat_room_id;
+                        chatRoomUserId = chatRoomUser[0].id;
+
+                        resolve();
                     }
                 });
 
-                let roomData = {senderId: senderId, receiverId: receiverId, chatRoomId: chatRoomId, chatRoomUserId: chatRoomUserId};
-                // Emit room data.
-                socket.emit(roomDataEmitter, roomData);
-                /* Callbacks. */
-                callbackFunction(roomData);
+                oPromise.then(function(response) {
+                    let sPromise = new Promise(function(resolve, reject) {
+                        // Check is exists.
+                        let sqlCheckRoomUser = "SELECT * FROM `" + modelChatRoomUsers + "` WHERE `sender_id` = '" + senderId + "' AND `receiver_id` = '" + receiverId + "' LIMIT 1";
+
+                        connection.query(sqlCheckRoomUser, function (err8, checkRoomUser) {
+                            if (err8) {
+                                return errorFun(err8.message);
+                            }
+
+                            if (checkRoomUser.length <= 0) {
+                                let sqlInsertRoomUser = "INSERT INTO `" + modelChatRoomUsers + "` SET `chat_room_id` = '" + chatRoomId + "', `sender_id` = '" + senderId + "', `receiver_id` = '" + receiverId + "', " + timestampsQuery;
+                                connection.query(sqlInsertRoomUser, function (err3, insertRoomUser) {
+                                    if (err3) {
+                                        return errorFun(err3.message);
+                                    }
+
+                                    chatRoomUserId = insertRoomUser.insertId;
+
+                                    resolve();
+                                });
+                            } else {
+                                chatRoomUserId = checkRoomUser[0].id;
+
+                                resolve();
+                            }
+                        });
+                    });
+
+                    sPromise.then(function(response) {
+                        let roomData = {senderId: senderId, receiverId: receiverId, chatRoomId: chatRoomId, chatRoomUserId: chatRoomUserId};
+                        // Emit room data.
+                        socket.emit(roomDataEmitter, roomData);
+                        /* Callbacks. */
+                        callbackFunction(roomData);
+                    });
+                });
             });
 
             connection.release();
