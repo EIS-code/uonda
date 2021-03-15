@@ -45,74 +45,98 @@
     var chatRoute = '{{ route("user.chat.send") }}';
     var senderId   = '{{ $userId }}';
     var receiverId = '{{ $sendBy }}';
-    var groupId = '37';
+    var groupId = '122';
     var joinData = {};
     var userName = '{{ auth()->user()->name }}';
 
     socket.on('connect', function() {
         socket.on('connected', function (data) {
-            socket.emit('individualJoin', {'senderId': senderId, 'receiverId': receiverId}, function (responseData) {
-                joinData = responseData;
+            let oPromise = new Promise(function(resolve, reject) {
+                socket.emit('individualJoin', {'senderId': senderId, 'receiverId': receiverId}, function (responseData) {
+                    joinData = responseData;
+
+                    resolve();
+                });
             });
 
-            if (joinData) {
-                socket.emit('doOnline', senderId);
-
-                socket.on('error-' + senderId + '-' + receiverId, function (data) {
-                    console.log(data);
-                });
-
-                socket.on('error', function (data) {
-                    console.log(data);
-                });
-
-                socket.on('roomId', function (data) {
-                    console.log('roomId : ' + data.id);
-                });
-
-                socket.on('roomData-' + senderId + '-' + receiverId, function (data) {
-                    console.log(data);
-                });
-
-                /*socket.emit('messageHistory');
-
-                socket.on('messageDetails', function (data) {
-                    // console.log(data);
-                });*/
-
-                socket.on('messageRecieve-' + receiverId + '-' + senderId, function (data) {
-                    // console.log("messageRecieve");
-                    // console.log(data);
-
-                    $( "#messages" ).append( "<strong> " + userName + " :</strong><p>"+data.message+"</p>" );
-                });
-
-                // socket.emit('messageSendAttachment', {id: 274});
-
-                socket.on('messageAcknowledge-' + senderId + '-' + receiverId, function (data) {
-                    // console.log("messageAcknowledge");
-                    // console.log(data);
-
-                    $( "#messages" ).append( "<strong> " + userName + " :</strong><p>"+data.message+"</p>" );
-                });
-
-                /*socket.on('messageAcknowledge-' + senderId, function (data) {
-                    console.log("messageAcknowledge");
-                    console.log(data);
-
-                    $( "#messages" ).append( "<strong> TEST :</strong><p>"+data.message+"</p>" );
-                });*/
-
-                socket.on('getOnline', function (data) {
-                    // console.log(data);
-                });
-            }
-
             /*socket.emit('groupJoin', {groupId: groupId, 'senderId': senderId}, function (responseData) {
-                if (responseData) {
-                    console.log(responseData);
-                }
+                joinData = responseData;
+                console.log(joinData);
             });*/
+
+            oPromise.then(function(response) {
+                if (joinData) {
+                    socket.emit('doOnline', senderId);
+
+                    socket.on('error-' + senderId + '-' + receiverId, function (data) {
+                        console.log(data);
+                    });
+
+                    socket.on('error', function (data) {
+                        console.log(data);
+                    });
+
+                    socket.on('roomId', function (data) {
+                        console.log('roomId : ' + data.id);
+                    });
+
+                    socket.on('roomData-' + senderId + '-' + receiverId, function (data) {
+                        // console.log(data);
+                    });
+
+                    /*socket.emit('messageHistory');
+
+                    socket.on('messageDetails', function (data) {
+                        // console.log(data);
+                    });*/
+
+                    socket.on('messageRecieve-' + receiverId + '-' + senderId, function (data) {
+                        console.log("messageRecieve");
+                        console.log(data);
+
+                        $( "#messages" ).append( "<strong> " + userName + " :</strong><p>"+data.message+"</p>" );
+                    });
+
+                    // socket.emit('messageSendAttachment', {id: 274});
+
+                    socket.on('messageAcknowledge-' + senderId + '-' + receiverId, function (data) {
+                        console.log("messageAcknowledge");
+                        console.log(data);
+
+                        $( "#messages" ).append( "<strong> " + userName + " :</strong><p>"+data.message+"</p>" );
+                    });
+
+                    /* For Groups. */
+                    socket.on('messageRecieve-' + senderId, function (data) {
+                        /*console.log("messageRecieve");
+                        console.log(data);*/
+
+                        $( "#messages" ).append( "<strong> " + userName + " :</strong><p>"+data.message+"</p>" );
+                    });
+
+                    // socket.emit('messageSendAttachment', {id: 274});
+
+                    socket.on('messageAcknowledge-' + groupId, function (data) {
+                        /*console.log("messageAcknowledge");
+                        console.log(data);*/
+
+                        $( "#messages" ).append( "<strong> " + userName + " :</strong><p>"+data.message+"</p>" );
+                    });
+
+                    /*socket.on('messageAcknowledge-' + senderId, function (data) {
+                        console.log("messageAcknowledge");
+                        console.log(data);
+
+                        $( "#messages" ).append( "<strong> TEST :</strong><p>"+data.message+"</p>" );
+                    });*/
+
+                    socket.on('getOnline', function (data) {
+                        // console.log(data);
+                    });
+
+                    socket.emit('messageSendAttachment', Object.assign({}, joinData, {'id': 482}));
+                }
+            });
         });
     });
 
@@ -126,6 +150,7 @@
             // console.log('messageSend-' + senderId + '-' + receiverId);
 
             socket.emit('messageSend', Object.assign({}, joinData, {'message': msg}));
+
             /*$.ajax({
                 type: "POST",
                 url: chatRoute,
