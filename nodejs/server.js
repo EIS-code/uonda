@@ -225,7 +225,7 @@ io.on('connection', function (socket) {
                     });
 
                     sPromise.then(function(response) {
-                        let roomData = {senderId: senderId, receiverId: receiverId, chatRoomId: chatRoomId, chatRoomUserId: chatRoomUserId};
+                        let roomData = {senderId: senderId, receiverId: receiverId, chatRoomId: chatRoomId, chatRoomUserId: chatRoomUserId, isGroup: false};
                         // Emit room data.
                         socket.emit(roomDataEmitter, roomData);
                         /* Callbacks. */
@@ -282,7 +282,7 @@ io.on('connection', function (socket) {
                     }
 
                     // let sqlGetChat = "SELECT id, message FROM `" + modelChats + "` as c WHERE c.`id` = '" + insertChat.insertId + "' LIMIT 1";
-                    let sqlGetChat = "SELECT c.id, c.message, ca.mime_type, ca.attachment, ca.url, ca.address, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' ELSE NULL END AS message_type FROM `" + modelChats + "` AS c LEFT JOIN `" + modelChatAttachment + "` AS ca ON c.id = ca.chat_id WHERE c.`id` = '" + insertChat.insertId + "' LIMIT 1";
+                    let sqlGetChat = "SELECT c.id, c.message, ca.mime_type, ca.attachment, ca.url, ca.address, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' ELSE NULL END AS message_type, c.created_at FROM `" + modelChats + "` AS c LEFT JOIN `" + modelChatAttachment + "` AS ca ON c.id = ca.chat_id WHERE c.`id` = '" + insertChat.insertId + "' LIMIT 1";
 
                     connection.query(sqlGetChat, async function (err5, resultChat, fields) {
                         if (err5) {
@@ -334,7 +334,7 @@ io.on('connection', function (socket) {
             });
 
             socket.on("messageSendAttachment", function(data) {
-console.log(data);
+
                 try {
                     var chatId                  = data.id,
                         senderId                = data.senderId,
@@ -524,7 +524,7 @@ console.log(data);
                 });
 
                 sPromise.then(function(response) {
-                    let groupData = {senderId: senderId, chatRoomId: chatRoomId, chatRoomUserId: chatRoomUserId};
+                    let groupData = {senderId: senderId, chatRoomId: chatRoomId, chatRoomUserId: chatRoomUserId, isGroup: true};
                     // Emit room data.
                     socket.emit(groupDataEmitter, groupData);
                     /* Callbacks. */

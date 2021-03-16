@@ -59,10 +59,13 @@
                 });
             });
 
-            /*socket.emit('groupJoin', {groupId: groupId, 'senderId': senderId}, function (responseData) {
-                joinData = responseData;
-                console.log(joinData);
-            });*/
+            let oPromise = new Promise(function(resolve, reject) {
+                socket.emit('groupJoin', {groupId: groupId, 'senderId': senderId}, function (responseData) {
+                    joinData = responseData;
+                    // console.log(joinData);
+                    resolve();
+                });
+            });
 
             oPromise.then(function(response) {
                 if (joinData) {
@@ -91,8 +94,7 @@
                     });*/
 
                     socket.on('messageRecieve-' + receiverId + '-' + senderId, function (data) {
-                        console.log("messageRecieve");
-                        console.log(data);
+                        console.log("messageRecieve", data);
 
                         $( "#messages" ).append( "<strong> " + userName + " :</strong><p>"+data.message+"</p>" );
                     });
@@ -100,8 +102,7 @@
                     // socket.emit('messageSendAttachment', {id: 274});
 
                     socket.on('messageAcknowledge-' + senderId + '-' + receiverId, function (data) {
-                        console.log("messageAcknowledge");
-                        console.log(data);
+                        console.log("messageAcknowledge", data);
 
                         $( "#messages" ).append( "<strong> " + userName + " :</strong><p>"+data.message+"</p>" );
                     });
