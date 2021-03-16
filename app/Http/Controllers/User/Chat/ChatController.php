@@ -607,7 +607,7 @@ class ChatController extends BaseController
             }
         }
 
-        return $this->returnSuccess(__('Chat group created successfully!'));
+        return $this->returnSuccess(__('Chat group created successfully!'), $chat_room);
     }
 
     //Function to add the user in group
