@@ -265,7 +265,6 @@ io.on('connection', function (socket) {
                             receiverId              = data.receiverId,
                             acknowledgeEmitter      = emitterMessageAcknowledge + senderId + '-' + receiverId,
                             messageRecieveEmitter   = emitterMessageReceive + senderId + '-' + receiverId,
-                            messageDetailsEmitter   = emitterMessageDetails + senderId + '-' + receiverId,
                             roomId                  = listenerIndividual + '-' + senderId + "-" + receiverId,
                             receiverRoomId          = listenerIndividual + '-' + receiverId + "-" + senderId,
                             errorEmitter            = 'error-' + senderId;
@@ -317,11 +316,11 @@ io.on('connection', function (socket) {
 
                                 senderData = resultChat[0];
 
-                                io.sockets.in(roomId).emit(acknowledgeEmitter, senderData);
+                                io.sockets.to(roomId).emit(acknowledgeEmitter, senderData);
 
                                 receiverData = resultChat[0];
 
-                                io.sockets.in(roomId).emit(messageRecieveEmitter, receiverData);
+                                io.sockets.to(roomId).emit(messageRecieveEmitter, receiverData);
                             });
                         });
                     } else {
@@ -395,7 +394,8 @@ io.on('connection', function (socket) {
                         senderId    = data.senderId;
 
                     if (isGroup) {
-                        var message                 = data.message,
+                        var chatRoomId              = data.chatRoomId,
+                            chatRoomUserId          = data.chatRoomUserId,
                             acknowledgeEmitter      = emitterMessageAcknowledge + senderId,
                             messageRecieveEmitter   = emitterMessageReceive + chatRoomId,
                             roomId                  = listenerGroup + '-' + chatRoomId,
@@ -477,14 +477,22 @@ io.on('connection', function (socket) {
             socket.on(listenerMessageHistory, function(data) {
 
                 try {
-                    var senderId                = data.senderId,
-                        receiverId              = data.receiverId,
-                        roomId                  = listenerIndividual + '-' + senderId + "-" + receiverId,
-                        receiverRoomId          = listenerIndividual + '-' + receiverId + "-" + senderId,
-                        acknowledgeEmitter      = emitterMessageAcknowledge + senderId + '-' + receiverId,
-                        messageRecieveEmitter   = emitterMessageReceive + senderId + '-' + receiverId;
+                    var isGroup     = data.isGroup,
+                        senderId    = data.senderId;
+
+                    if (isGroup) {
+                        var chatRoomId              = data.chatRoomId,
+                            roomId                  = listenerGroup + '-' + chatRoomId,
+                            messageDetailsEmitter   = emitterMessageDetails + chatRoomId,
+                            errorEmitter            = 'error-' + chatRoomId;
+                    } else {
+                        var receiverId              = data.receiverId,
+                            roomId                  = listenerIndividual + '-' + senderId + "-" + receiverId,
+                            messageDetailsEmitter   = emitterMessageDetails + senderId + '-' + receiverId,
+                            errorEmitter            = 'error-' + senderId;
+                    }
                 } catch(error) {
-                    io.emit('error', {error: "Provide senderId & receiverId."});
+                    io.emit('error', {error: "Provide senderId or receiverId."});
                     return false;
                     isError = true;
                 }
@@ -500,15 +508,29 @@ io.on('connection', function (socket) {
                     return false;
                 };
 
-                let sqlGetChatHistory = "SELECT c.id, c.message, cru.sender_id, cru.receiver_id, CASE cru.sender_id WHEN '" + senderId + "' THEN 'sender' ELSE 'receiver' END AS sender_receiver_flag, c.created_at, c.updated_at FROM `" + modelChatRoomUsers + "` AS cru JOIN `" + modelChats + "` AS c ON cru.id = c.chat_room_user_id WHERE ((cru.`sender_id` = '" + senderId + "' AND cru.`receiver_id` = '" + receiverId + "') OR (cru.`sender_id` = '" + receiverId + "' AND cru.`receiver_id` = '" + senderId + "'))";
+                if (isGroup) {
 
-                connection.query(sqlGetChatHistory, function (err9, resultChatHistory, fields) {
-                    if (err9) {
-                        return errorFun(err9.message);
-                    }
+                    let sqlGetChatHistory = "SELECT c.id, c.message, cru.sender_id, cru.receiver_id, c.created_at, c.updated_at, ca.mime_type, ca.attachment, ca.url, ca.address, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' WHEN c.message != '' THEN 'text' ELSE NULL END AS message_type, u.name AS user_name, u.profile, u.profile_icon FROM `" + modelChatRoomUsers +"` AS cru JOIN `" + modelChats + "` AS c ON cru.id = c.chat_room_user_id JOIN `" + modelChatRooms + "` AS cr ON cru.chat_room_id = cr.id JOIN `" + modelUsers + "` AS u ON cru.sender_id = u.id LEFT JOIN `" + modelChatDelete + "` AS cd ON c.id = cd.chat_id AND cd.user_id = '" + senderId + "' LEFT JOIN `"+ modelChatAttachment + "` AS ca ON c.id = ca.chat_id WHERE cr.id = '" + chatRoomId + "' AND cd.id IS NULL ORDER BY c.updated_at ASC";
 
-                    io.sockets.to(roomId).emit(messageDetailsEmitter, resultChatHistory);
-                });
+                    connection.query(sqlGetChatHistory, function (err9, resultChatHistory, fields) {
+                        if (err9) {
+                            return errorFun(err9.message);
+                        }
+
+                        io.sockets.to(roomId).emit(messageDetailsEmitter, resultChatHistory);
+                    });
+                } else {
+
+                    let sqlGetChatHistory = "SELECT c.id, c.message, cru.sender_id, cru.receiver_id, CASE cru.sender_id WHEN '" + senderId + "' THEN 'sender' ELSE 'receiver' END AS sender_receiver_flag, c.created_at, c.updated_at FROM `" + modelChatRoomUsers + "` AS cru JOIN `" + modelChats + "` AS c ON cru.id = c.chat_room_user_id WHERE ((cru.`sender_id` = '" + senderId + "' AND cru.`receiver_id` = '" + receiverId + "') OR (cru.`sender_id` = '" + receiverId + "' AND cru.`receiver_id` = '" + senderId + "'))";
+
+                    connection.query(sqlGetChatHistory, function (err9, resultChatHistory, fields) {
+                        if (err9) {
+                            return errorFun(err9.message);
+                        }
+
+                        io.sockets.to(roomId).emit(messageDetailsEmitter, resultChatHistory);
+                    });
+                }
             });
 
             connection.release();
@@ -541,12 +563,12 @@ io.on('connection', function (socket) {
             errorEmitter        = 'error-' + groupId;
 
         try {
-            if (!io.sockets.adapter.rooms[roomId]) {
-                // socket.leave(roomId);
-
-                // Create room.
-                socket.join(roomId);
+            if (io.sockets.adapter.rooms[roomId]) {
+                socket.leave(roomId);
             }
+
+            // Create room.
+            socket.join(roomId);
 
             /*if (io.sockets.adapter.rooms[receiverRoomId]) {
                 socket.leave(receiverRoomId);
