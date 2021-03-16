@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Storage;
 // use Illuminate\Support\Facades\Event;
 use Illuminate\Http\UploadedFile;
 use Carbon\Carbon;
+use Image;
 
 class ChatController extends BaseController
 {
@@ -540,5 +541,123 @@ class ChatController extends BaseController
         }
 
         return $this->returnError(__('Something went wrong!'));
+    }
+
+    //function to create the chat group
+    public function createChatGroup(Request $request) {
+        $chat_room = new ChatRoom();
+        $chat = new Chat();
+        $data  = $request->all();
+        
+        $data['uuid'] = $chat->generateUuid(10);
+        $data['is_group'] = $chat_room::IS_GROUP;
+
+        if($request->has('users')) {
+            array_push($data['users'], $request->user_id);
+        } else {
+            $data['users'] = [$request->user_id];
+        }
+
+        $validator = $chat_room->validators($data);
+        if ($validator->fails()) {
+            return $this->returnError($validator->errors()->first());
+        }
+
+        $chat_room->uuid = $data['uuid'];
+        $chat_room->title = $request->title;
+        $chat_room->is_group = $data['is_group'];
+
+        $save = $chat_room->save();
+
+        if ($save && array_key_exists('group_icon', $data) && $data['group_icon'] instanceof UploadedFile) {
+            $id = $chat_room->id;
+
+            $attachment = $data['group_icon'];
+            $pathInfos = pathinfo($attachment->getClientOriginalName());
+
+            if (!empty($pathInfos['extension'])) {
+                $folder = $chat_room->folder . '/' . $id . '/icon//';
+                $thumb_folder = $chat_room->folder . '/' . $id;
+
+                if (!empty($folder)) {
+                    $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                    $storeFile = $attachment->storeAs($folder, $fileName, $chat_room->fileSystem);
+
+                    $thumb_image = Image::make($data['group_icon'])->resize(100, 100)->save($fileName);
+                    \Storage::disk($chat_room->fileSystem)->put($thumb_folder.'/'.$fileName, $thumb_image, $chat_room->fileSystem);
+
+                    if ($storeFile) {
+                        $chat_room = $chat_room->find($id);
+
+                        $chat_room->group_icon = $fileName;
+                        $chat_room->group_icon_actual = $fileName;
+
+                        $chat_room->save();
+                    }
+                }
+            }
+        }
+        
+        if(!empty($data['users'])) {
+            foreach($data['users'] as $user) {
+                $chat_room_users = new ChatRoomUser();
+                $chat_room_users->chat_room_id = $chat_room->id;
+                $chat_room_users->sender_id = $user;
+                $chat_room_users->save();
+            }
+        }
+
+        return $this->returnSuccess(__('Chat group created successfully!'));
+    }
+
+    //Function to add the user in group
+    public function addUserToChatGroup(Request $request) {
+        $chat_room_user = new ChatRoomUser();
+        $data  = $request->all();
+
+        if(!$request->has('userId') || empty($request->userId)) {
+            return $this->returnError(__('UserId is mandatory.'));
+        }
+
+        $validator = $chat_room_user->validators($data);
+        if ($validator->fails()) {
+            return $this->returnError($validator->errors()->first());
+        }
+
+        foreach($request->userId as $user) {
+            $checkExist = $chat_room_user::where('chat_room_id', $request->chat_room_id)->where('sender_id', $user)->count();
+            if(!$checkExist) {
+                $chat_room_users = new ChatRoomUser();
+                $chat_room_users->chat_room_id = $request->chat_room_id;
+                $chat_room_users->sender_id = $user;
+                $chat_room_users->save();
+            }
+        }
+        
+        return $this->returnSuccess(__('User successfully added to Chat group!'));
+    }
+
+    //Function to remove the user from group
+    public function removeUserFromChatGroup(Request $request) {
+        $chat_room_user = new ChatRoomUser();
+        $data  = $request->all();
+
+        if(!$request->has('userId') || empty($request->userId)) {
+            return $this->returnError(__('UserId is mandatory.'));
+        }
+
+        $validator = $chat_room_user->validators($data);
+        if ($validator->fails()) {
+            return $this->returnError($validator->errors()->first());
+        }
+
+        foreach($request->userId as $user) {
+            $chatUser = $chat_room_user::where('chat_room_id', $request->chat_room_id)->where('sender_id', $user)->first();
+            if(!empty($chatUser)) {
+                $chatUser->delete();
+            }
+        }
+        
+        return $this->returnSuccess(__('Users successfully removed from Chat group!'));
     }
 }
