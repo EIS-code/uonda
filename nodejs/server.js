@@ -578,6 +578,8 @@ io.on('connection', function (socket) {
             /* Handle errors. */
         }
 
+        console.log(listenerGroup + " ~ roomId : " + roomId, io.sockets.adapter.rooms);
+
         // Emit room id.
         io.sockets.to(roomId).emit('roomId', {id: roomId});
 

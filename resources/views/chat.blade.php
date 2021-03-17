@@ -62,7 +62,7 @@
             let oPromise = new Promise(function(resolve, reject) {
                 socket.emit('groupJoin', {groupId: groupId, 'senderId': senderId}, function (responseData) {
                     joinData = responseData;
-                    console.log(joinData);
+                    // console.log(joinData);
                     resolve();
                 });
             });
