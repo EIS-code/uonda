@@ -390,6 +390,7 @@ io.on('connection', function (socket) {
             socket.on(listenerSendAttachment, function(data) {
 
                 try {
+                    console.log("data : ", data);
                     var isGroup     = (data.isGroup == true),
                         chatId      = data.id,
                         senderId    = data.senderId;
@@ -442,7 +443,7 @@ io.on('connection', function (socket) {
 
                             resultChat[0].sender_id = senderId;
                             resultChat[0].groupId   = chatRoomId;
-
+console.log(acknowledgeEmitter, messageRecieveEmitter);
                             io.sockets.to(roomId).emit(acknowledgeEmitter, resultChat[0]);
                             io.sockets.to(roomId).emit(messageRecieveEmitter, resultChat[0]);
                         });
@@ -577,8 +578,6 @@ io.on('connection', function (socket) {
         } catch(e) {
             /* Handle errors. */
         }
-
-        console.log(listenerGroup + " ~ roomId : " + roomId, io.sockets.adapter.rooms);
 
         // Emit room id.
         io.sockets.to(roomId).emit('roomId', {id: roomId});
