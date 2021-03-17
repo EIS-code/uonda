@@ -250,13 +250,12 @@ io.on('connection', function (socket) {
             socket.on(listenMessageSend, function(data) {
 
                 try {
-                    console.log("data : ", data);
 
                     var isGroup         = (data.isGroup == true),
                         chatRoomId      = data.chatRoomId,
                         chatRoomUserId  = data.chatRoomUserId,
                         senderId        = data.senderId;
-console.log("isGroup: " + isGroup);
+
                     if (isGroup) {
                         var message                 = data.message,
                             acknowledgeEmitter      = emitterMessageAcknowledge + senderId,
@@ -318,7 +317,7 @@ console.log("isGroup: " + isGroup);
                                 resultChat[0].groupId   = chatRoomId;
 
                                 senderData = resultChat[0];
-console.log(acknowledgeEmitter, messageRecieveEmitter);
+
                                 io.sockets.to(roomId).emit(acknowledgeEmitter, senderData);
 
                                 receiverData = resultChat[0];
