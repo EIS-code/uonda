@@ -129,7 +129,7 @@ io.on('connection', function (socket) {
         // Join Rooms
         var roomId          = listenerIndividual + '-' + senderId + "-" + receiverId,
             receiverRoomId  = listenerIndividual + '-' + receiverId + "-" + senderId;
-console.log("roomId: " + roomId, "receiverRoomId : " + receiverRoomId);
+
         try {
             if (!io.sockets.adapter.rooms[roomId]) {
                 // socket.leave(roomId);
@@ -250,7 +250,7 @@ console.log("roomId: " + roomId, "receiverRoomId : " + receiverRoomId);
             socket.on(listenMessageSend, function(data) {
 
                 try {
-                    var isGroup         = data.isGroup,
+                    var isGroup         = (data.isGroup == true),
                         chatRoomId      = data.chatRoomId,
                         chatRoomUserId  = data.chatRoomUserId,
                         senderId        = data.senderId;
@@ -276,7 +276,7 @@ console.log("roomId: " + roomId, "receiverRoomId : " + receiverRoomId);
                     return false;
                     isError = true;
                 }
-console.log("roomId: " + roomId, "receiverRoomId : " + receiverRoomId);
+
                 // Error Handling.
                 var errorFun = function(errMessage) {
                     io.sockets.to(roomId).emit(errorEmitter, {error: errMessage});
@@ -360,7 +360,6 @@ console.log("roomId: " + roomId, "receiverRoomId : " + receiverRoomId);
                                     resultChat[0].receiverId = receiverId;
 
                                     senderData = resultChat[0];
-                                    console.log("acknowledgeEmitter: " + acknowledgeEmitter);
                                     io.sockets.to(roomId).emit(acknowledgeEmitter, senderData);
                                 });
 
@@ -380,7 +379,6 @@ console.log("roomId: " + roomId, "receiverRoomId : " + receiverRoomId);
                                     resultChat[0].receiverId = receiverId;
 
                                     receiverData = resultChat[0];
-                                    console.log("messageRecieveEmitter : " + messageRecieveEmitter);
                                     io.sockets.to(receiverRoomId).emit(messageRecieveEmitter, receiverData);
                                 });
                             });
@@ -392,7 +390,7 @@ console.log("roomId: " + roomId, "receiverRoomId : " + receiverRoomId);
             socket.on(listenerSendAttachment, function(data) {
 
                 try {
-                    var isGroup     = data.isGroup,
+                    var isGroup     = (data.isGroup == true),
                         chatId      = data.id,
                         senderId    = data.senderId;
 
@@ -480,7 +478,7 @@ console.log("roomId: " + roomId, "receiverRoomId : " + receiverRoomId);
             socket.on(listenerMessageHistory, function(data) {
 
                 try {
-                    var isGroup     = data.isGroup,
+                    var isGroup     = (data.isGroup == true),
                         senderId    = data.senderId;
 
                     if (isGroup) {
