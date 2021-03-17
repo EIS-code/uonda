@@ -103,6 +103,8 @@ Route::group(['middleware' => ['web.auth.api']], function () {
 
             Route::post('/attachment/send', 'ChatController@sendMessageAttachments')->name('user.chat.attachments.send');
 
+            Route::get('/users/list', 'ChatController@getAllUsersList')->name('user.chat.all.users.list');
+
             Route::post('/create/group', 'ChatController@createChatGroup')->name('user.chat.create.group');
 
             Route::post('/add/user/to/group', 'ChatController@addUserToChatGroup')->name('user.chat.add.user');

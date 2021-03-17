@@ -546,6 +546,12 @@ class ChatController extends BaseController
         return $this->returnSuccess(__('User chat removed successfully!'));
     }
 
+    //function to get all the users for group
+    public function getAllUsersList(Request $request) {
+        $users = User::select('id', 'name', 'profile_pic')->where('is_admin', 0)->where('id', '!=', $request->user_id)->get();
+        return $this->returnSuccess(__('Users fetched successfully!'), $users);
+    }
+
     //function to create the chat group
     public function createChatGroup(Request $request) {
         $chat_room = new ChatRoom();
