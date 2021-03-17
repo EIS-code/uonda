@@ -38,7 +38,9 @@ class ChatController extends BaseController
         // $sendBy = $userId == 3 ? 4 : 3;
         $sendBy = $request->get('receiver_id', ($userId == 3 ? 4 : 3));
 
-        return view('chat', compact('userId', 'sendBy'));
+        $groupId = $request->get('group_id', 122);
+
+        return view('chat', compact('userId', 'sendBy', 'groupId'));
     }
 
     public function sendMessage(Request $request, BroadcastManager $broadcastManager)

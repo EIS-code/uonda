@@ -564,12 +564,12 @@ io.on('connection', function (socket) {
             errorEmitter        = 'error-' + groupId;
 
         try {
-            if (!io.sockets.adapter.rooms[roomId]) {
+            if (io.sockets.adapter.rooms[roomId]) {
                 // socket.leave(roomId);
-
-                // Create room.
-                io.sockets.join(roomId);
             }
+
+            // Create room.
+            socket.join(roomId);
 
             /*if (io.sockets.adapter.rooms[receiverRoomId]) {
                 socket.leave(receiverRoomId);
@@ -587,7 +587,7 @@ io.on('connection', function (socket) {
 
             isError = true;
 
-            // socket.leave(roomId);
+            socket.leave(roomId);
 
             return false;
         };
