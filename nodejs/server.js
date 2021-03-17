@@ -565,7 +565,7 @@ io.on('connection', function (socket) {
 
         try {
             if (io.sockets.adapter.rooms[roomId]) {
-                // socket.leave(roomId);
+                socket.leave(roomId);
             }
 
             // Create room.
