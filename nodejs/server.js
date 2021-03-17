@@ -566,12 +566,12 @@ console.log(acknowledgeEmitter, messageRecieveEmitter);
             errorEmitter        = 'error-' + groupId;
 
         try {
-            if (io.sockets.adapter.rooms[roomId]) {
-                socket.leave(roomId);
-            }
+            if (!io.sockets.adapter.rooms[roomId]) {
+                // socket.leave(roomId);
 
-            // Create room.
-            socket.join(roomId);
+                // Create room.
+                socket.join(roomId);
+            }
 
             /*if (io.sockets.adapter.rooms[receiverRoomId]) {
                 socket.leave(receiverRoomId);
