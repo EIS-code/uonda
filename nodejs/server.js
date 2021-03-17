@@ -250,11 +250,13 @@ io.on('connection', function (socket) {
             socket.on(listenMessageSend, function(data) {
 
                 try {
+                    console.log("data : ", data);
+
                     var isGroup         = (data.isGroup == true),
                         chatRoomId      = data.chatRoomId,
                         chatRoomUserId  = data.chatRoomUserId,
                         senderId        = data.senderId;
-
+console.log("isGroup: " + isGroup);
                     if (isGroup) {
                         var message                 = data.message,
                             acknowledgeEmitter      = emitterMessageAcknowledge + senderId,
@@ -316,7 +318,7 @@ io.on('connection', function (socket) {
                                 resultChat[0].groupId   = chatRoomId;
 
                                 senderData = resultChat[0];
-
+console.log(acknowledgeEmitter, messageRecieveEmitter);
                                 io.sockets.to(roomId).emit(acknowledgeEmitter, senderData);
 
                                 receiverData = resultChat[0];
@@ -390,7 +392,6 @@ io.on('connection', function (socket) {
             socket.on(listenerSendAttachment, function(data) {
 
                 try {
-                    console.log("data : ", data);
                     var isGroup     = (data.isGroup == true),
                         chatId      = data.id,
                         senderId    = data.senderId;
@@ -443,7 +444,7 @@ io.on('connection', function (socket) {
 
                             resultChat[0].sender_id = senderId;
                             resultChat[0].groupId   = chatRoomId;
-console.log(acknowledgeEmitter, messageRecieveEmitter);
+
                             io.sockets.to(roomId).emit(acknowledgeEmitter, resultChat[0]);
                             io.sockets.to(roomId).emit(messageRecieveEmitter, resultChat[0]);
                         });
