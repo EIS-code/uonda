@@ -102,6 +102,12 @@ Route::group(['middleware' => ['web.auth.api']], function () {
             Route::post('/remove', 'ChatController@removeChat')->name('user.chat.user.remove');
 
             Route::post('/attachment/send', 'ChatController@sendMessageAttachments')->name('user.chat.attachments.send');
+
+            Route::post('/create/group', 'ChatController@createChatGroup')->name('user.chat.create.group');
+
+            Route::post('/add/user/to/group', 'ChatController@addUserToChatGroup')->name('user.chat.add.user');
+
+            Route::post('/remove/user/from/group', 'ChatController@removeUserFromChatGroup')->name('user.chat.remove.user');
         });
     });
 
