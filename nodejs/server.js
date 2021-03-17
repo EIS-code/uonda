@@ -129,7 +129,7 @@ io.on('connection', function (socket) {
         // Join Rooms
         var roomId          = listenerIndividual + '-' + senderId + "-" + receiverId,
             receiverRoomId  = listenerIndividual + '-' + receiverId + "-" + senderId;
-
+console.log("roomId: " + roomId, "receiverRoomId : " + receiverRoomId);
         try {
             if (!io.sockets.adapter.rooms[roomId]) {
                 // socket.leave(roomId);
@@ -276,7 +276,7 @@ io.on('connection', function (socket) {
                     return false;
                     isError = true;
                 }
-
+console.log("roomId: " + roomId, "receiverRoomId : " + receiverRoomId);
                 // Error Handling.
                 var errorFun = function(errMessage) {
                     io.sockets.to(roomId).emit(errorEmitter, {error: errMessage});
@@ -360,6 +360,7 @@ io.on('connection', function (socket) {
                                     resultChat[0].receiverId = receiverId;
 
                                     senderData = resultChat[0];
+                                    console.log("acknowledgeEmitter: " + acknowledgeEmitter);
                                     io.sockets.to(roomId).emit(acknowledgeEmitter, senderData);
                                 });
 
@@ -379,6 +380,7 @@ io.on('connection', function (socket) {
                                     resultChat[0].receiverId = receiverId;
 
                                     receiverData = resultChat[0];
+                                    console.log("messageRecieveEmitter : " + messageRecieveEmitter);
                                     io.sockets.to(receiverRoomId).emit(messageRecieveEmitter, receiverData);
                                 });
                             });
