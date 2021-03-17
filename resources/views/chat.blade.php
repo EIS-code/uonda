@@ -112,21 +112,21 @@
                     });
 
                     /* For Groups. */
-                    socket.on('messageRecieve-' + groupId, function (data) {
+                    /*socket.on('messageRecieve-' + groupId, function (data) {
                         if (data.sender_id != senderId) {
                             console.log("messageRecieve", data);
 
                             $( "#messages" ).append( "<strong> " + userName + " :</strong><p>"+data.message+"</p>" );
                         }
-                    });
+                    });*/
 
                     // socket.emit('messageSendAttachment', {id: 274});
 
-                    socket.on('messageAcknowledge-' + senderId, function (data) {
+                    /*socket.on('messageAcknowledge-' + senderId, function (data) {
                         console.log("messageAcknowledge", data);
 
                         $( "#messages" ).append( "<strong> " + userName + " :</strong><p>"+data.message+"</p>" );
-                    });
+                    });*/
 
                     socket.on('getOnline', function (data) {
                         // console.log(data);

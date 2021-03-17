@@ -61,6 +61,7 @@ var isError                     = false,
     listenerDisconnect          = 'disconnect',
     listenerSendAttachment      = "messageSendAttachment",
     listenerMessageHistory      = "messageHistory",
+    listenerDoOnline            = "doOnline",
     emitterMessageAcknowledge   = 'messageAcknowledge-',
     emitterMessageReceive       = 'messageRecieve-',
     emitterMessageDetails       = 'messageDetails-',
@@ -75,7 +76,7 @@ io.on('connection', function (socket) {
         connected: "Connected !!"
     });
 
-    socket.on("doOnline", (userId) => {
+    socket.on(listenerDoOnline, (userId) => {
         // Set online users.
         onlineUsers[socket.id] = userId;
 
