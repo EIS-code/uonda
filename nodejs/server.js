@@ -270,8 +270,9 @@ io.on('connection', function (socket) {
                             receiverRoomId          = listenerIndividual + '-' + receiverId + "-" + senderId,
                             errorEmitter            = 'error-' + senderId;
                     }
-
+console.log("acknowledgeEmitter : " + acknowledgeEmitter, "messageRecieveEmitter : " + messageRecieveEmitter);
                 } catch(error) {
+                    console.log("Provide chatRoomId, chatRoomUserId, senderId or receiverId.", error.message);
                     io.emit('error', {error: "Provide chatRoomId, chatRoomUserId, senderId or receiverId."});
                     return false;
                     isError = true;
@@ -279,6 +280,7 @@ io.on('connection', function (socket) {
 
                 // Error Handling.
                 var errorFun = function(errMessage) {
+                    console.log(errMessage);
                     io.sockets.to(roomId).emit(errorEmitter, {error: errMessage});
 
                     isError = true;
