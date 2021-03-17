@@ -256,7 +256,6 @@ io.on('connection', function (socket) {
                         senderId        = data.senderId;
 
                     if (isGroup) {
-                        console.log(data);
                         var message                 = data.message,
                             acknowledgeEmitter      = emitterMessageAcknowledge + senderId,
                             messageRecieveEmitter   = emitterMessageReceive + chatRoomId,
@@ -293,7 +292,7 @@ io.on('connection', function (socket) {
                     if (isGroup) {
 
                         let sqlQuery  = "INSERT INTO `" + modelChats + "` SET `message` = '" + message + "', `chat_room_id` = '" + chatRoomId + "', `chat_room_user_id` = '" + chatRoomUserId + "', " + timestampsQuery;
-console.log(sqlQuery);
+
                         connection.query(sqlQuery, async function (err3, insertChat, fields) {
                             if (err3) {
                                 return errorFun(err3.message);
@@ -566,7 +565,7 @@ console.log(sqlQuery);
 
         try {
             if (io.sockets.adapter.rooms[roomId]) {
-                socket.leave(roomId);
+                // socket.leave(roomId);
             }
 
             // Create room.
