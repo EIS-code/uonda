@@ -575,6 +575,7 @@ class ChatController extends BaseController
         if($request->has('chat_room_id') && !empty($request->chat_room_id)) {
             $chat_room = ChatRoom::find($request->chat_room_id);
             $prevIcon = $chat_room->group_icon_actual;
+            $chat_room_data = $chat_room->ChatRoomUsers->pluck('id')->toArray();
         }
 
         $chat_room->uuid = $data['uuid'];
@@ -620,21 +621,45 @@ class ChatController extends BaseController
             }
         }
         
-        if(!empty($data['users']) && !$request->has('chat_room_id')) {
+        $chat_users_list = array();
+        if(!empty($data['users'])) {
             foreach($data['users'] as $user) {
-                $chat_room_users = new ChatRoomUser();
+                if($request->has('chat_room_id')) {
+                    $chat_users = $chat_room->ChatRoomUsers->pluck('sender_id')->toArray();
+                    $chat_room_users = new ChatRoomUser();
+                    if(in_array((int)$user, $chat_users)) {
+                        $chat_room_users = ChatRoomUser::where('chat_room_id', $chat_room->id)->where('sender_id', $user)->first();
+                    }
+                } else {
+                    $chat_room_users = new ChatRoomUser();
+                }
                 $chat_room_users->chat_room_id = $chat_room->id;
                 $chat_room_users->sender_id = $user;
                 $chat_room_users->save();
+                $chat_users_list[] = $chat_room_users->id;
+            }
+            if($request->has('chat_room_id')) {
+                $deleted_users = array_diff($chat_room_data, $chat_users_list);
+                if(!empty($deleted_users)) {
+                    ChatRoomUser::destroy($deleted_users);
+                }
             }
         }
 
         $chat_room_details = ChatRoom::with(['chatRoomUsers.Users' => function($q) {
                                 $q->select('id', 'name', 'profile_pic');
                             }])
+                            ->with(['chatRoomUsers' => function($q) use ($request) {
+                                $q->where('sender_id', '!=', $request->user_id);
+                            }])
                             ->where('id', $chat_room->id)
                             ->get();
-
+                            
+        $chat_room_details->each(function($row){
+            $row->chatRoomUsers->each(function($userRow) {
+                $userRow->Users->setHidden(['encrypted_user_id', 'permissions', 'total_notifications', 'total_read_notifications', 'total_unread_notifications']);
+            });
+        });
         if ($request->has('chat_room_id')) {
             return $this->returnSuccess(__('Chat group edited successfully!'), $chat_room_details);    
         }
@@ -690,5 +715,20 @@ class ChatController extends BaseController
         }
         
         return $this->returnSuccess(__('Users successfully removed from Chat group!'));
+    }
+
+    //Function to get the chat group details
+    public function getChatGroupDetails(Request $request, $id) {
+        $chat_room_details = ChatRoom::with(['chatRoomUsers.Users' => function($q) {
+                                $q->select('id', 'name', 'profile_pic');
+                            }])
+                            ->where('id', $id)
+                            ->get();
+        $chat_room_details->each(function($row){
+            $row->chatRoomUsers->each(function($userRow) {
+                $userRow->Users->setHidden(['encrypted_user_id', 'permissions', 'total_notifications', 'total_read_notifications', 'total_unread_notifications']);
+            });
+        });
+        return $this->returnSuccess(__('Chat group details fetched successfully!'), $chat_room_details);
     }
 }
