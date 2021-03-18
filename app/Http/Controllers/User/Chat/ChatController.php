@@ -569,6 +569,11 @@ class ChatController extends BaseController
             return $this->returnError($validator->errors()->first());
         }
 
+        if($request->has('chat_room_id') && !empty($request->chat_room_id)) {
+            $chat_room = ChatRoom::find($request->chat_room_id);
+            $prevIcon = $chat_room->group_icon_actual;
+        }
+
         $chat_room->uuid = $data['uuid'];
         $chat_room->title = $request->title;
         $chat_room->is_group = $data['is_group'];
@@ -577,6 +582,14 @@ class ChatController extends BaseController
 
         if ($save && array_key_exists('group_icon', $data) && $data['group_icon'] instanceof UploadedFile) {
             $id = $chat_room->id;
+
+            if(!empty($prevIcon)) {
+                $array = explode('/', $prevIcon);
+                $key = array_key_last($array);
+                $image = $array[$key];
+                Storage::delete($chat_room->fileSystem . '/'. $chat_room->folder .'/' .$id .'/'. $image);
+                Storage::delete($chat_room->fileSystem . '/'. $chat_room->folder .'/' .$id .'/icon//'. $image);
+            }
 
             $attachment = $data['group_icon'];
             $pathInfos = pathinfo($attachment->getClientOriginalName());
@@ -604,7 +617,7 @@ class ChatController extends BaseController
             }
         }
         
-        if(!empty($data['users'])) {
+        if(!empty($data['users']) && !$request->has('chat_room_id')) {
             foreach($data['users'] as $user) {
                 $chat_room_users = new ChatRoomUser();
                 $chat_room_users->chat_room_id = $chat_room->id;
@@ -613,7 +626,16 @@ class ChatController extends BaseController
             }
         }
 
-        return $this->returnSuccess(__('Chat group created successfully!'), $chat_room);
+        $chat_room_details = ChatRoom::with(['chatRoomUsers.Users' => function($q) {
+                                $q->select('id', 'name', 'profile_pic');
+                            }])
+                            ->where('id', $chat_room->id)
+                            ->get();
+
+        if ($request->has('chat_room_id')) {
+            return $this->returnSuccess(__('Chat group edited successfully!'), $chat_room_details);    
+        }
+        return $this->returnSuccess(__('Chat group created successfully!'), $chat_room_details);
     }
 
     //Function to add the user in group
