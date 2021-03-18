@@ -585,8 +585,8 @@ class ChatController extends BaseController
             $pathInfos = pathinfo($attachment->getClientOriginalName());
 
             if (!empty($pathInfos['extension'])) {
-                $thumb_folder = $chat_room->folder . '/' . $id . '/icon//';
-                $folder = $chat_room->folder . '/' . $id;
+                $folder = $chat_room->folder . '/' . $id . '/icon//';
+                $thumb_folder = $chat_room->folder . '/' . $id;
 
                 if (!empty($folder)) {
                     $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
