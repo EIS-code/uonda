@@ -54,7 +54,7 @@ class ChatRoom extends BaseModel
         return $validator;
     }
 
-    public function getGroupIconAttribute($value)
+    public function getGroupIconActualAttribute($value)
     {
         if (empty($value)) {
             return $value;
@@ -64,7 +64,7 @@ class ChatRoom extends BaseModel
         return Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $this->id . '/' . $value);
     }
 
-    public function getGroupIconActualAttribute($value)
+    public function getGroupIconAttribute($value)
     {
         if (empty($value)) {
             return $value;

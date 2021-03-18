@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Storage;
 // use Illuminate\Support\Facades\Event;
 use Illuminate\Http\UploadedFile;
 use Carbon\Carbon;
-use Image;
+use Intervention\Image\ImageManagerStatic as Image;
 
 class ChatController extends BaseController
 {
@@ -38,7 +38,9 @@ class ChatController extends BaseController
         // $sendBy = $userId == 3 ? 4 : 3;
         $sendBy = $request->get('receiver_id', ($userId == 3 ? 4 : 3));
 
-        return view('chat', compact('userId', 'sendBy'));
+        $groupId = $request->get('group_id', 122);
+
+        return view('chat', compact('userId', 'sendBy', 'groupId'));
     }
 
     public function sendMessage(Request $request, BroadcastManager $broadcastManager)
@@ -540,7 +542,8 @@ class ChatController extends BaseController
             }
         }
 
-        return $this->returnError(__('Something went wrong!'));
+        // return $this->returnError(__('Something went wrong!'));
+        return $this->returnSuccess(__('User chat removed successfully!'));
     }
 
     //function to get all the users for group
@@ -595,15 +598,15 @@ class ChatController extends BaseController
             $pathInfos = pathinfo($attachment->getClientOriginalName());
 
             if (!empty($pathInfos['extension'])) {
-                $folder = $chat_room->folder . '/' . $id . '/icon//';
-                $thumb_folder = $chat_room->folder . '/' . $id;
+                $thumb_folder = $chat_room->folder . '/' . $id . '/icon//';
+                $folder = $chat_room->folder . '/' . $id;
 
                 if (!empty($folder)) {
                     $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
                     $storeFile = $attachment->storeAs($folder, $fileName, $chat_room->fileSystem);
 
-                    $thumb_image = Image::make($data['group_icon'])->resize(100, 100)->save($fileName);
-                    \Storage::disk($chat_room->fileSystem)->put($thumb_folder.'/'.$fileName, $thumb_image, $chat_room->fileSystem);
+                    $thumb_image = Image::make($data['group_icon'])->resize(100, 100);
+                    Storage::disk($chat_room->fileSystem)->put($thumb_folder . $fileName, $thumb_image->encode());
 
                     if ($storeFile) {
                         $chat_room = $chat_room->find($id);
