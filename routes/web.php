@@ -42,6 +42,8 @@ Route::group(['middleware' => ['auth']], function(){
         });
     });
 
+    Route::get('/users-list/{type}', 'Admin\UserController@index')->name('users.index');
+
     Route::get('/profile', 'Admin\AdminController@editProfile')->name('profile');
     Route::post('/profile-update', 'Admin\AdminController@updateProfile')->name('profile-update');
 });

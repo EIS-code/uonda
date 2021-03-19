@@ -47,7 +47,7 @@
                         <th> Cover Image </th>
                         <td> 
                             <iframe frameborder="0" width="350" height="300"
-                            src="{{ URL::asset('storage/feed/'. explode('/', $feed->attachment)[4]) }}" name="imgbox" id="imgbox">
+                            src="{{ $feed->attachment }}" name="imgbox" id="imgbox">
                             <p>iframes are not supported by your browser.</p>
                             </iframe>
                         </td>

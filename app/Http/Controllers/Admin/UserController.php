@@ -18,7 +18,7 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index(Request $request)
+    public function index(Request $request, $type)
     {
         $columns=Schema::getColumnListing('users');
         $orderBy = ($request->input('sortBy') && in_array($request->input('sortBy'), $columns))?$request->input('sortBy'):'id';
@@ -34,8 +34,21 @@ class UserController extends Controller
                 }
             }
         });
+        switch($type) {
+            case 'pending':
+                $users->where('is_accepted', 0);
+                break;
+            case 'rejected':
+                $users->where('is_accepted', 2);
+                break;
+            case 'accepted':
+                $users->where('is_accepted', 1);
+                break;
+            default :
+                $users->where('is_accepted', 1);
+        }
         $users = $users->orderBy($orderBy, $orderOrder)->paginate($limit);
-        return view('pages.users.index', compact('users'));
+        return view('pages.users.index', compact('users', 'type'));
     }
 
     /**
@@ -67,7 +80,7 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        $user = User::find(decrypt($id));
+        $user = User::with(['userDocuments'])->find(decrypt($id));
         $data = array();
         if(!empty($user->school_id)) {
             $data['school_name'] = School::select('name')->where('id', $user->school_id)->first();
@@ -107,7 +120,7 @@ class UserController extends Controller
         
             if($request->has('description')) {
                 $user->reason_for_rejection = $request->description;
-                $user->is_accepted = 0;
+                $user->is_accepted = 2;
             }
             if($request->has('ís_accepted')) {
                 $user->reason_for_rejection = NULL;

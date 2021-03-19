@@ -165,9 +165,27 @@
                                 </a>
                             </li>
                             <li class="{{ Request::is('users*') ? 'mm-active' : '' }}">
-                                <a href="{{ route('users.index') }}" >
+                                <a href="javascript::void(0)">
                                     <i class="metismenu-icon pe-7s-id"></i>Users
+                                    <i class="metismenu-state-icon pe-7s-angle-down caret-left"></i>
                                 </a>
+                                <ul>
+                                    <li class="{{ Request::is('users-list/accepted*') ? 'mm-active' : '' }}">
+                                        <a href="{{ route('users.index', 'accepted') }}" >
+                                            <i class="metismenu-icon"></i>Accepted Users
+                                        </a>
+                                    </li>
+                                    <li class="{{ Request::is('users-list/rejected*') ? 'mm-active' : '' }}">
+                                        <a href="{{ route('users.index', 'rejected') }}" >
+                                            <i class="metismenu-icon"></i>Rejected Users
+                                        </a>
+                                    </li>
+                                    <li class="{{ Request::is('users-list/pending*') ? 'mm-active' : '' }}">
+                                        <a href="{{ route('users.index', 'pending') }}" >
+                                            <i class="metismenu-icon"></i>Pending Users
+                                        </a>
+                                    </li>
+                                </ul>
                             </li>
                             <li class="{{ Request::is('schools*') ? 'mm-active' : '' }}">
                                 <a href="{{ route('schools.index') }}" >

@@ -7,7 +7,7 @@
             <div class="page-title-icon">
                 <i class="lnr-graduation-hat icon-gradient bg-happy-itmeo"></i>
             </div>
-            <div>Users
+            <div>{{ ucfirst($type)}} Users
             </div>
         </div>
     </div>
@@ -42,22 +42,22 @@
             <thead>
             <tr>
                 <th>
-                    <a href="{{Helper::generateURLWithFilter(route('users.index'),1,'id',(request('sortOrder','asc')=='asc'?'desc':'asc'),request('search'))}}"># {!! Helper::sortingDesign('id',request('sortBy'),request('sortOrder')) !!}</a>
+                    <a href="{{Helper::generateURLWithFilter(route('users.index', $type),1,'id',(request('sortOrder','asc')=='asc'?'desc':'asc'),request('search'))}}"># {!! Helper::sortingDesign('id',request('sortBy'),request('sortOrder')) !!}</a>
                 </th>
                 <th>
-                    <a href="{{Helper::generateURLWithFilter(route('users.index'),1,'name',(request('sortOrder','asc')=='asc'?'desc':'asc'),request('search'))}}">Name {!! Helper::sortingDesign('name',request('sortBy'),request('sortOrder')) !!}</a>
+                    <a href="{{Helper::generateURLWithFilter(route('users.index', $type),1,'name',(request('sortOrder','asc')=='asc'?'desc':'asc'),request('search'))}}">Name {!! Helper::sortingDesign('name',request('sortBy'),request('sortOrder')) !!}</a>
                 </th>
                 <th>
-                    <a href="{{Helper::generateURLWithFilter(route('users.index'),1,'email',(request('sortOrder','asc')=='asc'?'desc':'asc'),request('search'))}}">Email {!! Helper::sortingDesign('email',request('sortBy'),request('sortOrder')) !!}</a>
+                    <a href="{{Helper::generateURLWithFilter(route('users.index', $type),1,'email',(request('sortOrder','asc')=='asc'?'desc':'asc'),request('search'))}}">Email {!! Helper::sortingDesign('email',request('sortBy'),request('sortOrder')) !!}</a>
                 </th>
                 <th>
-                    <a href="{{Helper::generateURLWithFilter(route('users.index'),1,'gender',(request('sortOrder','asc')=='asc'?'desc':'asc'),request('search'))}}">Gender {!! Helper::sortingDesign('gender',request('sortBy'),request('sortOrder')) !!}</a>
+                    <a href="{{Helper::generateURLWithFilter(route('users.index', $type),1,'gender',(request('sortOrder','asc')=='asc'?'desc':'asc'),request('search'))}}">Gender {!! Helper::sortingDesign('gender',request('sortBy'),request('sortOrder')) !!}</a>
                 </th>
                 <th>
-                    <a href="{{Helper::generateURLWithFilter(route('users.index'),1,'current_status',(request('sortOrder','asc')=='asc'?'desc':'asc'),request('search'))}}">Status {!! Helper::sortingDesign('current_status',request('sortBy'),request('sortOrder')) !!}</a>
+                    <a href="{{Helper::generateURLWithFilter(route('users.index', $type),1,'current_status',(request('sortOrder','asc')=='asc'?'desc':'asc'),request('search'))}}">Status {!! Helper::sortingDesign('current_status',request('sortBy'),request('sortOrder')) !!}</a>
                 </th>
                 <th>
-                    <a href="{{Helper::generateURLWithFilter(route('users.index'),1,'created_at',(request('sortOrder','asc')=='asc'?'desc':'asc'),request('search'))}}">Registered On {!! Helper::sortingDesign('created_at',request('sortBy'),request('sortOrder')) !!}</a>
+                    <a href="{{Helper::generateURLWithFilter(route('users.index', $type),1,'created_at',(request('sortOrder','asc')=='asc'?'desc':'asc'),request('search'))}}">Registered On {!! Helper::sortingDesign('created_at',request('sortBy'),request('sortOrder')) !!}</a>
                 </th>
                 <th>User Status</th>
                 <th>Action</th>
@@ -76,9 +76,12 @@
                             <input type="checkbox" {{ $user->is_enable == 1 ? 'checked' : ''}} data-id="{{ $user->encrypted_user_id }}" class="user_status" value="{{ $user->is_enable }}" data-toggle="toggle" data-onstyle="success" data-offstyle="danger">
                         </td>
                         <td class="icons_list">
-                            @if($user->is_accepted)
+                            @if($user->is_accepted == 0)
+                                <a href="javascript:void(0)" class="acceptUser" data-id="{{ $user->encrypted_user_id }}" title="Accept User"><span class="material-icons">done</span></a> 
                                 <a href="javascript:void(0)" class="rejectModal" data-id="{{ $user->encrypted_user_id }}" title="Reject User"><span class="material-icons">close</span></a> 
-                            @else 
+                            @elseif($user->is_accepted == 1) 
+                                <a href="javascript:void(0)" class="rejectModal" data-id="{{ $user->encrypted_user_id }}" title="Reject User"><span class="material-icons">close</span></a> 
+                            @else
                                 <a href="javascript:void(0)" class="acceptUser" data-id="{{ $user->encrypted_user_id }}" title="Accept User"><span class="material-icons">done</span></a> 
                             @endif
                             <a href="javascript:void(0)" class="remove-button" data-id="{{ $user->id }}" title="Delete User"><span class="material-icons delete-button">delete</span></a>
