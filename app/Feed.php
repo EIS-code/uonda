@@ -70,13 +70,13 @@ class Feed extends BaseModel
         $rules = [
             'title'       => ['required', 'string', 'max:255'],
             'sub_title'   => ['nullable', 'string', 'max:255'],
-            'attachment'  => ['nullable', 'mimes:' . implode(",", $this->allowedExtensions), 'max:255'],
+            'attachment'  => ['nullable', 'mimes:' . implode(",", $this->allowedExtensions)],
             'description' => ['required', 'string'],
             'type'        => ['nullable', 'in:' . implode(",", array_keys($this->feedTypes))]
         ];
 
         if(!empty($data['type'])) {
-            $rules['attachment'] = ['required', 'mimes:' . implode(",", $this->allowedExtensions), 'max:255'];
+            $rules['attachment'] = ['required', 'mimes:' . implode(",", $this->allowedExtensions)];
         }
 
         if(!empty($data['attachment'])) {
