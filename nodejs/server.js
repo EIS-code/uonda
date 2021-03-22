@@ -290,6 +290,10 @@ io.on('connection', function (socket) {
                 };
 
                 if (!isError) {
+                    connection.query("SET NAMES utf8mb4;", async function (err15, resultUTFMB4, fields) {
+                        console.log(resultUTFMB4);
+                    });
+
                     if (isGroup) {
 
                         let sqlQuery  = "INSERT INTO `" + modelChats + "` SET `message` = '" + message + "', `chat_room_id` = '" + chatRoomId + "', `chat_room_user_id` = '" + chatRoomUserId + "', " + timestampsQuery;
