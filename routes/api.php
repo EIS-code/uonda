@@ -112,6 +112,8 @@ Route::group(['middleware' => ['web.auth.api']], function () {
             Route::post('/remove/user/from/group', 'ChatController@removeUserFromChatGroup')->name('user.chat.remove.user');
 
             Route::get('/group/details/{id}', 'ChatController@getChatGroupDetails')->name('user.chat.group.details');
+
+            Route::post('/exit/group', 'ChatController@exitChatGroup')->name('user.exit.group');
         });
     });
 
