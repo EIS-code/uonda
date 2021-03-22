@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\UploadedFile;
 use Carbon\Carbon;
 use Intervention\Image\ImageManagerStatic as Image;
+use Illuminate\Support\Facades\Validator;
 
 class ChatController extends BaseController
 {
@@ -650,7 +651,7 @@ class ChatController extends BaseController
         }
 
         $chat_room_details = ChatRoom::with(['chatRoomUsers.Users' => function($q) {
-                                $q->select('id', 'name', 'profile_pic');
+                                $q->select('id', 'name', 'profile_pic', 'profile', 'profile_icon');
                             }])
                             ->with(['chatRoomUsers' => function($q) use ($request) {
                                 $q->where('sender_id', '!=', $request->user_id);
@@ -723,7 +724,7 @@ class ChatController extends BaseController
     //Function to get the chat group details
     public function getChatGroupDetails(Request $request, $id) {
         $chat_room_details = ChatRoom::with(['chatRoomUsers.Users' => function($q) {
-                                $q->select('id', 'name', 'profile_pic');
+                                $q->select('id', 'name', 'profile_pic', 'profile', 'profile_icon');
                             }])
                             ->where('id', $id)
                             ->get();
@@ -733,5 +734,30 @@ class ChatController extends BaseController
             });
         });
         return $this->returnSuccess(__('Chat group details fetched successfully!'), $chat_room_details);
+    }
+
+    //Function to exit the chat group
+    public function exitChatGroup(Request $request) {
+        $requestData = $request->toArray();
+
+        $validator = Validator::make($requestData, [
+            'chat_group_id' => 'required|exists:chat_rooms,id'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => 500, 'message' => $validator->errors()->first()]);
+        }
+        $chat_room_details = ChatRoomUser::where([
+            'chat_room_id' => $request->chat_group_id,
+            'sender_id' => $request->user_id
+        ])->first();
+        if(!empty($chat_room_details)) {
+            if($chat_room_details->delete()) {
+                return $this->returnSuccess(__('You exit the group successfully!'));
+            }
+        } else {
+            return $this->returnError(__('You are not associated with this group!'));
+        }
+        return $this->returnError(__('Something went wrong!'));
     }
 }
