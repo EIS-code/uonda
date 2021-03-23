@@ -75,9 +75,10 @@ class SchoolController extends BaseController
         }
 
         $create = $model->create($data);
+        $school_data = $model->with('country')->find($create->id);
 
         if ($create) {
-            return $this->returnSuccess(__('School saved successfully!'), $create);
+            return $this->returnSuccess(__('School saved successfully!'), $school_data);
         }
 
         return $this->returnError(__('Something went wrong!'));
