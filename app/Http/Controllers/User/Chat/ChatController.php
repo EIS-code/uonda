@@ -21,6 +21,7 @@ use Illuminate\Http\UploadedFile;
 use Carbon\Carbon;
 use Intervention\Image\ImageManagerStatic as Image;
 use Illuminate\Support\Facades\Validator;
+use App\ReportChatRoom;
 
 class ChatController extends BaseController
 {
@@ -552,8 +553,28 @@ class ChatController extends BaseController
 
     //function to get all the users for group
     public function getAllUsersList(Request $request) {
-        $users = User::select('id', 'name', 'profile_pic')->where('is_admin', 0)->where('id', '!=', $request->user_id)->get();
-        return $this->returnSuccess(__('Users fetched successfully!'), $users);
+        $per_page = $request->has('per_page') ? $request->per_page : 10;
+        $offset = $request->has('offset') ? $request->offset : 0;
+        $status = 200;
+        $next_offset = $offset + $per_page;
+
+        $users = User::select('id', 'name', 'profile_pic', 'profile', 'profile_icon')
+                    ->where('is_admin', 0)
+                    ->where('id', '!=', $request->user_id)
+                    ->skip($offset)
+                    ->take($per_page)
+                    ->get();
+        $users->each(function($userRow) {
+            $userRow->setHidden(['encrypted_user_id', 'permissions', 'total_notifications', 'total_read_notifications', 'total_unread_notifications']);
+        });
+        return response()->json([
+            'code' => $status,
+            'msg'  => __('Users fetched successfully!'),
+            'current_offset' => $offset,
+            'next_offset' => $next_offset,
+            'per_page' => $per_page,
+            'data' => $users
+        ], 200);
     }
 
     //function to create the chat group
@@ -759,5 +780,26 @@ class ChatController extends BaseController
             return $this->returnError(__('You are not associated with this group!'));
         }
         return $this->returnError(__('Something went wrong!'));
+    }
+
+    //function to report the chat-group
+    public function reportChatGroup(Request $request) {
+        $report = new ReportChatRoom();
+        $data  = $request->all();
+        
+        $data['user_id'] = $request->user_id;
+        
+        $validator = $report->validator($data);
+        if ($validator->fails()) {
+            return $this->returnError($validator->errors()->first());
+        }
+        
+        $report->user_id = $request->user_id;
+        $report->chat_room_id = $request->chat_room_id;
+        if($request->has('description')) {
+            $report->description = $request->description;
+        }
+        $report->save();
+        return $this->returnSuccess(__('You successfully reported the group!'));
     }
 }

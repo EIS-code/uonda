@@ -103,7 +103,7 @@ Route::group(['middleware' => ['web.auth.api']], function () {
 
             Route::post('/attachment/send', 'ChatController@sendMessageAttachments')->name('user.chat.attachments.send');
 
-            Route::get('/users/list', 'ChatController@getAllUsersList')->name('user.chat.all.users.list');
+            Route::post('/users/list', 'ChatController@getAllUsersList')->name('user.chat.all.users.list');
 
             Route::post('/create/group', 'ChatController@createChatGroup')->name('user.chat.create.group');
 
@@ -114,6 +114,8 @@ Route::group(['middleware' => ['web.auth.api']], function () {
             Route::get('/group/details/{id}', 'ChatController@getChatGroupDetails')->name('user.chat.group.details');
 
             Route::post('/exit/group', 'ChatController@exitChatGroup')->name('user.exit.group');
+
+            Route::post('/report/group', 'ChatController@reportChatGroup')->name('user.report.group');
         });
     });
 
