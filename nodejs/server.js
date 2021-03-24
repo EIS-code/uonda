@@ -288,7 +288,7 @@ io.on('connection', function (socket) {
 
                     return false;
                 };
-console.log(isGroup);
+
                 if (!isError) {
                     connection.query("SET NAMES utf8mb4;", async function (err15, resultUTFMB4, fields) {});
 
@@ -333,7 +333,6 @@ console.log(isGroup);
 
                         connection.query(sqlQuery, async function (err4, insertChat, fields) {
                             if (err4) {
-                                console.log(err4.message);
                                 return errorFun(err4.message);
                             }
 
@@ -342,7 +341,6 @@ console.log(isGroup);
 
                             connection.query(sqlGetChat, async function (err5, resultChat, fields) {
                                 if (err5) {
-                                    console.log(err5.message);
                                     return errorFun(err5.message);
                                 }
 
@@ -353,7 +351,6 @@ console.log(isGroup);
 
                                 connection.query(sqlGetSenderUser, async function (err6, resultSenderUser, fields) {
                                     if (err6) {
-                                        console.log(err6.message);
                                         return errorFun(err6.message);
                                     }
 
@@ -366,8 +363,6 @@ console.log(isGroup);
                                     resultChat[0].receiverId = receiverId;
 
                                     senderData = resultChat[0];
-                                    console.log(acknowledgeEmitter);
-                                    console.log(senderData);
                                     io.sockets.to(roomId).emit(acknowledgeEmitter, senderData);
                                 });
 
@@ -387,8 +382,6 @@ console.log(isGroup);
                                     resultChat[0].receiverId = receiverId;
 
                                     receiverData = resultChat[0];
-                                    console.log(messageRecieveEmitter);
-                                    console.log(receiverData);
                                     io.sockets.to(receiverRoomId).emit(messageRecieveEmitter, receiverData);
                                 });
                             });
