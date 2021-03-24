@@ -333,6 +333,7 @@ console.log(isGroup);
 
                         connection.query(sqlQuery, async function (err4, insertChat, fields) {
                             if (err4) {
+                                console.log(err4.message);
                                 return errorFun(err4.message);
                             }
 
@@ -341,6 +342,7 @@ console.log(isGroup);
 
                             connection.query(sqlGetChat, async function (err5, resultChat, fields) {
                                 if (err5) {
+                                    console.log(err5.message);
                                     return errorFun(err5.message);
                                 }
 
@@ -351,6 +353,7 @@ console.log(isGroup);
 
                                 connection.query(sqlGetSenderUser, async function (err6, resultSenderUser, fields) {
                                     if (err6) {
+                                        console.log(err6.message);
                                         return errorFun(err6.message);
                                     }
 
