@@ -284,11 +284,11 @@ io.on('connection', function (socket) {
 
                     isError = true;
 
-                    // socket.leave(roomId);
+                    socket.leave(roomId);
 
                     return false;
                 };
-
+console.log(isGroup);
                 if (!isError) {
                     connection.query("SET NAMES utf8mb4;", async function (err15, resultUTFMB4, fields) {});
 
@@ -363,6 +363,8 @@ io.on('connection', function (socket) {
                                     resultChat[0].receiverId = receiverId;
 
                                     senderData = resultChat[0];
+                                    console.log(acknowledgeEmitter);
+                                    console.log(senderData);
                                     io.sockets.to(roomId).emit(acknowledgeEmitter, senderData);
                                 });
 
@@ -382,6 +384,8 @@ io.on('connection', function (socket) {
                                     resultChat[0].receiverId = receiverId;
 
                                     receiverData = resultChat[0];
+                                    console.log(messageRecieveEmitter);
+                                    console.log(receiverData);
                                     io.sockets.to(receiverRoomId).emit(messageRecieveEmitter, receiverData);
                                 });
                             });
