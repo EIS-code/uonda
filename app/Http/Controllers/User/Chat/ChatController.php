@@ -555,13 +555,21 @@ class ChatController extends BaseController
     public function getAllUsersList(Request $request) {
         $per_page = $request->has('per_page') ? $request->per_page : 10;
         $offset = $request->has('offset') ? $request->offset : 0;
+        $search = $request->has('search') ? $request->search : '';
         $status = 200;
         $next_offset = $offset + $per_page;
 
+        $users_count =  User::where('is_admin', 0)->where('id', '!=', $request->user_id)->count();
+        $search_users_count = 0;
+
         $users = User::select('id', 'name', 'profile_pic', 'profile', 'profile_icon')
                     ->where('is_admin', 0)
-                    ->where('id', '!=', $request->user_id)
-                    ->skip($offset)
+                    ->where('id', '!=', $request->user_id);
+        if(!empty($search)) {
+            $users = $users->where('name', 'like', '%' . $search . '%');
+            $search_users_count = $users->count();
+        }
+        $users = $users->skip($offset)
                     ->take($per_page)
                     ->get();
         $users->each(function($userRow) {
@@ -573,6 +581,8 @@ class ChatController extends BaseController
             'current_offset' => $offset,
             'next_offset' => $next_offset,
             'per_page' => $per_page,
+            'total_users' => $users_count,
+            'search_users_count' => $search_users_count,
             'data' => $users
         ], 200);
     }
