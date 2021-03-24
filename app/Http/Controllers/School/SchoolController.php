@@ -75,7 +75,15 @@ class SchoolController extends BaseController
         }
 
         $create = $model->create($data);
-        $school_data = $model->with('country')->find($create->id);
+        $school_data = $model->with('country', 'city', 'state')->find($create->id);
+        if (!empty($school_data)) {
+            $school_data->country_name = $school_data->country->name;
+            $school_data->state_name = $school_data->state->name;
+            $school_data->city_name = $school_data->city->name;
+            unset($school_data->country);
+            unset($school_data->state);
+            unset($school_data->city);
+        }
 
         if ($create) {
             return $this->returnSuccess(__('School saved successfully!'), $school_data);

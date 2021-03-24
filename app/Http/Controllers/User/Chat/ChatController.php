@@ -554,7 +554,7 @@ class ChatController extends BaseController
     //function to get all the users for group
     public function getAllUsersList(Request $request) {
         $per_page = $request->has('per_page') ? $request->per_page : 10;
-        $offset = $request->has('offset') ? $request->offset : 0;
+        $offset = $request->has('offset') ? (int)$request->offset : 0;
         $search = $request->has('search') ? $request->search : '';
         $status = 200;
         $next_offset = $offset + $per_page;
@@ -566,7 +566,7 @@ class ChatController extends BaseController
                     ->where('is_admin', 0)
                     ->where('id', '!=', $request->user_id);
         if(!empty($search)) {
-            $users = $users->where('name', 'like', '%' . $search . '%');
+            $users = $users->where('name', 'like', $search . '%');
             $search_users_count = $users->count();
         }
         $users = $users->skip($offset)
@@ -575,6 +575,16 @@ class ChatController extends BaseController
         $users->each(function($userRow) {
             $userRow->setHidden(['encrypted_user_id', 'permissions', 'total_notifications', 'total_read_notifications', 'total_unread_notifications']);
         });
+
+        //TO reset the next_offset if no users in list
+        if(!empty($search) && ($next_offset >= $search_users_count)) {
+            $next_offset = $offset;
+        } else {
+            if($next_offset >= $users_count) {
+                $next_offset = $offset;
+            }
+        }
+        
         return response()->json([
             'code' => $status,
             'msg'  => __('Users fetched successfully!'),
