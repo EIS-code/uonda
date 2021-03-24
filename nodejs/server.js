@@ -335,7 +335,7 @@ io.on('connection', function (socket) {
                             if (err4) {
                                 return errorFun(err4.message);
                             }
-
+console.log(insertChat);
                             // let sqlGetChat = "SELECT id, message FROM `" + modelChats + "` as c WHERE c.`id` = '" + insertChat.insertId + "' LIMIT 1";
                             let sqlGetChat = "SELECT c.id, c.message, ca.mime_type, ca.attachment, ca.url, ca.address, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' ELSE NULL END AS message_type, UNIX_TIMESTAMP(c.created_at) * 1000 AS created_at FROM `" + modelChats + "` AS c LEFT JOIN `" + modelChatAttachment + "` AS ca ON c.id = ca.chat_id WHERE c.`id` = '" + insertChat.insertId + "' LIMIT 1";
 
@@ -343,7 +343,7 @@ io.on('connection', function (socket) {
                                 if (err5) {
                                     return errorFun(err5.message);
                                 }
-
+console.log(resultChat[0]);
                                 var senderData   = {},
                                     receiverData = {};
 
@@ -363,6 +363,7 @@ io.on('connection', function (socket) {
                                     resultChat[0].receiverId = receiverId;
 
                                     senderData = resultChat[0];
+                                    console.log(acknowledgeEmitter);
                                     io.sockets.to(roomId).emit(acknowledgeEmitter, senderData);
                                 });
 
@@ -382,6 +383,7 @@ io.on('connection', function (socket) {
                                     resultChat[0].receiverId = receiverId;
 
                                     receiverData = resultChat[0];
+                                    console.log(messageRecieveEmitter);
                                     io.sockets.to(receiverRoomId).emit(messageRecieveEmitter, receiverData);
                                 });
                             });
