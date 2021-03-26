@@ -42,6 +42,7 @@
                 <th>UUID</th>
                 <th>Title</th>
                 <th>Assigned Users</th>
+                <th>Created by</th>
                 <th>Created On</th>
                 <th>Action</th>
             </tr>
@@ -53,6 +54,7 @@
                         <td>{{ $chat->uuid }}</td>
                         <td>{{ $chat->title }}</td>
                         <td>{{ $chat->chat_room_users_count }}</td>
+                        <td>{{ !empty($chat->createdBy) ? $chat->createdBy->name : '' }} ({{ $chat->created_by_admin == 1 ? 'ADMIN' : 'USER' }})</td>
                         <td>{{ Carbon\Carbon::parse($chat->created_at)->format('jS M Y') }}</td>
                         <td class="icons_list">
                             <a href="{{ route('chats.edit', $chat->encrypted_chat_id) }}" title="Edit chat"><span class="material-icons">edit</span></a> 

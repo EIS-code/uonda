@@ -254,7 +254,7 @@ class ChatController extends BaseController
                     ORDER BY c.updated_at DESC
             ");*/
 
-        $records = $modelChats::selectRaw("{$modelChats::getTableName()}.id as chat_id, {$modelChatRoomUsers::getTableName()}.sender_id, {$modelChatRoomUsers::getTableName()}.receiver_id, {$modelChatRooms::getTableName()}.id as chat_room_id, {$modelChats::getTableName()}.updated_at, CASE WHEN {$modelChatAttachments::getTableName()}.mime_type != '' && {$modelChatAttachments::getTableName()}.attachment != '' THEN 'Attachment Sent' WHEN {$modelChatAttachments::getTableName()}.url != '' THEN 'URL Sent' WHEN {$modelChatAttachments::getTableName()}.name != '' && {$modelChatAttachments::getTableName()}.contacts != '' THEN 'Contact Sent' ELSE {$modelChats::getTableName()}.message END AS recent_message, {$modelChatRooms::getTableName()}.is_group, {$modelChatRooms::getTableName()}.title")
+        $records = $modelChats::selectRaw("{$modelChats::getTableName()}.id as chat_id, {$modelChatRoomUsers::getTableName()}.sender_id, {$modelChatRoomUsers::getTableName()}.receiver_id, {$modelChatRooms::getTableName()}.id as chat_room_id, {$modelChatRooms::getTableName()}.created_by_admin, {$modelChatRooms::getTableName()}.created_by, {$modelChats::getTableName()}.updated_at, CASE WHEN {$modelChatAttachments::getTableName()}.mime_type != '' && {$modelChatAttachments::getTableName()}.attachment != '' THEN 'Attachment Sent' WHEN {$modelChatAttachments::getTableName()}.url != '' THEN 'URL Sent' WHEN {$modelChatAttachments::getTableName()}.name != '' && {$modelChatAttachments::getTableName()}.contacts != '' THEN 'Contact Sent' ELSE {$modelChats::getTableName()}.message END AS recent_message, {$modelChatRooms::getTableName()}.is_group, {$modelChatRooms::getTableName()}.title")
                               ->join($modelChatRoomUsers::getTableName(), $modelChats::getTableName() . '.chat_room_user_id', '=', $modelChatRoomUsers::getTableName() . '.id')
                               ->join($modelChatRooms::getTableName(), $modelChatRoomUsers::getTableName() . '.chat_room_id', '=', $modelChatRooms::getTableName() . '.id')
                               /*->leftJoin($modelChatDelets::getTableName(), function($leftJoin) use($modelChats, $modelChatDelets, $userId) {
@@ -308,13 +308,15 @@ class ChatController extends BaseController
                         'is_group'          => $data->is_group,
                         'is_online'         => $user->is_online,
                         'socket_id'         => $user->socket_id,
-                        'title'             => $data->title
+                        'title'             => $data->title,
+                        'created_by_admin'  => $data->created_by_admin,
+                        'created_by'        => $data->created_by
                     ];
                 }
             });
         }
 
-        $records = $modelChatRooms::selectRaw("{$modelChats::getTableName()}.id as chat_id, {$modelChatRooms::getTableName()}.id, {$modelChatRooms::getTableName()}.id as chat_room_id, {$modelChats::getTableName()}.updated_at, CASE WHEN {$modelChatAttachments::getTableName()}.mime_type != '' && {$modelChatAttachments::getTableName()}.attachment != '' THEN 'Attachment Sent' WHEN {$modelChatAttachments::getTableName()}.url != '' THEN 'URL Sent' WHEN {$modelChatAttachments::getTableName()}.name != '' && {$modelChatAttachments::getTableName()}.contacts != '' THEN 'Contact Sent' ELSE {$modelChats::getTableName()}.message END AS recent_message, {$modelChatRooms::getTableName()}.is_group, {$modelChatRooms::getTableName()}.title, {$modelChatRooms::getTableName()}.group_icon, {$modelChatRooms::getTableName()}.group_icon_actual")
+        $records = $modelChatRooms::selectRaw("{$modelChats::getTableName()}.id as chat_id, {$modelChatRooms::getTableName()}.id, {$modelChatRooms::getTableName()}.created_by_admin, {$modelChatRooms::getTableName()}.created_by, {$modelChatRooms::getTableName()}.id as chat_room_id, {$modelChats::getTableName()}.updated_at, CASE WHEN {$modelChatAttachments::getTableName()}.mime_type != '' && {$modelChatAttachments::getTableName()}.attachment != '' THEN 'Attachment Sent' WHEN {$modelChatAttachments::getTableName()}.url != '' THEN 'URL Sent' WHEN {$modelChatAttachments::getTableName()}.name != '' && {$modelChatAttachments::getTableName()}.contacts != '' THEN 'Contact Sent' ELSE {$modelChats::getTableName()}.message END AS recent_message, {$modelChatRooms::getTableName()}.is_group, {$modelChatRooms::getTableName()}.title, {$modelChatRooms::getTableName()}.group_icon, {$modelChatRooms::getTableName()}.group_icon_actual")
                               ->join($modelChatRoomUsers::getTableName(), $modelChatRooms::getTableName() . '.id', '=', $modelChatRoomUsers::getTableName() . '.chat_room_id')
                               ->leftJoin($modelChats::getTableName(), $modelChatRooms::getTableName() . '.id', '=', $modelChats::getTableName() . '.chat_room_id')
                               /*->leftJoin($modelChatDelets::getTableName(), function($leftJoin) use($modelChats, $modelChatDelets, $userId) {
@@ -341,7 +343,9 @@ class ChatController extends BaseController
                     'title'              => $data->title,
                     'group_icon'         => $data->group_icon,
                     'group_icon_actual'  => $data->group_icon_actual,
-                    'total_participants' => $modelChatRooms->totalGroupParticipants($data->chat_room_id)
+                    'total_participants' => $modelChatRooms->totalGroupParticipants($data->chat_room_id),
+                    'created_by_admin'  => $data->created_by_admin,
+                    'created_by'        => $data->created_by
                 ];
             });
         }
@@ -605,6 +609,9 @@ class ChatController extends BaseController
         
         $data['uuid'] = $chat->generateUuid(10);
         $data['is_group'] = $chat_room::IS_GROUP;
+        $data['created_by_admin'] = 0;
+        $data['created_by'] = $request->user_id;
+
 
         if($request->has('users')) {
             array_push($data['users'], $request->user_id);
@@ -626,6 +633,11 @@ class ChatController extends BaseController
         $chat_room->uuid = $data['uuid'];
         $chat_room->title = $request->title;
         $chat_room->is_group = $data['is_group'];
+        if(!$request->has('chat_room_id')) {
+            $chat_room->created_by_admin = $data['created_by_admin'];
+            $chat_room->created_by = $data['created_by'];
+        }
+        
 
         $save = $chat_room->save();
 
@@ -821,5 +833,30 @@ class ChatController extends BaseController
         }
         $report->save();
         return $this->returnSuccess(__('You successfully reported the group!'));
+    }
+
+    //Function to delete the chat group
+    public function deleteChatGroup(Request $request) {
+        $chat_room = new ChatRoom();
+        $chat_room_user = new ChatRoomUser();
+        $user_id = $request->user_id;
+        $chat_room_id = $request->chat_room_id;
+
+        if(!empty($chat_room_id)) {
+            $chat_room_details = $chat_room::where('created_by', $user_id)->where('created_by_admin', 0)->find($chat_room_id);
+            if(!empty($chat_room_details)) {
+                
+                //To remove the icos for chat
+                Storage::deleteDirectory($chat_room->fileSystem . '/'. $chat_room->folder .'/' .$chat_room_id);
+                //To remove the group users
+                $chat_room_user->where('chat_room_id', $chat_room_id)->delete();
+                //Remove chat group
+                $chat_room_details->delete();
+                
+                return $this->returnSuccess(__('You successfully removed the group!'));
+            }
+            return $this->returnError(__('You don\'t have rights to remove the group'));
+        }
+        return $this->returnError(__('Something went wrong!'));
     }
 }

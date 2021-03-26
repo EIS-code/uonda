@@ -34,6 +34,14 @@
                         <th> Is Group </th>
                         <td> {{ $chat_room->is_group == 1 ? 'Yes' : 'No' }} </td>
                     </tr>
+                    <tr>
+                        <th> Created By Admin </th>
+                        <td> {{ $chat_room->created_by_admin == 1 ? 'Yes' : 'No' }} </td>
+                    </tr>
+                    <tr>
+                        <th> Created By </th>
+                        <td> {{ !empty($chat_room->createdBy) ? $chat_room->createdBy->name : '' }} </td>
+                    </tr>
                     @if(!empty($chat_room->group_icon))
                         <tr>
                             <th> Group Icon </th>
