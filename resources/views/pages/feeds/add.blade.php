@@ -87,7 +87,7 @@
 <script type="text/javascript">
     
     $(document).ready(function() {
-        CKEDITOR.replace( 'description' );
+        CKEDITOR.replace( 'description', {contentsCss: "body {font-size: 20px;}"}  );
 	});
 </script>
 @endpush
