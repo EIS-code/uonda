@@ -129,7 +129,13 @@
                                 $document_path_arr = explode('/', $document->document);
                                 $document_name = $document_path_arr[count($document_path_arr) - 1];
                             @endphp
-                            <td> <a href="{{ $document->document }}" download>{{ $document_name }}</a> </td>
+                            <td> 
+                                <iframe frameborder="0" width="350" height="300" src="{{ $document->document }}" name="imgbox" id="imgbox">
+                                    <p>iframes are not supported by your browser.</p>
+                                </iframe>
+                                <p>{{ $document_name }}</p>
+                            </td>
+                            <td> <a href="{{ $document->document }}" download>Download Now</a> </td>
                         </tr>
                     @endforeach
                     @if(count($user->userDocuments) == 0)

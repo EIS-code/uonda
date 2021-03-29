@@ -13,12 +13,21 @@ class SchoolController extends BaseController
         $data   = $request->all();
         $model  = new School();
         $method = $request->method();
+        $country_id = $request->has('country_id') ? $request->country_id : '';
 
         switch ($method) {
             case 'GET':
                 $schools = $model::with('country', 'city', 'state')->orderBy($model::getTableName() . '.name', 'ASC')->get();
                 break;
             case 'POST':
+                $schools_data = $model::with('country', 'city', 'state');
+                if(!empty($country_id)) {
+                    $schools_data->whereHas('country', function($q) use ($country_id) {
+                        $q->where('country_id', $country_id);
+                    });
+                }
+                $schools = $schools_data->orderBy($model::getTableName() . '.name', 'ASC')->get();
+                break;
             case 'PUT':
                 $schoolId = $request->get('school_id', false);
                 $schools  = $model::with('country', 'city', 'state')->where($model::getTableName() . '.id', (int)$schoolId)->orderBy($model::getTableName() . '.name', 'ASC')->get();
@@ -66,9 +75,18 @@ class SchoolController extends BaseController
         }
 
         $create = $model->create($data);
+        $school_data = $model->with('country', 'city', 'state')->find($create->id);
+        if (!empty($school_data)) {
+            $school_data->country_name = $school_data->country->name;
+            $school_data->state_name = $school_data->state->name;
+            $school_data->city_name = $school_data->city->name;
+            unset($school_data->country);
+            unset($school_data->state);
+            unset($school_data->city);
+        }
 
         if ($create) {
-            return $this->returnSuccess(__('School saved successfully!'), $create);
+            return $this->returnSuccess(__('School saved successfully!'), $school_data);
         }
 
         return $this->returnError(__('Something went wrong!'));

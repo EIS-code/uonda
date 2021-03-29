@@ -138,6 +138,37 @@ class UserController extends BaseController
 
         $create = $model->create($data);
 
+        if (!empty($data['profile']) && $data['profile'] instanceof UploadedFile) {
+            $profile   = $data['profile'];
+            $pathInfos = pathinfo($profile->getClientOriginalName());
+        
+            if (!empty($pathInfos['extension'])) {
+                $folder     = $model->profile;
+                $folderIcon = $model->profileIcon;
+        
+                if (!empty($folder)) {
+                    $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                    $fileName  = removeSpaces($fileName);
+                    $storeFile = $profile->storeAs($folder, $fileName, $model->fileSystem);
+        
+                    if ($storeFile) {
+                        // Set 100 x 100 px icon for later use for example in Chats.
+                        $profileIcon = Image::make($profile)->fit(100)->encode($pathInfos['extension']);
+        
+                        if ($profileIcon) {
+                            $iconName  = time() . '.png';
+                            $storeIcon = Storage::disk($model->fileSystem)->put($folderIcon . '\\' . $iconName, $profileIcon->__toString());
+        
+                            if ($storeIcon) {
+                                $create->update(['profile_icon' => $iconName]);
+                            }
+                        }
+                        $create->update(['profile' => $fileName]);
+                    }
+                }
+            }
+        }
+
         if ($create) {
             $userId = $create->id;
 

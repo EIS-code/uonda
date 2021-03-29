@@ -10,6 +10,7 @@ use App\User;
 use Illuminate\Http\UploadedFile;
 use Storage;
 use Image;
+use Auth;
 use App\ChatRoomUser;
 
 class ChatController extends Controller
@@ -21,7 +22,7 @@ class ChatController extends Controller
      */
     public function index()
     {
-        $chat_rooms = ChatRoom::withCount('ChatRoomUsers')->get();
+        $chat_rooms = ChatRoom::with('createdBy')->withCount('ChatRoomUsers')->get();
         return view('pages.chat.index', compact('chat_rooms'));
     }
 
@@ -50,6 +51,8 @@ class ChatController extends Controller
         
         $data['uuid'] = $chat->generateUuid(10);
         $data['is_group'] = $request->has('is_group') ? '1' : '0';
+        $data['created_by_admin'] = 1;
+        $data['created_by'] = Auth::id();
 
         $validator = $chat_room->validators($data);
         if ($validator->fails()) {
@@ -61,6 +64,8 @@ class ChatController extends Controller
         $chat_room->uuid = $data['uuid'];
         $chat_room->title = $request->title;
         $chat_room->is_group = $data['is_group'];
+        $chat_room->created_by_admin = $data['created_by_admin'];
+        $chat_room->created_by = $data['created_by'];
 
         $save = $chat_room->save();
 
@@ -114,7 +119,7 @@ class ChatController extends Controller
      */
     public function show($id)
     {
-        $chat_room = ChatRoom::with(['ChatRoomUsers.Users'])->find(decrypt($id));
+        $chat_room = ChatRoom::with(['ChatRoomUsers.Users', 'createdBy'])->find(decrypt($id));
         return view('pages.chat.show', compact('chat_room'));
     }
 

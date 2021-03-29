@@ -20,6 +20,8 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\UploadedFile;
 use Carbon\Carbon;
 use Intervention\Image\ImageManagerStatic as Image;
+use Illuminate\Support\Facades\Validator;
+use App\ReportChatRoom;
 
 class ChatController extends BaseController
 {
@@ -252,7 +254,7 @@ class ChatController extends BaseController
                     ORDER BY c.updated_at DESC
             ");*/
 
-        $records = $modelChats::selectRaw("{$modelChats::getTableName()}.id as chat_id, {$modelChatRoomUsers::getTableName()}.sender_id, {$modelChatRoomUsers::getTableName()}.receiver_id, {$modelChatRooms::getTableName()}.id as chat_room_id, {$modelChats::getTableName()}.updated_at, CASE WHEN {$modelChatAttachments::getTableName()}.mime_type != '' && {$modelChatAttachments::getTableName()}.attachment != '' THEN 'Attachment Sent' WHEN {$modelChatAttachments::getTableName()}.url != '' THEN 'URL Sent' WHEN {$modelChatAttachments::getTableName()}.name != '' && {$modelChatAttachments::getTableName()}.contacts != '' THEN 'Contact Sent' ELSE {$modelChats::getTableName()}.message END AS recent_message, {$modelChatRooms::getTableName()}.is_group, {$modelChatRooms::getTableName()}.title")
+        $records = $modelChats::selectRaw("{$modelChats::getTableName()}.id as chat_id, {$modelChatRoomUsers::getTableName()}.sender_id, {$modelChatRoomUsers::getTableName()}.receiver_id, {$modelChatRooms::getTableName()}.id as chat_room_id, {$modelChatRooms::getTableName()}.created_by_admin, {$modelChatRooms::getTableName()}.created_by, {$modelChats::getTableName()}.updated_at, CASE WHEN {$modelChatAttachments::getTableName()}.mime_type != '' && {$modelChatAttachments::getTableName()}.attachment != '' THEN 'Attachment Sent' WHEN {$modelChatAttachments::getTableName()}.url != '' THEN 'URL Sent' WHEN {$modelChatAttachments::getTableName()}.name != '' && {$modelChatAttachments::getTableName()}.contacts != '' THEN 'Contact Sent' ELSE {$modelChats::getTableName()}.message END AS recent_message, {$modelChatRooms::getTableName()}.is_group, {$modelChatRooms::getTableName()}.title")
                               ->join($modelChatRoomUsers::getTableName(), $modelChats::getTableName() . '.chat_room_user_id', '=', $modelChatRoomUsers::getTableName() . '.id')
                               ->join($modelChatRooms::getTableName(), $modelChatRoomUsers::getTableName() . '.chat_room_id', '=', $modelChatRooms::getTableName() . '.id')
                               /*->leftJoin($modelChatDelets::getTableName(), function($leftJoin) use($modelChats, $modelChatDelets, $userId) {
@@ -306,13 +308,15 @@ class ChatController extends BaseController
                         'is_group'          => $data->is_group,
                         'is_online'         => $user->is_online,
                         'socket_id'         => $user->socket_id,
-                        'title'             => $data->title
+                        'title'             => $data->title,
+                        'created_by_admin'  => $data->created_by_admin,
+                        'created_by'        => $data->created_by
                     ];
                 }
             });
         }
 
-        $records = $modelChatRooms::selectRaw("{$modelChats::getTableName()}.id as chat_id, {$modelChatRooms::getTableName()}.id, {$modelChatRooms::getTableName()}.id as chat_room_id, {$modelChats::getTableName()}.updated_at, CASE WHEN {$modelChatAttachments::getTableName()}.mime_type != '' && {$modelChatAttachments::getTableName()}.attachment != '' THEN 'Attachment Sent' WHEN {$modelChatAttachments::getTableName()}.url != '' THEN 'URL Sent' WHEN {$modelChatAttachments::getTableName()}.name != '' && {$modelChatAttachments::getTableName()}.contacts != '' THEN 'Contact Sent' ELSE {$modelChats::getTableName()}.message END AS recent_message, {$modelChatRooms::getTableName()}.is_group, {$modelChatRooms::getTableName()}.title, {$modelChatRooms::getTableName()}.group_icon, {$modelChatRooms::getTableName()}.group_icon_actual")
+        $records = $modelChatRooms::selectRaw("{$modelChats::getTableName()}.id as chat_id, {$modelChatRooms::getTableName()}.id, {$modelChatRooms::getTableName()}.created_by_admin, {$modelChatRooms::getTableName()}.created_by, {$modelChatRooms::getTableName()}.id as chat_room_id, {$modelChats::getTableName()}.updated_at, CASE WHEN {$modelChatAttachments::getTableName()}.mime_type != '' && {$modelChatAttachments::getTableName()}.attachment != '' THEN 'Attachment Sent' WHEN {$modelChatAttachments::getTableName()}.url != '' THEN 'URL Sent' WHEN {$modelChatAttachments::getTableName()}.name != '' && {$modelChatAttachments::getTableName()}.contacts != '' THEN 'Contact Sent' ELSE {$modelChats::getTableName()}.message END AS recent_message, {$modelChatRooms::getTableName()}.is_group, {$modelChatRooms::getTableName()}.title, {$modelChatRooms::getTableName()}.group_icon, {$modelChatRooms::getTableName()}.group_icon_actual")
                               ->join($modelChatRoomUsers::getTableName(), $modelChatRooms::getTableName() . '.id', '=', $modelChatRoomUsers::getTableName() . '.chat_room_id')
                               ->leftJoin($modelChats::getTableName(), $modelChatRooms::getTableName() . '.id', '=', $modelChats::getTableName() . '.chat_room_id')
                               /*->leftJoin($modelChatDelets::getTableName(), function($leftJoin) use($modelChats, $modelChatDelets, $userId) {
@@ -339,7 +343,9 @@ class ChatController extends BaseController
                     'title'              => $data->title,
                     'group_icon'         => $data->group_icon,
                     'group_icon_actual'  => $data->group_icon_actual,
-                    'total_participants' => $modelChatRooms->totalGroupParticipants($data->chat_room_id)
+                    'total_participants' => $modelChatRooms->totalGroupParticipants($data->chat_room_id),
+                    'created_by_admin'  => $data->created_by_admin,
+                    'created_by'        => $data->created_by
                 ];
             });
         }
@@ -551,8 +557,48 @@ class ChatController extends BaseController
 
     //function to get all the users for group
     public function getAllUsersList(Request $request) {
-        $users = User::select('id', 'name', 'profile_pic')->where('is_admin', 0)->where('id', '!=', $request->user_id)->get();
-        return $this->returnSuccess(__('Users fetched successfully!'), $users);
+        $per_page = $request->has('per_page') ? $request->per_page : 10;
+        $offset = $request->has('offset') ? (int)$request->offset : 0;
+        $search = $request->has('search') ? $request->search : '';
+        $status = 200;
+        $next_offset = $offset + $per_page;
+
+        $users_count =  User::where('is_admin', 0)->where('id', '!=', $request->user_id)->count();
+        $search_users_count = 0;
+
+        $users = User::select('id', 'name', 'profile_pic', 'profile', 'profile_icon')
+                    ->where('is_admin', 0)
+                    ->where('id', '!=', $request->user_id);
+        if(!empty($search)) {
+            $users = $users->where('name', 'like', $search . '%');
+            $search_users_count = $users->count();
+        }
+        $users = $users->skip($offset)
+                    ->take($per_page)
+                    ->get();
+        $users->each(function($userRow) {
+            $userRow->setHidden(['encrypted_user_id', 'permissions', 'total_notifications', 'total_read_notifications', 'total_unread_notifications']);
+        });
+
+        //TO reset the next_offset if no users in list
+        if(!empty($search) && ($next_offset >= $search_users_count)) {
+            $next_offset = $offset;
+        } else {
+            if($next_offset >= $users_count) {
+                $next_offset = $offset;
+            }
+        }
+        
+        return response()->json([
+            'code' => $status,
+            'msg'  => __('Users fetched successfully!'),
+            'current_offset' => $offset,
+            'next_offset' => $next_offset,
+            'per_page' => $per_page,
+            'total_users' => $users_count,
+            'search_users_count' => $search_users_count,
+            'data' => $users
+        ], 200);
     }
 
     //function to create the chat group
@@ -563,6 +609,9 @@ class ChatController extends BaseController
         
         $data['uuid'] = $chat->generateUuid(10);
         $data['is_group'] = $chat_room::IS_GROUP;
+        $data['created_by_admin'] = 0;
+        $data['created_by'] = $request->user_id;
+
 
         if($request->has('users')) {
             array_push($data['users'], $request->user_id);
@@ -584,6 +633,11 @@ class ChatController extends BaseController
         $chat_room->uuid = $data['uuid'];
         $chat_room->title = $request->title;
         $chat_room->is_group = $data['is_group'];
+        if(!$request->has('chat_room_id')) {
+            $chat_room->created_by_admin = $data['created_by_admin'];
+            $chat_room->created_by = $data['created_by'];
+        }
+        
 
         $save = $chat_room->save();
 
@@ -650,7 +704,7 @@ class ChatController extends BaseController
         }
 
         $chat_room_details = ChatRoom::with(['chatRoomUsers.Users' => function($q) {
-                                $q->select('id', 'name', 'profile_pic');
+                                $q->select('id', 'name', 'profile_pic', 'profile', 'profile_icon');
                             }])
                             ->with(['chatRoomUsers' => function($q) use ($request) {
                                 $q->where('sender_id', '!=', $request->user_id);
@@ -723,7 +777,7 @@ class ChatController extends BaseController
     //Function to get the chat group details
     public function getChatGroupDetails(Request $request, $id) {
         $chat_room_details = ChatRoom::with(['chatRoomUsers.Users' => function($q) {
-                                $q->select('id', 'name', 'profile_pic');
+                                $q->select('id', 'name', 'profile_pic', 'profile', 'profile_icon');
                             }])
                             ->where('id', $id)
                             ->get();
@@ -733,5 +787,76 @@ class ChatController extends BaseController
             });
         });
         return $this->returnSuccess(__('Chat group details fetched successfully!'), $chat_room_details);
+    }
+
+    //Function to exit the chat group
+    public function exitChatGroup(Request $request) {
+        $requestData = $request->toArray();
+
+        $validator = Validator::make($requestData, [
+            'chat_group_id' => 'required|exists:chat_rooms,id'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['status' => 500, 'message' => $validator->errors()->first()]);
+        }
+        $chat_room_details = ChatRoomUser::where([
+            'chat_room_id' => $request->chat_group_id,
+            'sender_id' => $request->user_id
+        ])->first();
+        if(!empty($chat_room_details)) {
+            if($chat_room_details->delete()) {
+                return $this->returnSuccess(__('You exit the group successfully!'));
+            }
+        } else {
+            return $this->returnError(__('You are not associated with this group!'));
+        }
+        return $this->returnError(__('Something went wrong!'));
+    }
+
+    //function to report the chat-group
+    public function reportChatGroup(Request $request) {
+        $report = new ReportChatRoom();
+        $data  = $request->all();
+        
+        $data['user_id'] = $request->user_id;
+        
+        $validator = $report->validator($data);
+        if ($validator->fails()) {
+            return $this->returnError($validator->errors()->first());
+        }
+        
+        $report->user_id = $request->user_id;
+        $report->chat_room_id = $request->chat_room_id;
+        if($request->has('description')) {
+            $report->description = $request->description;
+        }
+        $report->save();
+        return $this->returnSuccess(__('You successfully reported the group!'));
+    }
+
+    //Function to delete the chat group
+    public function deleteChatGroup(Request $request) {
+        $chat_room = new ChatRoom();
+        $chat_room_user = new ChatRoomUser();
+        $user_id = $request->user_id;
+        $chat_room_id = $request->chat_room_id;
+
+        if(!empty($chat_room_id)) {
+            $chat_room_details = $chat_room::where('created_by', $user_id)->where('created_by_admin', 0)->find($chat_room_id);
+            if(!empty($chat_room_details)) {
+                
+                //To remove the icos for chat
+                Storage::deleteDirectory($chat_room->fileSystem . '/'. $chat_room->folder .'/' .$chat_room_id);
+                //To remove the group users
+                $chat_room_user->where('chat_room_id', $chat_room_id)->delete();
+                //Remove chat group
+                $chat_room_details->delete();
+                
+                return $this->returnSuccess(__('You successfully removed the group!'));
+            }
+            return $this->returnError(__('You don\'t have rights to remove the group'));
+        }
+        return $this->returnError(__('Something went wrong!'));
     }
 }

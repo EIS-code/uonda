@@ -15,7 +15,7 @@ class ChatRoom extends BaseModel
      * @var array
      */
     protected $fillable = [
-        'uuid', 'title', 'group_icon', 'group_icon_actual', 'is_group'
+        'uuid', 'title', 'group_icon', 'group_icon_actual', 'is_group', 'created_by_admin', 'created_by'
     ];
 
     protected $appends = ['encrypted_chat_id'];
@@ -41,6 +41,8 @@ class ChatRoom extends BaseModel
             'group_icon'        => ['nullable', 'mimes:' . implode(",", $this->allowedExtensions)],
             'group_icon_actual' => ['nullable', 'mimes:' . implode(",", $this->allowedExtensions)],
             'is_group'          => ['in:' . implode(",", array_keys($this->isGroup))],
+            'created_by_admin'  => ['nullable'],
+            'created_by'        => ['nullable', 'integer', 'exists:' . (new User())->getTableName() . ',id']
         ]);
 
         if ($returnBoolsOnly === true) {
@@ -83,6 +85,11 @@ class ChatRoom extends BaseModel
     public function chatRoomUsers()
     {
         return $this->hasMany('App\ChatRoomUser', 'chat_room_id', 'id');
+    }
+
+    public function createdBy()
+    {
+        return $this->belongsTo('App\User', 'created_by', 'id');
     }
 
     public function totalGroupParticipants(int $id)
