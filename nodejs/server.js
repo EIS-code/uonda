@@ -121,6 +121,7 @@ io.on('connection', function (socket) {
                 roomDataEmitter = 'roomData-' + senderId + '-' + receiverId,
                 errorEmitter    = 'error-' + senderId + '-' + receiverId;
         } catch(error) {
+            console.log("error : " + error.message);
             io.emit('error', {error: "Provide senderId and receiverId."});
             return false;
             isError = true;
@@ -133,7 +134,7 @@ io.on('connection', function (socket) {
         try {
             if (!io.sockets.adapter.rooms[roomId]) {
                 // socket.leave(roomId);
-
+console.log("roomId : " + roomId);
                 socket.join(roomId);
             }
 
