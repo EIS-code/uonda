@@ -149,7 +149,7 @@ io.on('connection', function (socket) {
 
         // Error Handling.
         var errorFun = function(errMessage) {
-            console.log("Error : " + error: errMessage);
+            console.log("Error : " + errMessage);
             io.sockets.to(roomId).emit(errorEmitter, {error: errMessage});
 
             isError = true;
