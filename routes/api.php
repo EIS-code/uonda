@@ -118,6 +118,10 @@ Route::group(['middleware' => ['web.auth.api']], function () {
             Route::post('/report/group', 'ChatController@reportChatGroup')->name('user.report.group');
 
             Route::post('/delete/group', 'ChatController@deleteChatGroup')->name('user.delete.group');
+
+            Route::group(['prefix' => 'notification'], function () {
+                Route::post('/message/send', 'ChatController@chatMessage')->name('user.notifications.chat.message.sent');
+            });
         });
     });
 

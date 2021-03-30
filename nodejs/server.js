@@ -6,6 +6,8 @@ let mysql   = require('mysql');
 // var redis   = require('redis');
 let env     = require('dotenv');
 let envPath = { path: '../.env' };
+let request = require('request');
+let axios = require('axios');
 
 let opts = {
     extraHeaders: {
@@ -20,6 +22,8 @@ let opts = {
 };
 
 let io = require('socket.io')(server, opts);
+
+let axiosConfigs = {};
 
 app.use(cors());
 
@@ -364,6 +368,33 @@ io.on('connection', function (socket) {
 
                                     senderData = resultChat[0];
                                     io.sockets.to(roomId).emit(acknowledgeEmitter, senderData);
+
+                                    // Send push notification if user is not online.
+                                    var isOnline = false;
+                                    if (Object.keys(onlineUsers).length) {
+                                        Object.keys(onlineUsers).forEach(function(key) {
+                                            let value = onlineUsers[key];
+
+                                            if (value == receiverId) {
+                                                isOnline = true;
+
+                                                return false;
+                                            }
+                                        });
+                                    }
+
+                                    if (!isOnline) {
+                                        axios.post(removeTrailingSlash(appUrl) + '/api/user/chat/notification/message/send', {
+                                            "user_id": receiverId,
+                                            "message": message
+                                        }).then(function(response) {
+                                            /*console.log(response.data);
+                                            console.log(response.status);
+                                            console.log(response.statusText);
+                                            console.log(response.headers);
+                                            console.log(response.config);*/
+                                        });
+                                    }
                                 });
 
                                 let sqlGetReceiverUser = "SELECT `id`, `name`, `user_name`, `email`, `profile` FROM `" + modelUsers + "` WHERE `id` = '" + receiverId + "' LIMIT 1";

@@ -114,6 +114,9 @@ class User extends Authenticatable
 
     const ADMIN_DEVICE_TOKEN = 'admin';
 
+    const DEVICE_TYPE_IOS       = 'ios';
+    const DEVICE_TYPE_ANDROID   = 'android';
+
     public function __construct(array $attributes = array())
     {
         parent::__construct($attributes);
@@ -469,5 +472,15 @@ class User extends Authenticatable
         }
 
         return NULL;
+    }
+
+    public function isIOS()
+    {
+        return (strtolower($this->device_type) == self::DEVICE_TYPE_IOS);
+    }
+
+    public function isAndroid()
+    {
+        return (strtolower($this->device_type) == self::DEVICE_TYPE_ANDROID);
     }
 }

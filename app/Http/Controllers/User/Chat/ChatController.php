@@ -22,6 +22,7 @@ use Carbon\Carbon;
 use Intervention\Image\ImageManagerStatic as Image;
 use Illuminate\Support\Facades\Validator;
 use App\ReportChatRoom;
+use App\Jobs\SendChatMessageNotification;
 
 class ChatController extends BaseController
 {
@@ -858,5 +859,19 @@ class ChatController extends BaseController
             return $this->returnError(__('You don\'t have rights to remove the group'));
         }
         return $this->returnError(__('Something went wrong!'));
+    }
+
+    public function chatMessage(Request $request)
+    {
+        $userId     = (int)$request->get('user_id', false);
+        $message    =$request->get('message', NULL);
+
+        if (!empty($userId)) {
+            SendChatMessageNotification::dispatch($userId, $message)->delay(now()->addSeconds(2));
+
+            return true;
+        }
+
+        return false;
     }
 }
