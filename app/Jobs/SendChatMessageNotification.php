@@ -61,7 +61,7 @@ class SendChatMessageNotification implements ShouldQueue
                     'private_key_path' => base_path('iOS/Push Notifications/AuthKey_YZJF23QQMZ.p8'), // Path to private key
                     'private_key_secret' => null // Private key secret
                 ];
-dd($options);
+
                 $authProvider   = AuthProvider\Token::create($options);
 
                 $alert          = Alert::create()->setTitle($this->notificationTitle);
