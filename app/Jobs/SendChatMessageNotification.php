@@ -73,17 +73,19 @@ class SendChatMessageNotification implements ShouldQueue
                 // Set notification sound to default
                 $payload->setSound('default');
 
-                $deviceToken    = $users->device_token;
+                $payload->setCustomValue('key', 'value');
 
-                $notification   = new Notification($payload, (string)$deviceToken);
+                $deviceToken    = (string)$users->device_token;
 
-                $client         = new Client($authProvider, $production = false);
+                $notification   = new Notification($payload, $deviceToken);
+
+                $client         = new Client($authProvider, $production = false, [CURLOPT_SSL_VERIFYPEER => false]);
 
                 $client->addNotifications([$notification]);
 
                  // Returns an array of ApnsResponseInterface (one Response per Notification)
                 $responses = $client->push();
-Log::info($responses);
+
                 return $responses;
             } elseif ($users->isAndroid()) {
                 $optionBuilder          = new OptionsBuilder();
@@ -97,9 +99,9 @@ Log::info($responses);
 
                 $notification           = $notificationBuilder->build();
 
-                $deviceToken            = $users->device_token;
+                $deviceToken            = (string)$users->device_token;
 
-                $downstreamResponse     = FCM::sendTo($deviceToken, $option, $notification, []);
+                $downstreamResponse     = FCM::sendTo($deviceToken, $option, $notification);
 
                 $downstreamResponse->numberSuccess();
                 $downstreamResponse->numberFailure();
@@ -116,6 +118,8 @@ Log::info($responses);
 
                 // Return Array (key:token, value:error) - in production you should remove from your database the tokens
                 $downstreamResponse->tokensWithError();
+
+                Log::info(json_encode($downstreamResponse));
 
                 return $downstreamResponse;
             }
