@@ -6,8 +6,7 @@ let mysql   = require('mysql');
 // var redis   = require('redis');
 let env     = require('dotenv');
 let envPath = { path: '../.env' };
-let request = require('request');
-let axios = require('axios');
+let axios   = require('axios');
 
 let opts = {
     extraHeaders: {
