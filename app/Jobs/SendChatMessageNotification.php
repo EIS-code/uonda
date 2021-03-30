@@ -75,9 +75,9 @@ class SendChatMessageNotification implements ShouldQueue
 
                 $deviceToken    = $users->device_token;
 
-                $notification   = new Notification($payload, $deviceToken);
+                $notification   = new Notification($payload, (string)$deviceToken);
 
-                $client         = new Client($authProvider, false);
+                $client         = new Client($authProvider, $production = false);
 
                 $client->addNotifications([$notification]);
 
