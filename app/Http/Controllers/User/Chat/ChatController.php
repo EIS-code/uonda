@@ -97,6 +97,7 @@ class ChatController extends BaseController
         $receiverId          = !empty($data['receiver_id']) ? (int)$data['receiver_id'] : false;
         $groupId             = !empty($data['group_id']) ? (int)$data['group_id'] : false;
         $isInserted          = false;
+        $isGroup             = false;
 
         if (empty($userId)) {
             return $this->returnError(__('User id required.'));
@@ -163,7 +164,9 @@ class ChatController extends BaseController
                 $chatRoomUserId = $chatRoomUser->id;
                 $chatRoomId     = $groupId;
 
-                $group = __('group');
+                $group      = __('group');
+
+                $isGroup    = true;
             }
 
             // Chat.
@@ -191,6 +194,20 @@ class ChatController extends BaseController
                             $isInserted = $modelChatAttachment->create(['mime_type' => $mimeType, 'attachment' => $fileName, 'chat_id' => $chatId]);
 
                             if ($isInserted) {
+                                // Send push notification if user is not online.
+                                $request->merge(["message" => __('Attachment')]);
+                                $request->merge(["from_user_id" => $userId]);
+
+                                if ($isGroup) {
+                                    $request->merge(["room_id" => $chatRoomId]);
+
+                                    $this->chatMessageGroup($request);
+                                } else {
+                                    $request->merge(["user_id" => $receiverId]);
+
+                                    $this->chatMessage($request);
+                                }
+
                                 return $this->returnSuccess(__('Chat ' . $group . ' attachment inserted successfully!'), $isInserted);
                             }
                         }
@@ -204,6 +221,20 @@ class ChatController extends BaseController
                     $isInserted = $modelChatAttachment->create(['url' => $data['url'], 'address' => $address, 'chat_id' => $chatId]);
 
                     if ($isInserted) {
+                        // Send push notification if user is not online.
+                        $request->merge(["message" => __('Location')]);
+                        $request->merge(["from_user_id" => $userId]);
+
+                        if ($isGroup) {
+                            $request->merge(["room_id" => $chatRoomId]);
+
+                            $this->chatMessageGroup($request);
+                        } else {
+                            $request->merge(["user_id" => $receiverId]);
+
+                            $this->chatMessage($request);
+                        }
+
                         return $this->returnSuccess(__('Chat ' . $group . ' URL & Address inserted successfully!'), $isInserted);
                     }
 
@@ -213,6 +244,20 @@ class ChatController extends BaseController
                     $isInserted = $modelChatAttachment->create(['name' => $data['name'], 'contacts' => $data['contacts'], 'chat_id' => $chatId]);
 
                     if ($isInserted) {
+                        // Send push notification if user is not online.
+                        $request->merge(["message" => __('Contacts')]);
+                        $request->merge(["from_user_id" => $userId]);
+
+                        if ($isGroup) {
+                            $request->merge(["room_id" => $chatRoomId]);
+
+                            $this->chatMessageGroup($request);
+                        } else {
+                            $request->merge(["user_id" => $receiverId]);
+
+                            $this->chatMessage($request);
+                        }
+
                         return $this->returnSuccess(__('Chat ' . $group . ' contact inserted successfully!'), $isInserted);
                     }
 
@@ -864,12 +909,36 @@ class ChatController extends BaseController
     public function chatMessage(Request $request)
     {
         $userId     = (int)$request->get('user_id', false);
-        $message    =$request->get('message', NULL);
+        $message    = $request->get('message', NULL);
+        $fromUserId = (int)$request->get('from_user_id', false);
 
-        if (!empty($userId)) {
-            SendChatMessageNotification::dispatch($userId, $message)->delay(now()->addSeconds(2));
+        if (!empty($userId) && !empty($fromUserId)) {
+            SendChatMessageNotification::dispatch($userId, $message, $fromUserId)->delay(now()->addSeconds(2));
 
             return true;
+        }
+
+        return false;
+    }
+
+    public function chatMessageGroup(Request $request)
+    {
+        $roomId     = (int)$request->get('room_id', false);
+        $message    = $request->get('message', NULL);
+        $fromUserId = (int)$request->get('from_user_id', false);
+
+        if (!empty($roomId) && !empty($fromUserId)) {
+            $chatRoomUsers = ChatRoomUser::where('chat_room_id', $roomId)->where('sender_id', '!=', $fromUserId)->get();
+
+            if (!empty($chatRoomUsers) && !$chatRoomUsers->isEmpty()) {
+                foreach ($chatRoomUsers as $chatRoomUser) {
+                    $userId = $chatRoomUser->sender_id;
+
+                    SendChatMessageNotification::dispatch($userId, $message, $fromUserId)->delay(now()->addSeconds(2));
+                }
+
+                return true;
+            }
         }
 
         return false;

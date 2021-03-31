@@ -26,7 +26,8 @@ class AuthApi
         'api/user/details',
         'api/user/forgot/password',
         'api/user/chat/send',
-        'api/user/chat/notification/message/send'
+        'api/user/chat/notification/message/send',
+        'api/user/chat/notification/message/group/send'
     ];
 
     /**

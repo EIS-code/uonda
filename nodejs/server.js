@@ -328,6 +328,9 @@ io.on('connection', function (socket) {
                                 receiverData = resultChat[0];
 
                                 io.sockets.to(roomId).emit(messageRecieveEmitter, receiverData);
+
+                                // Send push notification if user is not online.
+                                sendPushNotificationsGroup(chatRoomId, senderId, message);
                             });
                         });
                     } else {
@@ -367,33 +370,6 @@ io.on('connection', function (socket) {
 
                                     senderData = resultChat[0];
                                     io.sockets.to(roomId).emit(acknowledgeEmitter, senderData);
-
-                                    // Send push notification if user is not online.
-                                    var isOnline = false;
-                                    if (Object.keys(onlineUsers).length) {
-                                        Object.keys(onlineUsers).forEach(function(key) {
-                                            let value = onlineUsers[key];
-
-                                            if (value == receiverId) {
-                                                isOnline = true;
-
-                                                return false;
-                                            }
-                                        });
-                                    }
-
-                                    if (!isOnline) {
-                                        axios.post(removeTrailingSlash(appUrl) + '/api/user/chat/notification/message/send', {
-                                            "user_id": receiverId,
-                                            "message": message
-                                        }).then(function(response) {
-                                            /*console.log(response.data);
-                                            console.log(response.status);
-                                            console.log(response.statusText);
-                                            console.log(response.headers);
-                                            console.log(response.config);*/
-                                        });
-                                    }
                                 });
 
                                 let sqlGetReceiverUser = "SELECT `id`, `name`, `user_name`, `email`, `profile` FROM `" + modelUsers + "` WHERE `id` = '" + receiverId + "' LIMIT 1";
@@ -413,6 +389,9 @@ io.on('connection', function (socket) {
 
                                     receiverData = resultChat[0];
                                     io.sockets.to(receiverRoomId).emit(messageRecieveEmitter, receiverData);
+
+                                    // Send push notification if user is not online.
+                                    sendPushNotifications(receiverId, senderId, message);
                                 });
                             });
                         });
@@ -870,4 +849,88 @@ function removeTrailingSlash(url)
 function buildAttachmentUrl(id, file)
 {
     return attachmentUrl + id + '/' + file;
+}
+
+async function sendPushNotifications(receiverId, senderId, message)
+{
+    var isOnline = false;
+
+    if (Object.keys(onlineUsers).length) {
+        Object.keys(onlineUsers).forEach(function(key) {
+            let value = onlineUsers[key];
+
+            if (value == receiverId) {
+                isOnline = true;
+
+                return false;
+            }
+        });
+    }
+
+    if (!isOnline) {
+        axios.post(removeTrailingSlash(appUrl) + '/api/user/chat/notification/message/send', {
+            "user_id": receiverId,
+            "message": message,
+            "from_user_id": senderId
+        }).then(function(response) {
+            /*console.log(response.data);
+            console.log(response.status);
+            console.log(response.statusText);
+            console.log(response.headers);
+            console.log(response.config);*/
+        }).catch(() => {});
+    }
+}
+
+function getRoomUsers(roomId)
+{
+    return new Promise((resolve, reject) => {
+        var roomUsers = [];
+
+        con.getConnection(async function(err16, connection) {
+            let sqlGetRoomUsers = "SELECT * FROM `" + modelChatRoomUsers + "` WHERE `chat_room_id` = '" + roomId + "' LIMIT 100";
+
+            connection.query(sqlGetRoomUsers, function (err17, getRoomUser) {
+                if (!err17) {
+                    getRoomUser.forEach(function(data, key) {
+                        roomUsers[key] = data.sender_id;
+                    });
+
+                    resolve(roomUsers);
+                }
+            });
+        });
+
+        // return roomUsers;
+    });
+}
+
+async function sendPushNotificationsGroup(roomId, senderId, message)
+{
+    /*var isOnline  = false,
+        roomUsers = await getRoomUsers(roomId);
+
+    if (Object.keys(onlineUsers).length) {
+        Object.keys(onlineUsers).forEach(function(key) {
+            let value = onlineUsers[key];
+
+            if (value.includes(roomUsers)) {
+                isOnline = true;
+
+                return false;
+            }
+        });
+    }*/
+
+    axios.post(removeTrailingSlash(appUrl) + '/api/user/chat/notification/message/group/send', {
+        "room_id": roomId,
+        "message": message,
+        "from_user_id": senderId
+    }).then(function(response) {
+        /*console.log(response.data);
+        console.log(response.status);
+        console.log(response.statusText);
+        console.log(response.headers);
+        console.log(response.config);*/
+    }).catch(() => {});
 }

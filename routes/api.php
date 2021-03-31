@@ -121,6 +121,7 @@ Route::group(['middleware' => ['web.auth.api']], function () {
 
             Route::group(['prefix' => 'notification'], function () {
                 Route::post('/message/send', 'ChatController@chatMessage')->name('user.notifications.chat.message.sent');
+                Route::post('/message/group/send', 'ChatController@chatMessageGroup')->name('user.notifications.chat.message.sent');
             });
         });
     });

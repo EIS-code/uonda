@@ -112,6 +112,9 @@ class User extends Authenticatable
     const IS_ADMIN = '1';
     const IS_USER = '0';
 
+    const IS_ONLINE     = '1';
+    const IS_NOT_ONLINE = '0';
+
     const ADMIN_DEVICE_TOKEN = 'admin';
 
     const DEVICE_TYPE_IOS       = 'ios';
@@ -239,6 +242,11 @@ class User extends Authenticatable
     public function getGenderAttribute($value)
     {
         return !empty($this->genders[$value]) ? $this->genders[$value] : $value;
+    }
+
+    public function getFullNameAttribute($value)
+    {
+        return $this->name . ' ' . $this->sur_name;
     }
 
     public function getBirthdayAttribute($value)
