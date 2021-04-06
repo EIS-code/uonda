@@ -56,7 +56,7 @@
                 <select name="type" id="type" class="form-control @error('type') is-invalid @enderror">
                     <option value="0">Please select type</option>
                     @foreach(Config::get('globalConstant.types') as $key => $type)
-                        <option value="{{ $key }}" {{ (!empty($feed->type) && $feed->type == $key) ? "Selected='selected'" : ''}}>{{ $type }}</option>
+                        <option value="{{ $key }}" {{ (!empty($feed->type) && strtolower($feed->type) == strtolower($type)) ? "Selected='selected'" : ''}}>{{ $type }}</option>
                     @endforeach
                 </select>
                 @error('type')
