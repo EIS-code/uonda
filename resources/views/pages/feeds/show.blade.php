@@ -41,15 +41,21 @@
                     @if(!empty($feed->attachment))
                     <tr>
                         <th> attachment Type </th>
-                        <td> {{ $feed->type != 0 ? Config::get('globalConstant.types')[$feed->type] : '-' }} </td>
+                        <td> {{ $feed->type }} </td>
                     </tr>
                     <tr>
                         <th> Cover Image </th>
                         <td> 
+                            @if($feed->type == 'video') 
+                            <video width="350" height="300" controls>
+                                <source src="{{ $feed->attachment }}" type="video/mp4">
+                            </video>
+                            @else 
                             <iframe frameborder="0" width="350" height="300"
                             src="{{ $feed->attachment }}" name="imgbox" id="imgbox">
                             <p>iframes are not supported by your browser.</p>
                             </iframe>
+                            @endif
                         </td>
                     </tr>
                     @endif

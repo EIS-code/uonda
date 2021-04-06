@@ -143,13 +143,13 @@ class FeedsController extends Controller
         if (array_key_exists('attachment', $data) && $data['attachment'] instanceof UploadedFile) {
             $attachment = $data['attachment'];
             if(!empty($prevAttachment)) {
-                $prevAttachment = explode('/', $prevAttachment)[4];
-                Storage::delete($feed->fileSystem . '/'. $feed->storageFolderName .'/' . $prevAttachment);
+                $prevAttachment = explode('/', $prevAttachment)[6];
+                Storage::delete($feed->fileSystem . '/'. $feed->storageFolderName .'/' . decrypt($id) . '/' . $prevAttachment);
             }
             $pathInfos = pathinfo($attachment->getClientOriginalName());
 
             if (!empty($pathInfos['extension'])) {
-                $folder = $feed->storageFolderName;
+                $folder = $feed->storageFolderName . '/' . decrypt($id);
 
                 if (!empty($folder)) {
                     $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
