@@ -514,8 +514,15 @@ class ChatController extends BaseController
                 });
             }
         }
+        $data = json_decode(json_encode($records), true);
+        foreach($data as $key => $record) {
+            $str = $record['attachment_name'];
+            $pos = strrpos($str, "_");
+            $ext = substr($record['attachment_name'], strrpos($str, "."));
+            $data[$key]['attachment_name'] = substr($record['attachment_name'], 0, $pos) . $ext;
+        }
 
-        return $this->returnSuccess(__('User chat history get successfully!'), $records);
+        return $this->returnSuccess(__('User chat history get successfully!'), $data);
     }
 
     public function removeChat(Request $request)
