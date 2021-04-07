@@ -17,7 +17,7 @@ class ChatAttachment extends BaseModel
      * @var array
      */
     protected $fillable = [
-        'mime_type', 'attachment', 'url', 'address', 'name', 'contacts', 'chat_id'
+        'mime_type', 'attachment', 'url', 'address', 'name', 'contacts', 'chat_id', 'original_attachment_name'
     ];
 
     public $fileSystem = 'public';

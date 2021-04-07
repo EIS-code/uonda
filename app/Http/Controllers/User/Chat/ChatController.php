@@ -180,6 +180,7 @@ class ChatController extends BaseController
                     $attachment = $data['attachment'];
                     $pathInfos  = pathinfo($data['attachment']->getClientOriginalName());
                     $mimeType   = $attachment->getClientMimeType();
+                    $original_attachment_name = $pathInfos['filename'] . '.' . $pathInfos['extension'];
 
                     if (!empty($pathInfos['extension'])) {
                         if ($pathInfos['extension'] == 'm4a') {
@@ -191,7 +192,7 @@ class ChatController extends BaseController
                         $storeFile = $attachment->storeAs($modelChatAttachment->folder . '\\' . $chatId, $fileName, $modelChatAttachment->fileSystem);
 
                         if ($storeFile) {
-                            $isInserted = $modelChatAttachment->create(['mime_type' => $mimeType, 'attachment' => $fileName, 'chat_id' => $chatId]);
+                            $isInserted = $modelChatAttachment->create(['mime_type' => $mimeType, 'attachment' => $fileName, 'chat_id' => $chatId, 'original_attachment_name' => $original_attachment_name]);
 
                             if ($isInserted) {
                                 // Send push notification if user is not online.
@@ -455,7 +456,7 @@ class ChatController extends BaseController
         }*/
 
         if (!empty($receiverId)) {
-            $records = DB::select("SELECT c.id, c.message, cru.sender_id, cru.receiver_id, c.created_at, c.updated_at, ca.mime_type, ca.attachment, ca.attachment as attachment_name, ca.url, ca.address, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' WHEN c.message != '' THEN 'text' ELSE NULL END AS message_type, u.name as user_name, u.profile, u.profile_icon
+            $records = DB::select("SELECT c.id, c.message, cru.sender_id, cru.receiver_id, c.created_at, c.updated_at, ca.mime_type, ca.attachment, ca.original_attachment_name as attachment_name, ca.url, ca.address, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' WHEN c.message != '' THEN 'text' ELSE NULL END AS message_type, u.name as user_name, u.profile, u.profile_icon
                     FROM `" . $modelChatRoomUsers::getTableName() . "` AS cru
                     JOIN `" . $modelChats::getTableName() . "` AS c ON cru.id = c.chat_room_user_id
                     JOIN `" . $modelChatRooms::getTableName() . "` AS cr ON cru.chat_room_id = cr.id
@@ -466,7 +467,7 @@ class ChatController extends BaseController
                     WHERE ((cru.`sender_id` = '" . $userId . "' AND cru.`receiver_id` = '" . $receiverId . "') OR (cru.`sender_id` = '" . $receiverId . "' AND cru.`receiver_id` = '" . $userId . "')) AND cr.is_group = '" . $modelChatRooms::IS_NOT_GROUP . "' AND cd.id IS NULL AND ubp.id IS NULL
                     ORDER BY c.updated_at ASC");
         } else {
-            $records = DB::select("SELECT c.id, c.message, cru.sender_id, cru.receiver_id, c.created_at, c.updated_at, ca.mime_type, ca.attachment, ca.attachment as attachment_name, ca.url, ca.address, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' WHEN c.message != '' THEN 'text' ELSE NULL END AS message_type, u.name as user_name, u.profile, u.profile_icon
+            $records = DB::select("SELECT c.id, c.message, cru.sender_id, cru.receiver_id, c.created_at, c.updated_at, ca.mime_type, ca.attachment, ca.original_attachment_name as attachment_name, ca.url, ca.address, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' WHEN c.message != '' THEN 'text' ELSE NULL END AS message_type, u.name as user_name, u.profile, u.profile_icon
                     FROM `" . $modelChatRoomUsers::getTableName() . "` AS cru
                     JOIN `" . $modelChats::getTableName() . "` AS c ON cru.id = c.chat_room_user_id
                     JOIN `" . $modelChatRooms::getTableName() . "` AS cr ON cru.chat_room_id = cr.id
@@ -514,15 +515,7 @@ class ChatController extends BaseController
                 });
             }
         }
-        $data = json_decode(json_encode($records), true);
-        foreach($data as $key => $record) {
-            $str = $record['attachment_name'];
-            $pos = strrpos($str, "_");
-            $ext = substr($record['attachment_name'], strrpos($str, "."));
-            $data[$key]['attachment_name'] = substr($record['attachment_name'], 0, $pos) . $ext;
-        }
-
-        return $this->returnSuccess(__('User chat history get successfully!'), $data);
+        return $this->returnSuccess(__('User chat history get successfully!'), $records);
     }
 
     public function removeChat(Request $request)
