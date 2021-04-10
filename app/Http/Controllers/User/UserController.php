@@ -913,4 +913,13 @@ class UserController extends BaseController
         }
         return $this->returnNull();
     }
+
+    //Function to logout the user
+    public function logoutUser(Request $request) {
+        if(!empty($request->user_id)) {
+            $model = ApiKey::where('user_id', $request->user_id)->delete();
+            return $this->returnSuccess(__('You are successfully logged out!'));
+        }
+        return $this->returnError(__('Something went wrong!'));
+    }
 }

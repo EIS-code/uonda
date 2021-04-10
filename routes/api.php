@@ -55,6 +55,8 @@ Route::group(['middleware' => ['web.auth.api']], function () {
 
         Route::post('/login', 'UserController@doLogin')->name('user.login');
 
+        Route::get('/logout', 'UserController@logoutUser')->name('user.logout');
+
         Route::group(['prefix' => 'profile'], function () {
              Route::post('/update', 'UserController@profileUpdate')->name('user.profile.update');
 
