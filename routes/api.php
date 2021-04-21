@@ -27,6 +27,8 @@ Route::group(['middleware' => ['web.auth.api']], function () {
             Route::get('/country', 'LocationController@getCountry')->name('getCountry');
             Route::post('/state', 'LocationController@getState')->name('getState');
             Route::post('/city', 'LocationController@getCity')->name('getCity');
+            Route::post('/cities-with-user-count', 'LocationController@getCitiesWithUserCount')->name('getCityWithUserCount');
+            Route::post('/users-based-on-cities', 'LocationController@getUsersBasedOnCity')->name('getUsersBasedOnCity');
         });
     });
 
