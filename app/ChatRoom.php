@@ -15,7 +15,7 @@ class ChatRoom extends BaseModel
      * @var array
      */
     protected $fillable = [
-        'uuid', 'title', 'group_icon', 'group_icon_actual', 'is_group', 'created_by_admin', 'created_by'
+        'uuid', 'title', 'group_icon', 'group_icon_actual', 'is_group', 'created_by_admin', 'created_by' , 'group_type', 'city_id', 'country_id'
     ];
 
     protected $appends = ['encrypted_chat_id'];

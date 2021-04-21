@@ -922,4 +922,151 @@ class UserController extends BaseController
         }
         return $this->returnError(__('Something went wrong!'));
     }
+
+    public function getUserExplore(Request $request)
+    {
+        $model       = new User();
+        $schoolModel = new School();
+        $cityModel   = new City();
+        $userBlockProfilesModel = new UserBlockProfile();
+        $data        = $request->all();
+
+        $userId = !empty($data['user_id']) ? (int)$data['user_id'] : false;
+
+        // Check proper latitude & longitude
+        $latitude = false;
+        if (!empty($data['latitude']) && preg_match('/^[-]?(([0-8]?[0-9])\.(\d+))|(90(\.0+)?)$/', $data['latitude'])) {
+            $latitude = $data['latitude'];
+        }
+
+        $longitude = false;
+        if (!empty($data['longitude']) && preg_match('/^[-]?((((1[0-7][0-9])|([0-9]?[0-9]))\.(\d+))|180(\.0+)?)$/', $data['longitude'])) {
+            $longitude = $data['longitude'];
+        }
+
+        $query            = $model::query();
+        $selectStatements = "{$model->getTableName()}.id, {$model->getTableName()}.name, {$model->getTableName()}.user_name, {$model->getTableName()}.profile, {$schoolModel::getTableName()}.name as school, {$model->getTableName()}.latitude, {$model->getTableName()}.longitude, {$model->getTableName()}.current_location, {$cityModel::getTableName()}.name as city, {$model->getTableName()}.job_position, {$model->getTableName()}.company , {$model->getTableName()}.university, {$model->getTableName()}.is_online";
+
+        /*$schoolName = $request->get('school_name', false);
+        if (!empty($schoolName)) {
+            $query->join($schoolModel::getTableName(), $model->getTableName() . '.school_id', '=', $schoolModel::getTableName() . '.id');
+            $query->where($schoolModel::getTableName() . '.name', 'LIKE', '%' . $schoolName . '%');
+        }*/
+
+        $schoolId = $request->get('school_id', false);
+        if (!empty($schoolId)) {
+            $query->where($model->getTableName() . '.school_id', $schoolId);
+        }
+
+        $fieldOfStudy = $request->get('field_of_study', false);
+        if (!empty($fieldOfStudy)) {
+            $query->where($model->getTableName() . '.field_of_study', 'LIKE', '%' . $fieldOfStudy . '%');
+        }
+
+        $jobPosition = $request->get('job_position', false);
+        if (!empty($jobPosition)) {
+            $query->where($model->getTableName() . '.job_position', 'LIKE', '%' . $jobPosition . '%');
+        }
+
+        $company = $request->get('company', false);
+        if (!empty($company)) {
+            $query->where($model->getTableName() . '.company', 'LIKE', '%' . $company . '%');
+        }
+
+        $university = $request->get('university', false);
+        if (!empty($university)) {
+            $query->where($model->getTableName() . '.university', 'LIKE', '%' . $university . '%');
+        }
+
+        $type = $request->get('type', false);
+        if (!empty($type)) {
+            $keyword = $request->get('keyword', false);
+
+            // if (!empty($keyword)) {}
+            switch($type) {
+                case "school":
+                    $latitude = $longitude = false;
+
+                    $query->where($schoolModel::getTableName() . '.name', 'LIKE', '%' . $keyword . '%');
+                    break;
+                case "location":
+                    $latitude = $longitude = false;
+                    break;
+                case 'job_position':
+                    $latitude = $longitude = false;
+
+                    $query->where($model->getTableName() . '.job_position', 'LIKE', '%' . $keyword . '%');
+                    break;
+                case 'company':
+                    $latitude = $longitude = false;
+
+                    $query->where($model->getTableName() . '.company', 'LIKE', '%' . $keyword . '%');
+                    break;
+                case 'university':
+                    $latitude = $longitude = false;
+
+                    $query->where($model->getTableName() . '.university', 'LIKE', '%' . $keyword . '%');
+                    break;
+                case "person":
+                    if ($type == "person") {
+                        $latitude = $longitude = false;
+                    }
+
+                    $query->where(function($query) use($model, $keyword) {
+                        $query->where($model->getTableName() . '.name', 'LIKE', '%' . $keyword . '%')
+                              ->orWhere($model->getTableName() . '.email', 'LIKE', '%' . $keyword . '%')
+                              ->orWhere($model->getTableName() . '.user_name', 'LIKE', '%' . $keyword . '%');
+                    });
+                    break;
+            }
+        }
+
+        // 1609 for convert to miles.
+        $distance  = (int)(defined('EXPLORE_DISTANCE') ? EXPLORE_DISTANCE : 500) / 1609;
+
+        if ($latitude && $longitude) {
+            $selectStatements .= "
+                , SQRT(
+                POW(69.1 * (latitude - {$latitude}), 2) +
+                POW(69.1 * ({$longitude} - longitude) * COS(latitude / 57.3), 2)) AS miles
+            ";
+
+            $query->having('miles', '<=', $distance);
+        }
+
+        $query->join($schoolModel::getTableName(), $model->getTableName() . '.school_id', '=', $schoolModel::getTableName() . '.id');
+        $query->leftJoin($userBlockProfilesModel::getTableName(), function($leftJoin) use($model, $userBlockProfilesModel, $userId) {
+            $leftJoin->on($model->getTableName() . '.id', '=', $userBlockProfilesModel::getTableName() . '.user_id')
+                     ->where($userBlockProfilesModel::getTableName() . '.is_block', (string)$userBlockProfilesModel::IS_BLOCK)
+                     ->where(function($where) use($model, $userBlockProfilesModel, $userId) {
+                        $where->where($userBlockProfilesModel::getTableName() . '.user_id', '=', $userId)
+                              ->orWhere($userBlockProfilesModel::getTableName() . '.blocked_by', '=', $userId);
+                     });
+        });
+        $query->leftJoin($cityModel::getTableName(), $model->getTableName() . '.city_id', '=', $cityModel::getTableName() . '.id');
+
+        $query->whereNull($userBlockProfilesModel::getTableName() . '.id');
+
+        $query->where($model->getTableName() . '.id', '!=', $userId);
+
+        $query->where($model->getTableName() . '.id', '!=', $model::IS_ADMIN);
+
+        
+        if(isset($data['per_page'])) {
+            $query->paginate($data['per_page']);
+        } else {
+            $query->paginate(10);
+        }
+        
+
+        $records = $query->selectRaw($selectStatements)->get();
+
+        if (!empty($records) && !$records->isEmpty()) {
+            $records->makeHidden(['permissions', 'encrypted_user_id']);
+
+            return $this->returnSuccess(__('Users found successfully!'), $records);
+        }
+
+        return $this->returnNull();
+    }
 }

@@ -90,6 +90,7 @@ Route::group(['middleware' => ['web.auth.api']], function () {
 
         Route::group(['prefix' => 'explore'], function () {
             Route::post('/', 'UserController@getExplore')->name('user.explore.get');
+            Route::post('/user', 'UserController@getUserExplore');
         });
 
         Route::post('/location', 'UserController@updateLocation')->name('user.location.update');
