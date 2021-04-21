@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Email;
+use App\Image;
 use Illuminate\Support\Facades\Mail;
 use View;
 use Carbon\Carbon;
@@ -115,5 +116,12 @@ class BaseController extends Controller
                 'msg'  => __('Email sent successfully !')
             ]);
         }
+    }
+
+    public function getImages()
+    {
+        $count = request()->get('count', 50);
+
+        return Image::limit($count)->get();
     }
 }

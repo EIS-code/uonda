@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Auth::routes(['register' => false, 'reset' => false]);
+Auth::routes(['register' => false]);
 Route::get('/get-states/{id}', 'Admin\SchoolController@getStateDetails')->name('get-states');
 Route::get('/get-cities/{id}', 'Admin\SchoolController@getCitiesDetails')->name('get-cities');
 
@@ -25,6 +25,25 @@ Route::group(['middleware' => ['auth']], function(){
     Route::resource('promo-codes', 'Admin\PromoCodeController');
     Route::resource('groups', 'Admin\GroupsController');
     Route::resource('schools', 'Admin\SchoolController');
+    Route::resource('chats', 'Admin\ChatController');
+    Route::resource('country', 'Admin\CountryController');
+    Route::resource('state', 'Admin\StateController');
+    Route::resource('city', 'Admin\CityController');
+    Route::resource('settings', 'Admin\SettingController');
+    Route::get('blocked-users', 'Admin\UserController@showBlockedUser')->name('blocked-users');
+    Route::resource('emails', 'Admin\EmailController');
+    Route::resource('reports-questions', 'Admin\UserReportsQuestionController');
+    Route::get('users-reports', 'Admin\UserReportsQuestionController@showUserReports')->name('users-reports');
+    Route::resource('promotions', 'Admin\PromotionController');
+
+    Route::group(['prefix' => 'user', 'namespace' => 'User'], function () {
+        Route::group(['prefix' => 'chat', 'namespace' => 'Chat'], function () {
+            Route::get('/', 'ChatController@index');
+        });
+    });
+
+    Route::get('/users-list/{type}', 'Admin\UserController@index')->name('users.index');
+
     Route::get('/profile', 'Admin\AdminController@editProfile')->name('profile');
     Route::post('/profile-update', 'Admin\AdminController@updateProfile')->name('profile-update');
 });

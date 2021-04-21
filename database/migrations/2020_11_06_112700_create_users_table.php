@@ -17,9 +17,9 @@ class CreateUsersTable extends Migration
             $table->id();
             $table->string('name');
             $table->string('user_name')->nullable();
-            $table->string('email')->unique();
+            $table->string('email')->unique()->nullable();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            $table->string('password')->nullable();
             $table->string('referral_code')->nullable();
             $table->text('current_location')->nullable();
             $table->string('nation')->nullable();
@@ -29,6 +29,8 @@ class CreateUsersTable extends Migration
             $table->foreign('school_id')->references('id')->on('schools')->onDelete('cascade');
             $table->bigInteger('country_id')->unsigned()->nullable();
             $table->foreign('country_id')->references('id')->on('countries')->onDelete('cascade');
+            $table->bigInteger('state_id')->unsigned();
+            $table->foreign('state_id')->references('id')->on('states')->onDelete('cascade');
             $table->bigInteger('city_id')->unsigned()->nullable();
             $table->foreign('city_id')->references('id')->on('cities')->onDelete('cascade');
             $table->enum('current_status', ['0', '1', '2', '3'])->nullable()->default('0')->comment('0: None, 1: Working, 2: Studying, 3: Chilling');

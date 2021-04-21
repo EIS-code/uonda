@@ -14,7 +14,7 @@ class UserReport extends BaseModel
      * @var array
      */
     protected $fillable = [
-        'answer', 'user_report_question_id', 'user_id'
+        'answer', 'user_report_question_id', 'user_id', 'reported_by'
     ];
 
     public function validator(array $data, $returnBoolsOnly = false)
@@ -55,7 +55,8 @@ class UserReport extends BaseModel
         $validator = Validator::make($data, [
             'answer'                  => array_merge(['required'], $answer),
             'user_report_question_id' => ['required', 'integer', 'exists:' . (new UserReportQuestion())->getTableName() . ',id'],
-            'user_id'                 => ['required', 'integer', 'exists:' . (new User())->getTableName() . ',id']
+            'user_id'                 => ['required', 'integer', 'exists:' . (new User())->getTableName() . ',id'],
+            'reported_by'             => ['required', 'integer', 'exists:' . (new User())->getTableName() . ',id']
         ]);
 
         if ($returnBoolsOnly === true) {
@@ -67,5 +68,15 @@ class UserReport extends BaseModel
         }
 
         return $validator;
+    }
+
+    public function ReportQuestions()
+    {
+        return $this->belongsTo('App\UserReportQuestion', 'user_report_question_id', 'id');
+    }
+
+    public function User()
+    {
+        return $this->belongsTo('App\User', 'user_id', 'id');
     }
 }

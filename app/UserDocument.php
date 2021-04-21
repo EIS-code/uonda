@@ -5,9 +5,12 @@ namespace App;
 use App\User;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class UserDocument extends BaseModel
 {
+    use SoftDeletes;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -40,8 +43,27 @@ class UserDocument extends BaseModel
     {
         $validator = Validator::make($data, [
             'document_type' => ['required', 'in:' . implode(",", array_keys($this->documentTypes))],
-            'document'      => ['required', 'mimes:' . implode(",", $this->allowedExtensions), 'max:255'],
+            'document'      => ['required', 'mimes:' . implode(",", $this->allowedExtensions)],
             'user_id'       => ['required', 'integer', 'exists:' . (new User())->getTableName() . ',id']
+        ]);
+
+        if ($returnBoolsOnly === true) {
+            if ($validator->fails()) {
+                \Session::flash('error', $validator->errors()->first());
+            }
+
+            return !$validator->fails();
+        }
+
+        return $validator;
+    }
+
+    public function validators(array $data, $returnBoolsOnly = false)
+    {
+        $validator = Validator::make($data, [
+            'document_types.*' => ['required', 'in:' . implode(",", array_keys($this->documentTypes))],
+            'documents.*'      => ['required', 'mimes:' . implode(",", $this->allowedExtensions)],
+            'user_id'          => ['required', 'integer', 'exists:' . (new User())->getTableName() . ',id']
         ]);
 
         if ($returnBoolsOnly === true) {

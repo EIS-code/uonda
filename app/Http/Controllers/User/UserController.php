@@ -9,10 +9,14 @@ use App\UserDocument;
 use App\UserSetting;
 use App\City;
 use App\School;
+use App\ApiKey;
+use App\UserBlockProfile;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\UploadedFile;
 use Carbon\Carbon;
 use DB;
+use Intervention\Image\ImageManagerStatic as Image;
+use Illuminate\Support\Facades\Storage;
 
 class UserController extends BaseController
 {
@@ -44,6 +48,7 @@ class UserController extends BaseController
 
                         if (!empty($pathInfos['extension'])) {
                             $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                            $fileName  = removeSpaces($fileName);
                             $storeFile = $documentGraduation->storeAs($modelDocument->graduation, $fileName, $modelDocument->fileSystem);
 
                             if ($storeFile) {
@@ -61,6 +66,7 @@ class UserController extends BaseController
 
                         if (!empty($pathInfos['extension'])) {
                             $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                            $fileName  = removeSpaces($fileName);
                             $storeFile = $documentStudentIdCard->storeAs($modelDocument->studentIdCard, $fileName, $modelDocument->fileSystem);
 
                             if ($storeFile) {
@@ -78,6 +84,7 @@ class UserController extends BaseController
 
                         if (!empty($pathInfos['extension'])) {
                             $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                            $fileName  = removeSpaces($fileName);
                             $storeFile = $documentPhotoInUniform->storeAs($modelDocument->photoInUniform, $fileName, $modelDocument->fileSystem);
 
                             if ($storeFile) {
@@ -95,6 +102,7 @@ class UserController extends BaseController
 
                         if (!empty($pathInfos['extension'])) {
                             $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                            $fileName  = removeSpaces($fileName);
                             $storeFile = $documentClassPhoto->storeAs($modelDocument->classPhoto, $fileName, $modelDocument->fileSystem);
 
                             if ($storeFile) {
@@ -118,6 +126,8 @@ class UserController extends BaseController
 
         $data['personal_flag'] = $model::PERSONAL_FLAG_DONE;
 
+        $data['oauth_provider'] = !empty($data['oauth_provider']) ? (string)$data['oauth_provider'] : $model::OAUTH_NONE;
+
         $validator = $model->validator($data);
 
         if ($validator->fails()) {
@@ -128,13 +138,44 @@ class UserController extends BaseController
 
         $create = $model->create($data);
 
+        if (!empty($data['profile']) && $data['profile'] instanceof UploadedFile) {
+            $profile   = $data['profile'];
+            $pathInfos = pathinfo($profile->getClientOriginalName());
+        
+            if (!empty($pathInfos['extension'])) {
+                $folder     = $model->profile;
+                $folderIcon = $model->profileIcon;
+        
+                if (!empty($folder)) {
+                    $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                    $fileName  = removeSpaces($fileName);
+                    $storeFile = $profile->storeAs($folder, $fileName, $model->fileSystem);
+        
+                    if ($storeFile) {
+                        // Set 100 x 100 px icon for later use for example in Chats.
+                        $profileIcon = Image::make($profile)->fit(100)->encode($pathInfos['extension']);
+        
+                        if ($profileIcon) {
+                            $iconName  = time() . '.png';
+                            $storeIcon = Storage::disk($model->fileSystem)->put($folderIcon . '\\' . $iconName, $profileIcon->__toString());
+        
+                            if ($storeIcon) {
+                                $create->update(['profile_icon' => $iconName]);
+                            }
+                        }
+                        $create->update(['profile' => $fileName]);
+                    }
+                }
+            }
+        }
+
         if ($create) {
             $userId = $create->id;
 
             // Privacy
             UserSetting::create(['user_id' => $userId, 'user_name' => UserSetting::CONSTS_PRIVATE, 'email' => UserSetting::CONSTS_PRIVATE, 'notification' => UserSetting::NOTIFICATION_ON]);
 
-            return $this->returnSuccess(__('User personal details saved successfully!'), $this->getDetails($userId));
+            return $this->returnSuccess(__('User personal details saved successfully!'), $this->getDetails($userId, false, true));
         }
 
         return $this->returnError(__('Something went wrong!'));
@@ -198,11 +239,12 @@ class UserController extends BaseController
             'name'             => ['nullable'],
             'password'         => ['nullable'],
             'email'            => ['nullable'],
-            'current_location' => ['required'],
-            'nation'           => ['required'],
+            'current_location' => ['nullable'],
+            'nation'           => ['nullable'],
             'gender'           => ['required'],
             'birthday'         => ['nullable'],
             'country_id'       => ['nullable'],
+            'state_id'         => ['nullable'],
             'city_id'          => ['nullable']
         ], $extraRequired);
 
@@ -222,21 +264,23 @@ class UserController extends BaseController
 
         $user = $model::find($data['user_id']);
 
-        $user->current_location = $data['current_location'];
-        $user->nation           = $data['nation'];
+        // $user->current_location = $data['current_location'];
+        // $user->nation           = $data['nation'];
         $user->gender           = $data['gender'];
-        $user->birthday         = !empty($data['birthday']) ? Carbon::createFromTimestamp($data['birthday'])->toDateTime() : NULL;
-        $user->current_status   = isset($data['current_status']) ? (int)$data['current_status'] : 0;
+        $user->birthday         = !empty($data['birthday']) ? $data['birthday'] : NULL;
+        $user->current_status   = isset($data['current_status']) ? ''.$data['current_status'] : '0';
         $user->company          = !empty($data['company']) ? $data['company'] : NULL;
         $user->job_position     = !empty($data['job_position']) ? $data['job_position'] : NULL;
         $user->university       = !empty($data['university']) ? $data['university'] : NULL;
         $user->field_of_study   = !empty($data['field_of_study']) ? $data['field_of_study'] : NULL;
         $user->other_flag       = $model::OTHER_FLAG_DONE;
-        $user->country_id       = !empty($data['country_id']) ? $data['country_id'] : NULL;
-        $user->city_id          = !empty($data['city_id']) ? $data['city_id'] : NULL;
-
+        // $user->country_id       = !empty($data['country_id']) ? $data['country_id'] : NULL;
+        // $user->state_id         = !empty($data['state_id']) ? $data['state_id'] : NULL;
+        // $user->city_id          = !empty($data['city_id']) ? $data['city_id'] : NULL;
         if ($user->save()) {
-            return $this->returnSuccess(__('User other details saved successfully!'), $this->getDetails($user->id));
+            $data = $this->getDetails($user->id);
+            $data->api_key = ApiKey::generateKey($user->id);
+            return $this->returnSuccess(__('User other details saved successfully!'), $data);
         }
 
         return $this->returnError(__('Something went wrong!'));
@@ -275,6 +319,7 @@ class UserController extends BaseController
 
                 if (!empty($folder)) {
                     $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                    $fileName  = removeSpaces($fileName);
                     $storeFile = $document->storeAs($folder, $fileName, $model->fileSystem);
 
                     if ($storeFile) {
@@ -291,39 +336,151 @@ class UserController extends BaseController
         return $this->returnError(__('Something went wrong!'));
     }
 
+    public function registrationDocuments(Request $request)
+    {
+        $data  = $request->all();
+        $model = new UserDocument();
+
+        $userId        = !empty($data['user_id']) ? (int)$data['user_id'] : false;
+        $documents     = !empty($data['document']) ? (array)$data['document'] : [];
+        $documentTypes = (!empty($documents)) ? array_keys($documents) : [];
+        $save          = false;
+
+        $validators = $model->validators(['document_types' => $documentTypes, 'documents' => $documents, 'user_id' => $userId]);
+
+        if ($validators->fails()) {
+            return $this->returnError($validators->errors()->first());
+        }
+
+        foreach ($documents as $documentType => $document) {
+            $documentType = (string)$documentType;
+
+            if ($document instanceof UploadedFile) {
+                $pathInfos = pathinfo($document->getClientOriginalName());
+
+                if (!empty($pathInfos['extension'])) {
+                    $folder = false;
+
+                    if ($documentType == $model::GRADUATION_CERTIFICATE) {
+                        $folder = $model->graduation;
+                    } elseif ($documentType == $model::STUDENT_ID_CARD) {
+                        $folder = $model->studentIdCard;
+                    } elseif ($documentType == $model::PHOTO_IN_UNIFORM) {
+                        $folder = $model->photoInUniform;
+                    } elseif ($documentType == $model::CLASS_PHOTO) {
+                        $folder = $model->classPhoto;
+                    }
+
+                    if (!empty($folder)) {
+                        $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                        $fileName  = removeSpaces($fileName);
+                        $storeFile = $document->storeAs($folder, $fileName, $model->fileSystem);
+
+                        if ($storeFile) {
+                            $save = $model->updateOrCreate(['document_type' => $documentType, 'user_id' => $userId], ['document_type' => $documentType, 'document' => $fileName, 'user_id' => $userId]);
+                        }
+                    }
+                }
+            }
+        }
+
+        if ($save) {
+            return $this->returnSuccess(__('User documents saved successfully!'), $this->getDetails($userId));
+        }
+
+        return $this->returnError(__('Something went wrong!'));
+    }
+
     public function doLogin(Request $request)
     {
         $model = new User();
         $data  = $request->all();
 
+        $oauthId  = !empty($data['oauth_uid']) ? $data['oauth_uid'] : NULL;
         $userName = !empty($data['username']) ? $data['username'] : NULL;
         $password = !empty($data['password']) ? $data['password'] : NULL;
 
-        if (empty($userName) || empty($password)) {
+        // Check username & password.
+        $if     = ((empty($userName) || empty($password)) && empty($oauthId));
+        $elseif = (empty($oauthId) && (empty($userName) || empty($password)));
+
+        if ($if) {
             return $this->returnError(__('Username or Password is incorrect.'));
+        } elseif ($elseif) {
+            return $this->returnError(__('Oauth uid is incorrect.'));
         }
 
-        $user = $model->where('email', $userName)->first();
+        $isUserNamePasswordLogin = (!empty($userName) && !empty($password) || empty($oauthId));
+        $isOauthLogin            = (!$isUserNamePasswordLogin && (empty($userName) || empty($password)) && !empty($oauthId));
 
-        if (!empty($user) && Hash::check($password, $user->password)) {
-            return $this->returnSuccess(__('Logged in successfully!'), $this->getDetails($user->id));
+        if ($isUserNamePasswordLogin) {
+            $user = $model->where('email', $userName)->first();
+        } elseif ($isOauthLogin) {
+            $user = $model->where('oauth_uid', $oauthId)->first();
+        }
+
+        $check = false;
+
+        if (!empty($user)) {
+            if ($isUserNamePasswordLogin) {
+                $check = ((string)$user->email === (string)$userName && Hash::check($password, $user->password));
+            } elseif ($isOauthLogin) {
+                $check = (string)$user->oauth_uid === (string)$oauthId;
+            }
+        }
+
+        if ($check === true) {
+            // Generate API key.
+            ApiKey::generateKey($user->id);
+
+            // Set device informations if request having.
+            $data['user_id'] = $user->id;
+            $model::setDeviceInfos($data);
+
+            return $this->returnSuccess(__('Logged in successfully!'), $this->getDetails($user->id, false, true));
+        } elseif ($isOauthLogin) {
+            $this->errorCode = 402;
+
+            return $this->returnError(__('OauthId is incorrect.'));
         }
 
         return $this->returnError(__('Username or Password is incorrect.'));
     }
 
-    public function getDetails(int $userId, $isApi = false)
+    public function getDetails(int $userId, $isApi = false, $apiKey = false)
     {
         $model = new User();
+        $requestedUserId = request()->get('user_id', false);
 
         if (empty($userId) || !is_numeric($userId)) {
             return $this->returnError(__('User id seems incorrect.'));
         }
 
-        $user = $model::with('userDocuments')->find($userId);
+        if ($model->isBlocked($requestedUserId, $userId)) {
+            return $this->returnError(__('This profile blocked by user.'));
+        }
 
+        $user = $model::with(['userDocuments','userPermission'])->find($userId);
+        
         if (!empty($user)) {
+            if ($apiKey) {
+                // Generate API key.
+                ApiKey::generateKey($userId);
+
+                array_push($user->appends, 'api_key');
+            }
+
+            array_push($user->appends, 'country_name');
+            array_push($user->appends, 'state_name');
+            array_push($user->appends, 'city_name');
+            array_push($user->appends, 'school_name');
+            array_push($user->appends, 'origin_country_name');
+            array_push($user->appends, 'origin_city_name');
+
             if ($isApi) {
+                // Set device informations if request having.
+                $model::setDeviceInfos(request()->all());
+
                 return $this->returnSuccess(__('User details get successfully!'), $user);
             }
 
@@ -349,7 +506,7 @@ class UserController extends BaseController
         $userId = (int)$data['user_id'];
 
         $user = $model::select('id', 'personal_flag', 'school_flag', 'other_flag')->with('userDocuments')->find($userId);
-
+        $user->api_key = ApiKey::generateKey($user->id);
         if (!empty($user)) {
             $user->makeVisible(['personal_flag', 'school_flag', 'other_flag']);
 
@@ -408,7 +565,78 @@ class UserController extends BaseController
             }
 
             if ($user->save()) {
-                return $this->returnSuccess(__('User profile details updated successfully!'), $this->getDetails($user->id));
+                $msg = NULL;
+                $modelDocument = new UserDocument();
+
+                if (isset($data['document_type']) && array_key_exists($data['document_type'], $modelDocument->documentTypes)) {
+                    $document = $data['document'];
+
+                    if ($document instanceof UploadedFile) {
+                        $pathInfos = pathinfo($document->getClientOriginalName());
+
+                        if (!empty($pathInfos['extension'])) {
+                            $folder = false;
+
+                            if ($data['document_type'] == $modelDocument::GRADUATION_CERTIFICATE) {
+                                $folder = $modelDocument->graduation;
+                            } elseif ($data['document_type'] == $modelDocument::STUDENT_ID_CARD) {
+                                $folder = $modelDocument->studentIdCard;
+                            } elseif ($data['document_type'] == $modelDocument::PHOTO_IN_UNIFORM) {
+                                $folder = $modelDocument->photoInUniform;
+                            } elseif ($data['document_type'] == $modelDocument::CLASS_PHOTO) {
+                                $folder = $modelDocument->classPhoto;
+                            }
+
+                            if (!empty($folder)) {
+                                $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                                $fileName  = removeSpaces($fileName);
+                                $storeFile = $document->storeAs($folder, $fileName, $modelDocument->fileSystem);
+
+                                if ($storeFile) {
+                                    $save = $modelDocument->updateOrCreate(['document_type' => $data['document_type'], 'user_id' => $userId], ['document_type' => $data['document_type'], 'document' => $fileName, 'user_id' => $userId]);
+
+                                    if ($save) {
+                                        $msg = __(' with user document');
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if (!empty($data['profile']) && $data['profile'] instanceof UploadedFile) {
+                    $profile   = $data['profile'];
+                    $pathInfos = pathinfo($profile->getClientOriginalName());
+
+                    if (!empty($pathInfos['extension'])) {
+                        $folder     = $model->profile;
+                        $folderIcon = $model->profileIcon;
+
+                        if (!empty($folder)) {
+                            $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                            $fileName  = removeSpaces($fileName);
+                            $storeFile = $profile->storeAs($folder, $fileName, $model->fileSystem);
+
+                            if ($storeFile) {
+                                // Set 100 x 100 px icon for later use for example in Chats.
+                                $profileIcon = Image::make($profile)->fit(100)->encode($pathInfos['extension']);
+
+                                if ($profileIcon) {
+                                    $iconName  = time() . '.png';
+                                    $storeIcon = Storage::disk($model->fileSystem)->put($folderIcon . '\\' . $iconName, $profileIcon->__toString());
+
+                                    if ($storeIcon) {
+                                        $user->update(['profile_icon' => $iconName]);
+                                    }
+                                }
+
+                                $user->update(['profile' => $fileName]);
+                            }
+                        }
+                    }
+                }
+
+                return $this->returnSuccess(__('User profile details updated successfully') . $msg . '!', $this->getDetails($user->id));
             }
         }
 
@@ -442,7 +670,11 @@ class UserController extends BaseController
     {
         $model       = new User();
         $schoolModel = new School();
+        $cityModel   = new City();
+        $userBlockProfilesModel = new UserBlockProfile();
         $data        = $request->all();
+
+        $userId = !empty($data['user_id']) ? (int)$data['user_id'] : false;
 
         // Check proper latitude & longitude
         $latitude = false;
@@ -456,20 +688,7 @@ class UserController extends BaseController
         }
 
         $query            = $model::query();
-        $selectStatements = $model->getTableName() . '.*';
-
-        // 1609 for convert to miles.
-        $distance  = (int)(defined('EXPLORE_DISTANCE') ? EXPLORE_DISTANCE : 500) / 1609;
-
-        if ($latitude && $longitude) {
-            $selectStatements = "
-                {$model->getTableName()}.*, SQRT(
-                POW(69.1 * (latitude - {$latitude}), 2) +
-                POW(69.1 * ({$longitude} - longitude) * COS(latitude / 57.3), 2)) AS miles
-            ";
-
-            $query->having('miles', '<=', $distance);
-        }
+        $selectStatements = "{$model->getTableName()}.id, {$model->getTableName()}.name, {$model->getTableName()}.user_name, {$model->getTableName()}.profile, {$schoolModel::getTableName()}.name as school, {$model->getTableName()}.latitude, {$model->getTableName()}.longitude, {$model->getTableName()}.current_location, {$cityModel::getTableName()}.name as city, {$model->getTableName()}.job_position, {$model->getTableName()}.company , {$model->getTableName()}.university, {$model->getTableName()}.is_online";
 
         /*$schoolName = $request->get('school_name', false);
         if (!empty($schoolName)) {
@@ -502,9 +721,84 @@ class UserController extends BaseController
             $query->where($model->getTableName() . '.university', 'LIKE', '%' . $university . '%');
         }
 
+        $type = $request->get('type', false);
+        if (!empty($type)) {
+            $keyword = $request->get('keyword', false);
+
+            // if (!empty($keyword)) {}
+            switch($type) {
+                case "school":
+                    $latitude = $longitude = false;
+
+                    $query->where($schoolModel::getTableName() . '.name', 'LIKE', '%' . $keyword . '%');
+                    break;
+                case "location":
+                    $latitude = $longitude = false;
+                    break;
+                case 'job_position':
+                    $latitude = $longitude = false;
+
+                    $query->where($model->getTableName() . '.job_position', 'LIKE', '%' . $keyword . '%');
+                    break;
+                case 'company':
+                    $latitude = $longitude = false;
+
+                    $query->where($model->getTableName() . '.company', 'LIKE', '%' . $keyword . '%');
+                    break;
+                case 'university':
+                    $latitude = $longitude = false;
+
+                    $query->where($model->getTableName() . '.university', 'LIKE', '%' . $keyword . '%');
+                    break;
+                case "person":
+                    if ($type == "person") {
+                        $latitude = $longitude = false;
+                    }
+
+                    $query->where(function($query) use($model, $keyword) {
+                        $query->where($model->getTableName() . '.name', 'LIKE', '%' . $keyword . '%')
+                              ->orWhere($model->getTableName() . '.email', 'LIKE', '%' . $keyword . '%')
+                              ->orWhere($model->getTableName() . '.user_name', 'LIKE', '%' . $keyword . '%');
+                    });
+                    break;
+            }
+        }
+
+        // 1609 for convert to miles.
+        $distance  = (int)(defined('EXPLORE_DISTANCE') ? EXPLORE_DISTANCE : 500) / 1609;
+
+        if ($latitude && $longitude) {
+            $selectStatements .= "
+                , SQRT(
+                POW(69.1 * (latitude - {$latitude}), 2) +
+                POW(69.1 * ({$longitude} - longitude) * COS(latitude / 57.3), 2)) AS miles
+            ";
+
+            $query->having('miles', '<=', $distance);
+        }
+
+        $query->join($schoolModel::getTableName(), $model->getTableName() . '.school_id', '=', $schoolModel::getTableName() . '.id');
+        $query->leftJoin($userBlockProfilesModel::getTableName(), function($leftJoin) use($model, $userBlockProfilesModel, $userId) {
+            $leftJoin->on($model->getTableName() . '.id', '=', $userBlockProfilesModel::getTableName() . '.user_id')
+                     ->where($userBlockProfilesModel::getTableName() . '.is_block', (string)$userBlockProfilesModel::IS_BLOCK)
+                     ->where(function($where) use($model, $userBlockProfilesModel, $userId) {
+                        $where->where($userBlockProfilesModel::getTableName() . '.user_id', '=', $userId)
+                              ->orWhere($userBlockProfilesModel::getTableName() . '.blocked_by', '=', $userId);
+                     });
+        });
+        $query->leftJoin($cityModel::getTableName(), $model->getTableName() . '.city_id', '=', $cityModel::getTableName() . '.id');
+
+        $query->whereNull($userBlockProfilesModel::getTableName() . '.id');
+
+        $query->where($model->getTableName() . '.id', '!=', $userId);
+
+        $query->where($model->getTableName() . '.id', '!=', $model::IS_ADMIN);
+
         $records = $query->selectRaw($selectStatements)->get();
 
         if (!empty($records) && !$records->isEmpty()) {
+            $records->makeHidden(['permissions', 'encrypted_user_id']);
+
             return $this->returnSuccess(__('Users found successfully!'), $records);
         }
 
@@ -543,6 +837,89 @@ class UserController extends BaseController
             return $this->returnSuccess(__('User locations saved successfully!'), $this->getDetails($user->id));
         }
 
+        return $this->returnError(__('Something went wrong!'));
+    }
+
+    public function removeDocument(Request $request)
+    {
+        $model  = new UserDocument();
+        $data   = $request->all();
+        $userId = !empty($data['user_id']) ? (int)$data['user_id'] : false;
+        $id     = !empty($data['id']) ? (int)$data['id']: false;
+
+        if (empty($userId)) {
+            return $this->returnError(__('User id seems incorrect.'));
+        }
+
+        if (empty($id)) {
+            return $this->returnError(__('Document id seems incorrect.'));
+        }
+
+        $userDocument = $model::where('id', $id)->where('user_id', $userId)->limit(1)->delete();
+
+        if ($userDocument) {
+            return $this->returnSuccess(__('User document removed successfully!'));
+        }
+
+        return $this->returnError(__('Something went wrong!'));
+    }
+
+    //Function to save the location of user
+    public function saveOriginLocation(Request $request) {
+        $model = new User();
+        $data  = $request->all();
+        
+        if (empty($data['user_id']) || !is_numeric($data['user_id'])) {
+            return $this->returnError(__('User id seems incorrect.'));
+        }
+
+        $userId = (int)$data['user_id'];
+        unset($data['user_id']);
+
+        $user = $model::find($userId);
+        $data['name'] = $user->name;
+        if (!empty($user)) {
+            $fillableFields = $model->getFillable();
+
+            $requiredFileds = [
+                'country_id'      => ['required'],
+                'city_id'  => ['required'],
+                'origin_country_id'      => ['required'],
+                'origin_city_id'  => ['required'],
+            ];
+
+            foreach ($data as $field => $value) {
+                if (in_array($field, $fillableFields)) {
+                    $requiredFileds[$field] = ['required'];
+                }
+            }
+            $validator = $model->validator($data, $requiredFileds);
+
+            if ($validator->fails()) {
+                return $this->returnError($validator->errors()->first());
+            }
+
+            foreach ($data as $field => $value) {
+                if (in_array($field, $fillableFields)) {
+                    $user->{$field} = $value;
+                }
+            }
+        }
+        if ($user->save()) {
+            $msg = NULL;
+            $data = $this->getDetails($user->id);
+            $data->api_key = ApiKey::getApiKey($user->id);
+            return $this->returnSuccess(__('User location details updated successfully') . $msg . '!', $data);
+        }
+        return $this->returnNull();
+    }
+
+    //Function to logout the user
+    public function logoutUser(Request $request) {
+        if(!empty($request->user_id)) {
+            $model = ApiKey::where('user_id', $request->user_id)->delete();
+            return $this->returnSuccess(__('You are successfully logged out!'));
+        }
         return $this->returnError(__('Something went wrong!'));
     }
 }

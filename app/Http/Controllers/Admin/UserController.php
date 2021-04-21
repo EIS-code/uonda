@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use App\User;
 use App\School;
 use App\Country;
 use App\City;
+use App\UserBlockProfile;
 
 class UserController extends Controller
 {
@@ -16,10 +18,37 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request, $type)
     {
-        $users = User::where('is_admin', 0)->get();
-        return view('pages.users.index', compact('users'));
+        $columns=Schema::getColumnListing('users');
+        $orderBy = ($request->input('sortBy') && in_array($request->input('sortBy'), $columns))?$request->input('sortBy'):'id';
+        $orderOrder = ($request->input('sortOrder') && ($request->input('sortOrder') == 'asc' || $request->input('sortOrder') == 'desc'))?$request->input('sortOrder'):'asc';
+        $limit = env('PAGINATION_PER_PAGE_RECORDS') ? env('PAGINATION_PER_PAGE_RECORDS') : 200;
+        $search = ($request->input('search') && $request->input('search') != '')?$request->input('search'):'';
+        $users = User::where('is_admin', 0);
+        $users->where(function($query) use ($search){
+            if($search) {
+                $searchColumn = ['name', 'email'];
+                foreach ($searchColumn as $singleSearchColumn) {
+                    $query->orWhere($singleSearchColumn, "LIKE", '%' . $search . '%');
+                }
+            }
+        });
+        switch($type) {
+            case 'pending':
+                $users->where('is_accepted', 0);
+                break;
+            case 'rejected':
+                $users->where('is_accepted', 2);
+                break;
+            case 'accepted':
+                $users->where('is_accepted', 1);
+                break;
+            default :
+                $users->where('is_accepted', 1);
+        }
+        $users = $users->orderBy($orderBy, $orderOrder)->paginate($limit);
+        return view('pages.users.index', compact('users', 'type'));
     }
 
     /**
@@ -51,7 +80,7 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        $user = User::find(decrypt($id));
+        $user = User::with(['userDocuments'])->find(decrypt($id));
         $data = array();
         if(!empty($user->school_id)) {
             $data['school_name'] = School::select('name')->where('id', $user->school_id)->first();
@@ -91,7 +120,7 @@ class UserController extends Controller
         
             if($request->has('description')) {
                 $user->reason_for_rejection = $request->description;
-                $user->is_accepted = 0;
+                $user->is_accepted = 2;
             }
             if($request->has('ís_accepted')) {
                 $user->reason_for_rejection = NULL;
@@ -120,5 +149,11 @@ class UserController extends Controller
         User::where('id', decrypt($id))->delete();
 		$request->session()->flash('success','User deleted successfully');
 		return redirect(url()->previous());
+    }
+
+    //
+    public function showBlockedUser(Request $request) {
+        $block_profiles = UserBlockProfile::with(['user', 'blockedUser'])->get();
+        return view('pages.users.blocked-user-listing', compact('block_profiles'));
     }
 }

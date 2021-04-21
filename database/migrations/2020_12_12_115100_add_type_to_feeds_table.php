@@ -26,7 +26,7 @@ class AddTypeToFeedsTable extends Migration
     public function down()
     {
         Schema::table('feeds', function (Blueprint $table) {
-            $table->dropColumn('type');
+            $table->dropColumn('profile');
         });
     }
 }

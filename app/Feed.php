@@ -45,6 +45,19 @@ class Feed extends BaseModel
     public $fileSystem        = 'public';
     public $storageFolderName = 'feed';
 
+    const TYPE_NULL  = '0';
+    const TYPE_IMAGE = '1';
+    const TYPE_URL   = '2';
+    const TYPE_VIDEO = '3';
+    const TYPE_GIF   = '4';
+    public $feedTypes = [
+        self::TYPE_NULL  => '',
+        self::TYPE_IMAGE => 'image',
+        self::TYPE_URL   => 'url',
+        self::TYPE_VIDEO => 'video',
+        self::TYPE_GIF   => 'gif'
+    ];
+
     public function __construct(array $attributes = array())
     {
         parent::__construct($attributes);
@@ -57,16 +70,19 @@ class Feed extends BaseModel
         $rules = [
             'title'       => ['required', 'string', 'max:255'],
             'sub_title'   => ['nullable', 'string', 'max:255'],
-            'attachment'  => ['nullable', 'mimes:' . implode(",", $this->allowedExtensions), 'max:255'],
+            'attachment'  => ['nullable', 'mimes:' . implode(",", $this->allowedExtensions)],
             'description' => ['required', 'string'],
-            'type' => ['nullable'],
+            'type'        => ['nullable', 'in:' . implode(",", array_keys($this->feedTypes))]
         ];
+
         if(!empty($data['type'])) {
-            $rules['attachment'] = ['required', 'mimes:' . implode(",", $this->allowedExtensions), 'max:255'];
+            $rules['attachment'] = ['required', 'mimes:' . implode(",", $this->allowedExtensions)];
         }
+
         if(!empty($data['attachment'])) {
             $rules['type'] = ['required'];
         }
+
         $validator = Validator::make($data, $rules, [
             'attachment.required' => 'Attachment and type both are mandatory.',
             'type.required' => 'Attachment and type both are mandatory.'
@@ -90,8 +106,8 @@ class Feed extends BaseModel
         }
 
         $storageFolderName = (str_ireplace("\\", "/", $this->storageFolderName));
-        // return Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $this->id . '/' . $value);
-        return Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $value);
+        return Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $this->id . '/' . $value);
+        // return Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $value);
     }
 
     public function getCreatedAtAttribute($value)
@@ -107,5 +123,22 @@ class Feed extends BaseModel
     public function getEncryptedFeedIdAttribute()
     {
         return encrypt($this->id);
+    }
+
+    public function getTypeAttribute($value)
+    {
+        if (!isset($value) || !array_key_exists($value, $this->feedTypes)) {
+            return $value;
+        }
+
+        return $this->feedTypes[$value];
+    }
+
+    /**
+     * likes of feed by some user.
+     */
+    public function likedByUser()
+    {
+        return $this->belongsToMany(User::class, 'feed_likes')->withTimestamps();
     }
 }

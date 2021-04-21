@@ -41,17 +41,38 @@
                     @if(!empty($feed->attachment))
                     <tr>
                         <th> attachment Type </th>
-                        <td> {{ $feed->type != 0 ? Config::get('globalConstant.types')[$feed->type] : '-' }} </td>
+                        <td> {{ $feed->type }} </td>
                     </tr>
                     <tr>
                         <th> Cover Image </th>
                         <td> 
+                            @if($feed->type == 'video') 
+                            <video width="350" height="300" controls>
+                                <source src="{{ $feed->attachment }}" type="video/mp4">
+                            </video>
+                            @else 
                             <iframe frameborder="0" width="350" height="300"
-                            src="{{ URL::asset('storage/feed/'. explode('/', $feed->attachment)[4]) }}" name="imgbox" id="imgbox">
+                            src="{{ $feed->attachment }}" name="imgbox" id="imgbox">
                             <p>iframes are not supported by your browser.</p>
                             </iframe>
+                            @endif
                         </td>
                     </tr>
+                    @endif
+                </tbody>
+            </table>
+            <h4 style="text-align:center">Liked By</h4>
+            <table class="table table-striped course-tables show-details-table">
+                <tbody>
+                    @foreach($feed->likedByUser as $user)
+                        <tr>
+                            <td> <a href="{{ route('users.show', $user->encrypted_user_id) }}" target="_blank">{{$user->name}}</a> </td>
+                        </tr>
+                    @endforeach
+                    @if(count($feed->likedByUser) == 0)
+                        <tr>
+                            <th colspan=2>No Likes by any user</th>
+                        </tr>
                     @endif
                 </tbody>
             </table>

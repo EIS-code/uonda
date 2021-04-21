@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddProfilePicInUsersTable extends Migration
+class AddSocialFieldsInUsersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,7 +14,8 @@ class AddProfilePicInUsersTable extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->text('profile_pic')->nullable()->after('password');
+            $table->text('oauth_uid')->nullable()->after('is_admin');
+            $table->enum('oauth_provider', ['0', '1', '2', '3', '4'])->default('0')->after('oauth_uid')->comment('0: None, 1: Google, 2: Facebook, 3: Apple, 4: Instagram');
         });
     }
 
@@ -26,7 +27,8 @@ class AddProfilePicInUsersTable extends Migration
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('profile_pic');
+            $table->dropColumn('oauth_uid');
+            $table->dropColumn('oauth_provider');
         });
     }
 }

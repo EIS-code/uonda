@@ -7,7 +7,7 @@
             <div class="page-title-icon">
                 <i class="lnr-graduation-hat icon-gradient bg-happy-itmeo"></i>
             </div>
-            <div>Users
+            <div>{{ ucfirst($type)}} Users
             </div>
         </div>
     </div>
@@ -22,14 +22,43 @@
 @endforeach        
 <div class="main-card mb-3 card">
     <div class="card-body">
-        <table style="width: 100%;" id="example" class="table table-hover table-striped table-bordered">
+        <div class="title_right">
+            <form action="" method="get">
+                <div class="col-md-5 col-sm-5 col-xs-12 form-group pull-right top_search">
+                    <div class="input-group">
+                        <input type="hidden" value="0" name="page"/>
+                        <input type="hidden" value="{{request('sortBy')}}" name="sortBy"/>
+                        <input type="hidden" value="{{request('sortOrder')}}" name="sortOrder"/>
+                        <input type="text" class="form-control round-border search-component" name="search"
+                                placeholder="Search for..." id="search" value="{{ request('search') }}">
+                        <span class="input-group-btn">
+                            <button class="mb-2 mr-2 btn btn-primary" type="submit">Search</button>
+                        </span>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <table style="width: 100%;" class="table table-hover table-striped table-bordered">
             <thead>
             <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Gender</th>
-                <th>Status</th>
-                <th>Registered On</th>
+                <th>
+                    <a href="{{Helper::generateURLWithFilter(route('users.index', $type),1,'id',(request('sortOrder','asc')=='asc'?'desc':'asc'),request('search'))}}"># {!! Helper::sortingDesign('id',request('sortBy'),request('sortOrder')) !!}</a>
+                </th>
+                <th>
+                    <a href="{{Helper::generateURLWithFilter(route('users.index', $type),1,'name',(request('sortOrder','asc')=='asc'?'desc':'asc'),request('search'))}}">Name {!! Helper::sortingDesign('name',request('sortBy'),request('sortOrder')) !!}</a>
+                </th>
+                <th>
+                    <a href="{{Helper::generateURLWithFilter(route('users.index', $type),1,'email',(request('sortOrder','asc')=='asc'?'desc':'asc'),request('search'))}}">Email {!! Helper::sortingDesign('email',request('sortBy'),request('sortOrder')) !!}</a>
+                </th>
+                <th>
+                    <a href="{{Helper::generateURLWithFilter(route('users.index', $type),1,'gender',(request('sortOrder','asc')=='asc'?'desc':'asc'),request('search'))}}">Gender {!! Helper::sortingDesign('gender',request('sortBy'),request('sortOrder')) !!}</a>
+                </th>
+                <th>
+                    <a href="{{Helper::generateURLWithFilter(route('users.index', $type),1,'current_status',(request('sortOrder','asc')=='asc'?'desc':'asc'),request('search'))}}">Status {!! Helper::sortingDesign('current_status',request('sortBy'),request('sortOrder')) !!}</a>
+                </th>
+                <th>
+                    <a href="{{Helper::generateURLWithFilter(route('users.index', $type),1,'created_at',(request('sortOrder','asc')=='asc'?'desc':'asc'),request('search'))}}">Registered On {!! Helper::sortingDesign('created_at',request('sortBy'),request('sortOrder')) !!}</a>
+                </th>
                 <th>User Status</th>
                 <th>Action</th>
             </tr>
@@ -37,6 +66,7 @@
             <tbody>
                 @foreach($users as $key => $user)
                     <tr>
+                        <td>{{ Helper::listIndex($users->currentPage(), $users->perPage(), $key) }}</td>
                         <td>{{ ucfirst($user->name) }}</td>
                         <td>{{ $user->email }}</td>
                         <td>{{ !empty($user->gender) ? $user->gender : '-' }}</td>
@@ -46,9 +76,12 @@
                             <input type="checkbox" {{ $user->is_enable == 1 ? 'checked' : ''}} data-id="{{ $user->encrypted_user_id }}" class="user_status" value="{{ $user->is_enable }}" data-toggle="toggle" data-onstyle="success" data-offstyle="danger">
                         </td>
                         <td class="icons_list">
-                            @if($user->is_accepted)
+                            @if($user->is_accepted == 0)
+                                <a href="javascript:void(0)" class="acceptUser" data-id="{{ $user->encrypted_user_id }}" title="Accept User"><span class="material-icons">done</span></a> 
                                 <a href="javascript:void(0)" class="rejectModal" data-id="{{ $user->encrypted_user_id }}" title="Reject User"><span class="material-icons">close</span></a> 
-                            @else 
+                            @elseif($user->is_accepted == 1) 
+                                <a href="javascript:void(0)" class="rejectModal" data-id="{{ $user->encrypted_user_id }}" title="Reject User"><span class="material-icons">close</span></a> 
+                            @else
                                 <a href="javascript:void(0)" class="acceptUser" data-id="{{ $user->encrypted_user_id }}" title="Accept User"><span class="material-icons">done</span></a> 
                             @endif
                             <a href="javascript:void(0)" class="remove-button" data-id="{{ $user->id }}" title="Delete User"><span class="material-icons delete-button">delete</span></a>
@@ -62,7 +95,16 @@
                 @endforeach
             </tbody>
         </table>
+        <div class="row">
+            <div class="col-sm-5">
+                <div class="dataTables_info pagination-info">{{ Helper::paginationSummary($users->currentPage(), $users->perPage(), $users->total()) }}</div>
+            </div>
+            <div class="col-sm-7">
+            {{ $users->appends(['sortBy' => request('sortBy'), 'sortOrder' => request('sortOrder'), 'search' => request('search')])->links() }}
+            </div>
+        </div>
     </div>
+    
 </div>
 @endsection
 @push('custom-scripts')

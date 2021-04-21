@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Feed;
 use Illuminate\Http\UploadedFile;
 use Storage;
+use App\Jobs\CreateFeedNotification;
 
 class FeedsController extends Controller
 {
@@ -17,7 +18,7 @@ class FeedsController extends Controller
      */
     public function index()
     {
-        $feeds = Feed::get();
+        $feeds = Feed::with('likedByUser')->get();
         return view('pages.feeds.index', compact('feeds'));
     }
 
@@ -57,25 +58,32 @@ class FeedsController extends Controller
             }
         }
 
-        if (array_key_exists('attachment', $data) && $data['attachment'] instanceof UploadedFile) {
+        $save = $feed->save();
+
+        if ($save && array_key_exists('attachment', $data) && $data['attachment'] instanceof UploadedFile) {
+            $id = $feed->id;
+
             $attachment = $data['attachment'];
             $pathInfos = pathinfo($attachment->getClientOriginalName());
 
             if (!empty($pathInfos['extension'])) {
-                $folder = $feed->storageFolderName;
+                $folder = $feed->storageFolderName . '/' . $id;
 
                 if (!empty($folder)) {
                     $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
                     $storeFile = $attachment->storeAs($folder, $fileName, $feed->fileSystem);
 
                     if ($storeFile) {
+                        $feed = $feed->find($id);
+
                         $feed->attachment = $fileName;
 
+                        $feed->save();
                     }
                 }
             }
         }
-        $feed->save();
+        CreateFeedNotification::dispatch($feed->id)->delay(now()->addSeconds(2));
         $request->session()->flash('alert-success', 'Feed successfully created');
         return redirect()->route('feeds.index');
     }
@@ -135,13 +143,13 @@ class FeedsController extends Controller
         if (array_key_exists('attachment', $data) && $data['attachment'] instanceof UploadedFile) {
             $attachment = $data['attachment'];
             if(!empty($prevAttachment)) {
-                $prevAttachment = explode('/', $prevAttachment)[4];
-                Storage::delete($feed->fileSystem . '/'. $feed->storageFolderName .'/' . $prevAttachment);
+                $prevAttachment = explode('/', $prevAttachment)[6];
+                Storage::delete($feed->fileSystem . '/'. $feed->storageFolderName .'/' . decrypt($id) . '/' . $prevAttachment);
             }
             $pathInfos = pathinfo($attachment->getClientOriginalName());
 
             if (!empty($pathInfos['extension'])) {
-                $folder = $feed->storageFolderName;
+                $folder = $feed->storageFolderName . '/' . decrypt($id);
 
                 if (!empty($folder)) {
                     $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];

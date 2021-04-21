@@ -14,7 +14,7 @@
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
     <!-- Styles -->
     <link href="{{ asset('css/main.css') }}" rel="stylesheet">
     <link href="{{ asset('css/custom.css') }}" rel="stylesheet">
@@ -165,9 +165,27 @@
                                 </a>
                             </li>
                             <li class="{{ Request::is('users*') ? 'mm-active' : '' }}">
-                                <a href="{{ route('users.index') }}" >
+                                <a href="javascript::void(0)">
                                     <i class="metismenu-icon pe-7s-id"></i>Users
+                                    <i class="metismenu-state-icon pe-7s-angle-down caret-left"></i>
                                 </a>
+                                <ul>
+                                    <li class="{{ Request::is('users-list/accepted*') ? 'mm-active' : '' }}">
+                                        <a href="{{ route('users.index', 'accepted') }}" >
+                                            <i class="metismenu-icon"></i>Accepted Users
+                                        </a>
+                                    </li>
+                                    <li class="{{ Request::is('users-list/rejected*') ? 'mm-active' : '' }}">
+                                        <a href="{{ route('users.index', 'rejected') }}" >
+                                            <i class="metismenu-icon"></i>Rejected Users
+                                        </a>
+                                    </li>
+                                    <li class="{{ Request::is('users-list/pending*') ? 'mm-active' : '' }}">
+                                        <a href="{{ route('users.index', 'pending') }}" >
+                                            <i class="metismenu-icon"></i>Pending Users
+                                        </a>
+                                    </li>
+                                </ul>
                             </li>
                             <li class="{{ Request::is('schools*') ? 'mm-active' : '' }}">
                                 <a href="{{ route('schools.index') }}" >
@@ -194,6 +212,56 @@
                                     <i class="metismenu-icon pe-7s-light"></i>Groups
                                 </a>
                             </li>
+                            <li class="{{ Request::is('chat*') ? 'mm-active' : '' }}">
+                                <a href="{{ route('chats.index') }}" >
+                                    <i class="metismenu-icon pe-7s-light"></i>Chat Groups
+                                </a>
+                            </li>
+                            <li class="{{ Request::is('reports-questions*') ? 'mm-active' : '' }}">
+                                <a href="{{ route('reports-questions.index') }}" >
+                                    <i class="metismenu-icon pe-7s-light"></i>Report Questions
+                                </a>
+                            </li>
+                            <li class="{{ Request::is('users-reports*') ? 'mm-active' : '' }}">
+                                <a href="{{ route('users-reports') }}" >
+                                    <i class="metismenu-icon pe-7s-light"></i>User Reports
+                                </a>
+                            </li>
+                            <li class="{{ Request::is('settings*') ? 'mm-active' : '' }}">
+                                <a href="{{ route('settings.index') }}" >
+                                    <i class="metismenu-icon pe-7s-light"></i>Settings
+                                </a>
+                            </li>
+                            <li class="{{ Request::is('emails*') ? 'mm-active' : '' }}">
+                                <a href="{{ route('emails.index') }}" >
+                                    <i class="metismenu-icon pe-7s-light"></i>Sent Emails
+                                </a>
+                            </li>
+                            <li class="{{ Request::is('blocked-users*') ? 'mm-active' : '' }}">
+                                <a href="{{ route('blocked-users') }}" >
+                                    <i class="metismenu-icon pe-7s-light"></i>Blocked Users 
+                                </a>
+                            </li>
+                            <li class="{{ Request::is('promotions*') ? 'mm-active' : '' }}">
+                                <a href="{{ route('promotions.index') }}" >
+                                    <i class="metismenu-icon pe-7s-light"></i>Promotions
+                                </a>
+                            </li>
+                            <li class="{{ Request::is('country*') ? 'mm-active' : '' }}">
+                                <a href="{{ route('country.index') }}" >
+                                    <i class="metismenu-icon pe-7s-light"></i>Country
+                                </a>
+                            </li>
+                            <li class="{{ Request::is('state*') ? 'mm-active' : '' }}">
+                                <a href="{{ route('state.index') }}" >
+                                    <i class="metismenu-icon pe-7s-light"></i>State
+                                </a>
+                            </li>
+                            <li class="{{ Request::is('city*') ? 'mm-active' : '' }}">
+                                <a href="{{ route('city.index') }}" >
+                                    <i class="metismenu-icon pe-7s-light"></i>City
+                                </a>
+                            </li>
                         </li>
                     </ul>
                 </div>
@@ -215,8 +283,15 @@
 <div class="app-drawer-overlay d-none animated fadeIn"></div>
 <script type="text/javascript" src="{{ asset('js/main.js') }}"></script>
 <script type="text/javascript" src="{{ asset('js/jquery.min.js') }}"></script>
-<script src="https://cdn.ckeditor.com/4.15.1/standard/ckeditor.js"></script>
-<script src="https://cdn.ckeditor.com/ckeditor5/21.0.0/decoupled-document/ckeditor.js"></script>
+<!-- <script src="https://cdn.ckeditor.com/4.15.1/standard/ckeditor.js"></script>
+<script src="https://cdn.ckeditor.com/ckeditor5/21.0.0/decoupled-document/ckeditor.js"></script> -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+
+<script type="text/javascript" src="{{ asset('plugins/ckeditor/ckeditor.js') }}"></script>
+<!-- The core Firebase JS SDK is always required and must be listed first -->
+<script src="https://www.gstatic.com/firebasejs/8.2.3/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.2.3/firebase-analytics.js"></script>
+<script src="https://www.gstatic.com/firebasejs/3.7.2/firebase.js"></script>
 @stack('custom-scripts')
 </body>
 </html>
@@ -275,7 +350,85 @@
         } else {
             $('.rejection-description-err').show();
         }
+    });
+
+    function notifyMe() {
+        // Let's check if the browser supports notifications
+        if (!("Notification" in window)) {
+            console.log("This browser does not support desktop notification");
+        }
+
+        // Let's check if the user is okay to get some notification
+        else if (Notification.permission === "granted") {
+            // If it's okay let's create a notification
+            // var notification = new Notification("Hi there!");
+        }
+
+        // Otherwise, we need to ask the user for permission
+        // Note, Chrome does not implement the permission static property
+        // So we have to check for NOT 'denied' instead of 'default'
+        else if (Notification.permission !== 'denied') {
+            Notification.requestPermission(function (permission) {
+
+                // Whatever the user answers, we make sure we store the information
+                if (!('permission' in Notification)) {
+                    Notification.permission = permission;
+                }
+
+                // If the user is okay, let's create a notification
+                if (permission === "granted") {
+                    var notification = new Notification("Hi there!");
+                }
+            });
+        } else {
+            console.log(`Permission is ${Notification.permission}`);
+        }
+    }
+
+    notifyMe();
+
+    // Web FCM.
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    var apiKey = "{{ env('FCM_WEB_API_KEY', 'AIzaSyCxEFpe9_c9Xor-1WInOzBN6pubOLr3eeU') }}",
+        authDomain = "{{ env('FCM_WEB_AUTH_DOMAIN', 'community-uonda.firebaseapp.com') }}",
+        projectId = "{{ env('FCM_WEB_PROJECT_ID', 'community-uonda') }}",
+        storageBucket = "{{ env('FCM_WEB_STORAGE_BUCKET', 'community-uonda.appspot.com') }}",
+        messagingSenderId = "{{ env('FCM_WEB_MESSAGING_SENDER_ID', '622244680827') }}",
+        appId = "{{ env('FCM_WEB_APP_ID', '1:622244680827:web:b84c2df20d1de31ca07ede') }}",
+        measurementId = "{{ env('FCM_WEB_MEASUREMENT_ID', 'G-45S2SFQWB6') }}";
+
+    var firebaseConfig = {
+        apiKey: apiKey,
+        authDomain: authDomain,
+        projectId: projectId,
+        storageBucket: storageBucket,
+        messagingSenderId: messagingSenderId,
+        appId: appId,
+        measurementId: measurementId
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    // firebase.analytics();
+
+    const messaging = firebase.messaging();
+
+    messaging.requestPermission()
+    .then(function() {
+        console.log('Notification permission granted.');
+        return messaging.getToken();
     })
+    .then(function(token) {
+        console.log(token);
+    })
+    .catch(function(err) {
+        console.log('Unable to get permission to notify.', err);
+    });
+
+    messaging.onMessage(function(payload){
+        console.log('onMessage',payload);
+    });
 </script>
 
 

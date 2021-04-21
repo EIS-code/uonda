@@ -112,12 +112,37 @@
                     </tr>
                     <tr>
                         <th> Is Accepted </th>
-                        <td> {{ $user->is_accepted == 1 ? 'Accepted' : 'Rejected' }} </td>
+                        <td> {{ $user->is_accepted == 0 ? 'Pending' : ($user->is_accepted == 1 ? 'Accepted' : 'Rejected') }} </td>
                     </tr>
                     <tr>
-                        <th> Reason for Description </th>
+                        <th> Reason for Rejection </th>
                         <td> {{ !empty($user->reason_for_rejection) ? $user->reason_for_rejection : '-' }} </td>
                     </tr>
+                </tbody>
+            </table>
+            <h4 style="text-align:center">Users Documents</h4>
+            <table class="table table-striped course-tables show-details-table">
+                <tbody>
+                    @foreach($user->userDocuments as $document)
+                        <tr>
+                            @php
+                                $document_path_arr = explode('/', $document->document);
+                                $document_name = $document_path_arr[count($document_path_arr) - 1];
+                            @endphp
+                            <td> 
+                                <iframe frameborder="0" width="350" height="300" src="{{ $document->document }}" name="imgbox" id="imgbox">
+                                    <p>iframes are not supported by your browser.</p>
+                                </iframe>
+                                <p>{{ $document_name }}</p>
+                            </td>
+                            <td> <a href="{{ $document->document }}" download>Download Now</a> </td>
+                        </tr>
+                    @endforeach
+                    @if(count($user->userDocuments) == 0)
+                        <tr>
+                            <th colspan=2>No documents available for this user</th>
+                        </tr>
+                    @endif
                 </tbody>
             </table>
         </div>
