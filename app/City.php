@@ -47,4 +47,9 @@ class City extends BaseModel
     {
         return encrypt($this->id);
     }
+
+    public function Users()
+    {
+        return $this->hasMany('App\User', 'city_id', 'id');
+    }
 }
