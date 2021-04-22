@@ -946,4 +946,20 @@ class ChatController extends BaseController
 
         return false;
     }
+
+    //Function to get the public groups listing
+    public function getPublicGroupLists(Request $request) {
+        $user_id = $request->user_id;
+        $chat_groups = ChatRoom::withCount(['chatRoomUsers' => function($q) use ($user_id) {
+            $q->where('sender_id', $user_id);
+        }])->where('group_type', 0);
+        if($request->has('country_id') && !empty($request->country_id)) {
+            $chat_groups = $chat_groups->where('country_id', $request->country_id); 
+        }
+        if($request->has('city_id') && !empty($request->city_id)) {
+            $chat_groups = $chat_groups->where('city_id', $request->city_id); 
+        }
+        $groups = $chat_groups->get();
+        return $this->returnSuccess(__('Chat groups fetched successfully!'), $groups);
+    }
 }
