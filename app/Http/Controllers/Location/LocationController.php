@@ -66,10 +66,16 @@ class LocationController extends BaseController
     public function getCitiesWithUserCount(Request $request) {
         $per_page = $request->has('per_page') ? $request->per_page : 10;
         $offset = $request->has('offset') ? (int)$request->offset : 0;
+        $with_pagination = $request->has('with_pagination') ? (int)$request->with_pagination : 0;
         $status = 200;
         $next_offset = $offset + $per_page;
         $cities_count = City::count();
-        $cities = City::withCount('Users')->skip($offset)->take($per_page)->get();
+        if($with_pagination == 0) {
+            $cities = City::withCount('Users')->having('users_count', '>', 0)->get();
+        } else {
+            $cities = City::withCount('Users')->having('users_count', '>', 0)->skip($offset)->take($per_page)->get();
+        }
+        
         if($next_offset >= $cities_count) {
             $next_offset = $offset;
         }
