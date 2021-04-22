@@ -56,7 +56,7 @@ class User extends Authenticatable
      *
      * @var array
      */
-    public $appends = ['encrypted_user_id', 'permissions', 'total_notifications', 'total_read_notifications', 'total_unread_notifications'];
+    public $appends = ['encrypted_user_id', 'permissions', 'total_notifications', 'total_read_notifications', 'total_unread_notifications', 'school_name'];
 
     const MALE = 'm';
     const FEMALE = 'f';
