@@ -680,7 +680,7 @@ class ChatController extends BaseController
         $chat_room->is_group = $data['is_group'];
         $chat_room->group_type = isset($data['group_type']) ? $data['group_type'] : 1;
         $chat_room->city_id = !empty($data['city_id']) ? $data['city_id'] : null;
-        $chat_room->country_id = $data['country_id'];
+        $chat_room->country_id = !empty($data['country_id']) ? $data['country_id'] : null;
         
         if(!$request->has('chat_room_id')) {
             $chat_room->created_by_admin = $data['created_by_admin'];
