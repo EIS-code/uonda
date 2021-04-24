@@ -19,7 +19,7 @@ class ChatRoomUser extends BaseModel
     public function validators(array $data, $returnBoolsOnly = false)
     {
         $validator = Validator::make($data, [
-            'chat_room_id'       => ['required', 'integer', 'exists:' . (new ChatRoomUser())->getTableName() . ',id'],
+            'chat_room_id'       => ['required', 'integer', 'exists:' . (new ChatRoom())->getTableName() . ',id'],
             'sender_id'          => ['nullable', 'integer', 'exists:' . (new User())->getTableName() . ',id']
         ]);
 
