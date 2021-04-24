@@ -18,7 +18,7 @@ class ChatRoom extends BaseModel
         'uuid', 'title', 'group_icon', 'group_icon_actual', 'is_group', 'created_by_admin', 'created_by' , 'group_type', 'city_id', 'country_id'
     ];
 
-    protected $appends = ['encrypted_chat_id'];
+    protected $appends = ['encrypted_chat_id', 'country_name', 'city_name'];
 
     const IS_NOT_GROUP = '0';
     const IS_GROUP     = '1';
@@ -95,5 +95,21 @@ class ChatRoom extends BaseModel
     public function totalGroupParticipants(int $id)
     {
         return $this->find($id)->chatRoomUsers->count();
+    }
+
+    public function getCountryNameAttribute($value)
+    {
+        if(!empty($this->country_id)) {
+            return Country::where('id', $this->country_id)->pluck('name')->first();
+        }
+        return NULL;
+    }
+
+    public function getCityNameAttribute($value)
+    {
+        if(!empty($this->city_id)) {
+            return City::where('id', $this->city_id)->pluck('name')->first();
+        }
+        return NULL;
     }
 }

@@ -108,4 +108,39 @@ class LocationController extends BaseController
         });
         return $this->returnSuccess(__('Users fetched successfully!'), $users);
     }
+
+    //Function to get all the cities with search and pagination
+    public function getAllCities(Request $request) {
+        $per_page = $request->has('per_page') ? $request->per_page : 10;
+        $offset = $request->has('offset') ? (int)$request->offset : 0;
+        $search = $request->has('search') ? $request->search : '';
+        $status = 200;
+        $next_offset = $offset + $per_page;
+        $search_cities_count = 0;
+
+        $cities_count =  City::count();
+        $cities = new City();
+        if(!empty($search)) {
+            $cities = $cities::with(['State.Country'])->where('name', 'like', '%'.$search.'%');
+            $search_cities_count = $cities->count();
+        }
+        $cities = $cities->skip($offset)->take($per_page)->get();
+        if(!empty($search) && ($next_offset >= $search_cities_count)) {
+            $next_offset = $offset;
+        } else {
+            if($next_offset >= $cities_count) {
+                $next_offset = $offset;
+            }
+        }
+        return response()->json([
+            'code' => $status,
+            'msg'  => __('Cities fetched successfully!'),
+            'current_offset' => $offset,
+            'next_offset' => $next_offset,
+            'per_page' => $per_page,
+            'total_users' => $cities_count,
+            'search_cities_count' => $search_cities_count,
+            'data' => $cities
+        ], 200);
+    }
 }
