@@ -991,6 +991,7 @@ class UserController extends BaseController
                     break;
                 case "location":
                     $latitude = $longitude = false;
+                    $query->where($cityModel::getTableName() . '.name', 'LIKE', '%' . $keyword . '%');
                     break;
                 case 'job_position':
                     $latitude = $longitude = false;

@@ -104,7 +104,7 @@ class LocationController extends BaseController
         }
         $users = User::where('city_id', $request->city_id)->get();
         $users->each(function($userRow) {
-            $userRow->setHidden(['encrypted_user_id', 'permissions', 'total_notifications', 'total_read_notifications', 'total_unread_notifications', 'school', 'password', 'created_at', 'personal_flag', 'other_flag', 'school_flag', 'remember_token', 'updated_at', 'oauth_uid', 'oauth_provider']);
+            $userRow->setHidden(['encrypted_user_id', 'permissions', 'total_notifications', 'total_read_notifications', 'total_unread_notifications', 'password', 'created_at', 'personal_flag', 'other_flag', 'school_flag', 'remember_token', 'updated_at', 'oauth_uid', 'oauth_provider']);
         });
         return $this->returnSuccess(__('Users fetched successfully!'), $users);
     }

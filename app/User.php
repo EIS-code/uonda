@@ -56,7 +56,7 @@ class User extends Authenticatable
      *
      * @var array
      */
-    public $appends = ['encrypted_user_id', 'permissions', 'total_notifications', 'total_read_notifications', 'total_unread_notifications', 'school_name_val'];
+    public $appends = ['encrypted_user_id', 'permissions', 'total_notifications', 'total_read_notifications', 'total_unread_notifications', 'school_name'];
 
     const MALE = 'm';
     const FEMALE = 'f';
@@ -383,14 +383,10 @@ class User extends Authenticatable
 
     public function getSchoolNameAttribute()
     {
-        $school = $this->school;
-        return !empty($school) ? $school->name : NULL;
-    }
-
-    public function getSchoolNameValAttribute()
-    {
         if(!empty($this->school_id)) {
             return School::where('id', $this->school_id)->pluck('name')->first();
+        } else if(!empty($this->school)) {
+            return $this->school;
         }
         return NULL;
     }
