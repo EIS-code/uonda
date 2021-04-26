@@ -925,6 +925,10 @@ class UserController extends BaseController
 
     public function getUserExplore(Request $request)
     {
+        $per_page = $request->has('per_page') ? $request->per_page : 10;
+        $offset = $request->has('offset') ? (int)$request->offset : 0;
+        $status = 200;
+        $next_offset = $offset + $per_page;
         $model       = new User();
         $schoolModel = new School();
         $cityModel   = new City();
@@ -1051,21 +1055,25 @@ class UserController extends BaseController
         $query->where($model->getTableName() . '.id', '!=', $userId);
 
         $query->where($model->getTableName() . '.id', '!=', $model::IS_ADMIN);
-
+        $total_counts = $query->count();
         
-        if(isset($data['per_page'])) {
-            $query->paginate($data['per_page']);
-        } else {
-            $query->paginate(10);
+        $records = $query->selectRaw($selectStatements)->skip($offset)->take($per_page)->get();
+        
+        if($next_offset >= $total_counts) {
+            $next_offset = $offset;
         }
-        
-
-        $records = $query->selectRaw($selectStatements)->get();
 
         if (!empty($records) && !$records->isEmpty()) {
-            $records->makeHidden(['permissions', 'encrypted_user_id']);
-
-            return $this->returnSuccess(__('Users found successfully!'), $records);
+            $records->makeHidden(['permissions', 'encrypted_user_id', 'notifications']);
+            return response()->json([
+                'code' => $status,
+                'msg'  => __('Users found successfully!'),
+                'current_offset' => $offset,
+                'next_offset' => $next_offset,
+                'per_page' => $per_page,
+                'total_records' => $total_counts,
+                'data' => $records
+            ], 200);
         }
 
         return $this->returnNull();
