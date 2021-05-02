@@ -147,4 +147,16 @@ class SchoolController extends Controller
         $cities = City::where('state_id', $id)->get();
         return response()->json(['data' => $cities, 'status' => 200], 200);
     }
+
+    //Function to get the cities based on countries
+    public function getCitiesFromCountry(Request $request, $id) {
+        $country_id = $id;
+        $cities = City::with(['state' => function($q) use ($country_id) {
+                        $q->where('country_id', $country_id);
+                    }])
+                    ->whereHas('state', function($q) use ($country_id) {
+                        $q->where('country_id', $country_id);
+                    })->get();
+        return response()->json(['data' => $cities, 'status' => 200], 200);
+    }
 }

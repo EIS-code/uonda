@@ -23,6 +23,7 @@ use Intervention\Image\ImageManagerStatic as Image;
 use Illuminate\Support\Facades\Validator;
 use App\ReportChatRoom;
 use App\Jobs\SendChatMessageNotification;
+use App\ApiKey;
 
 class ChatController extends BaseController
 {
@@ -811,6 +812,11 @@ class ChatController extends BaseController
         $validator = $chat_room_user->validators($data);
         if ($validator->fails()) {
             return $this->returnError($validator->errors()->first());
+        }
+        $loggedInUserDetails = ApiKey::where('key', $request->header('api_key'))->first();
+        $chatRoomDetails = ChatRoom::find($request->chat_room_id);
+        if($chatRoomDetails->created_by != $loggedInUserDetails->user_id) {
+            return $this->returnError(__('You do not have rights to remove the users from this group.'));
         }
 
         foreach($request->userId as $user) {

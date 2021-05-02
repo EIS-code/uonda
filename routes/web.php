@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Route;
 
 Auth::routes(['register' => false]);
 Route::get('/get-states/{id}', 'Admin\SchoolController@getStateDetails')->name('get-states');
+Route::get('/get-cities-of-country/{id}', 'Admin\SchoolController@getCitiesFromCountry')->name('get-cities-of-country');
 Route::get('/get-cities/{id}', 'Admin\SchoolController@getCitiesDetails')->name('get-cities');
 
 Route::group(['middleware' => ['auth']], function(){

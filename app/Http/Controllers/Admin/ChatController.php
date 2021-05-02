@@ -12,6 +12,8 @@ use Storage;
 use Image;
 use Auth;
 use App\ChatRoomUser;
+use App\Country;
+use App\City;
 
 class ChatController extends Controller
 {
@@ -33,8 +35,9 @@ class ChatController extends Controller
      */
     public function create()
     {
+        $countries = Country::get();
         $users = User::where('is_admin', 0)->get();
-        return view('pages.chat.add', compact('users'));
+        return view('pages.chat.add', compact('users', 'countries'));
     }
 
     /**
@@ -66,6 +69,9 @@ class ChatController extends Controller
         $chat_room->is_group = $data['is_group'];
         $chat_room->created_by_admin = $data['created_by_admin'];
         $chat_room->created_by = $data['created_by'];
+        $chat_room->group_type = $data['group_type'];
+        $chat_room->country_id = !empty($data['country_id']) ? $data['country_id'] : NULL;
+        $chat_room->city_id = !empty($data['city_id']) ? $data['city_id'] : NULL;
 
         $save = $chat_room->save();
 
@@ -131,10 +137,21 @@ class ChatController extends Controller
      */
     public function edit($id)
     {
+        $countries = Country::get();
         $chat_room = ChatRoom::with(['ChatRoomUsers'])->find(decrypt($id));
         $chat_room_data = $chat_room->ChatRoomUsers->pluck('sender_id')->toArray();
         $users = User::where('is_admin', 0)->get();
-        return view('pages.chat.edit', compact('chat_room', 'users', 'chat_room_data'));
+        $cities = array();
+        if(!empty($chat_room->country_id)) {
+            $country_id = $chat_room->country_id;
+            $cities = City::with(['state' => function($q) use ($country_id) {
+                $q->where('country_id', $country_id);
+            }])
+            ->whereHas('state', function($q) use ($country_id) {
+                $q->where('country_id', $country_id);
+            })->get();
+        }
+        return view('pages.chat.edit', compact('chat_room', 'users', 'chat_room_data', 'countries', 'cities'));
     }
 
     /**
@@ -162,6 +179,9 @@ class ChatController extends Controller
         $chat_room->uuid = $request->uuid;
         $chat_room->title = $request->title;
         $chat_room->is_group = $data['is_group'];
+        $chat_room->group_type = $data['group_type'];
+        $chat_room->country_id = !empty($data['country_id']) ? $data['country_id'] : NULL;
+        $chat_room->city_id = !empty($data['city_id']) ? $data['city_id'] : NULL;
 
         $save = $chat_room->save();
         $chat_users = $chat_room->ChatRoomUsers->pluck('sender_id')->toArray();

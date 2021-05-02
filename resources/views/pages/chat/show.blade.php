@@ -40,7 +40,19 @@
                     </tr>
                     <tr>
                         <th> Created By </th>
-                        <td> {{ !empty($chat_room->createdBy) ? $chat_room->createdBy->name : '' }} </td>
+                        <td> {{ !empty($chat_room->createdBy) ? $chat_room->createdBy->name : '-' }} </td>
+                    </tr>
+                    <tr>
+                        <th> Country Name </th>
+                        <td> {{ !empty($chat_room->country_id) ? $chat_room->country_name : '-' }} </td>
+                    </tr>
+                    <tr>
+                        <th> City name </th>
+                        <td> {{ !empty($chat_room->city_id) ? $chat_room->city_name : '-' }} </td>
+                    </tr>
+                    <tr>
+                        <th> Group Type </th>
+                        <td> {{ $chat_room->group_type == 0 ? 'PUBLIC' : 'PRIVATE' }} </td>
                     </tr>
                     @if(!empty($chat_room->group_icon))
                         <tr>
