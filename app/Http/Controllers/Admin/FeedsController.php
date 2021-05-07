@@ -70,7 +70,7 @@ class FeedsController extends Controller
                 $folder = $feed->storageFolderName . '/' . $id;
 
                 if (!empty($folder)) {
-                    $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                    $fileName  = (empty($pathInfos['filename']) ? time() : str_replace(" ","-",$pathInfos['filename'])) . '_' . time() . '.' . $pathInfos['extension'];
                     $storeFile = $attachment->storeAs($folder, $fileName, $feed->fileSystem);
 
                     if ($storeFile) {
@@ -152,7 +152,7 @@ class FeedsController extends Controller
                 $folder = $feed->storageFolderName . '/' . decrypt($id);
 
                 if (!empty($folder)) {
-                    $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                    $fileName  = (empty($pathInfos['filename']) ? time() : str_replace(" ","-",$pathInfos['filename'])) . '_' . time() . '.' . $pathInfos['extension'];
                     $storeFile = $attachment->storeAs($folder, $fileName, $feed->fileSystem);
 
                     if ($storeFile) {
