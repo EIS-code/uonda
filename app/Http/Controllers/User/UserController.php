@@ -1078,4 +1078,16 @@ class UserController extends BaseController
 
         return $this->returnNull();
     }
+    
+    //Function to get all the documents 
+    public function getAllDocuments(Request $request) {
+        $data = $request->all();
+        $userId = !empty($data['user_id']) ? (int)$data['user_id'] : false;
+
+        if (!empty($userId)) {
+            $documents = UserDocument::where('user_id', $userId)->get();
+            return $this->returnSuccess(__('User documents are successfully fetched!'), $documents);
+        }
+        return $this->returnError(__('Something went wrong!'));
+    }
 }

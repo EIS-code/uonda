@@ -60,6 +60,8 @@ Route::group(['middleware' => ['web.auth.api']], function () {
 
         Route::get('/logout', 'UserController@logoutUser')->name('user.logout');
 
+        Route::get('/get-all-documents', 'UserController@getAllDocuments')->name('user.documents');
+
         Route::group(['prefix' => 'profile'], function () {
              Route::post('/update', 'UserController@profileUpdate')->name('user.profile.update');
 
