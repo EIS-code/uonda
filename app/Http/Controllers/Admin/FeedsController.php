@@ -45,9 +45,12 @@ class FeedsController extends Controller
 
         $validator = $feed->validator($data);
         if ($validator->fails()) {
-            return redirect()->back()
-            ->withErrors($validator)
-            ->withInput();
+            $status = 500;
+            $success_res  = [
+                'code' => $status,
+                'msg' => $validator->errors()->first()
+            ];
+            return response()->json($success_res, 500);
         }
         
         $fillableFields = $feed->getFillable();
@@ -127,9 +130,12 @@ class FeedsController extends Controller
 
         $validator = $feed->validator($data);
         if ($validator->fails()) {
-            return redirect()->back()
-            ->withErrors($validator)
-            ->withInput();
+            $status = 500;
+            $success_res  = [
+                'code' => $status,
+                'msg' => $validator->errors()->first()
+            ];
+            return response()->json($success_res, 500);
         }
         
         $fillableFields = $feed->getFillable();
