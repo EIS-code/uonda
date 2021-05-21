@@ -997,11 +997,11 @@ class UserController extends BaseController
                     break;
                 case "country":
                     $latitude = $longitude = false;
-                    $query->where($countryModel::getTableName() . '.name', 'LIKE', '%' . $keyword . '%');
+                    $query->where($countryModel::getTableName() . '.name', 'LIKE', $keyword . '%');
                     break;
                 case "city":
                     $latitude = $longitude = false;
-                    $query->where($cityModel::getTableName() . '.name', 'LIKE', '%' . $keyword . '%');
+                    $query->where($cityModel::getTableName() . '.name', 'LIKE', $keyword . '%');
                     break;
                 case "location":
                     $latitude = $longitude = false;
