@@ -9,6 +9,7 @@ use App\UserDocument;
 use App\UserSetting;
 use App\City;
 use App\School;
+use App\Country;
 use App\ApiKey;
 use App\UserBlockProfile;
 use Illuminate\Support\Facades\Hash;
@@ -932,6 +933,7 @@ class UserController extends BaseController
         $model       = new User();
         $schoolModel = new School();
         $cityModel   = new City();
+        $countryModel   = new Country();
         $userBlockProfilesModel = new UserBlockProfile();
         $data        = $request->all();
 
@@ -949,7 +951,7 @@ class UserController extends BaseController
         }
 
         $query            = $model::query();
-        $selectStatements = "{$model->getTableName()}.id, {$model->getTableName()}.name, {$model->getTableName()}.user_name, {$model->getTableName()}.profile, {$schoolModel::getTableName()}.name as school, {$model->getTableName()}.latitude, {$model->getTableName()}.longitude, {$model->getTableName()}.current_location, {$cityModel::getTableName()}.name as city, {$model->getTableName()}.job_position, {$model->getTableName()}.company , {$model->getTableName()}.university, {$model->getTableName()}.is_online";
+        $selectStatements = "{$model->getTableName()}.id, {$model->getTableName()}.name, {$model->getTableName()}.user_name, {$model->getTableName()}.profile, {$schoolModel::getTableName()}.name as school, {$model->getTableName()}.latitude, {$model->getTableName()}.longitude, {$model->getTableName()}.current_location, {$cityModel::getTableName()}.name as city,{$countryModel::getTableName()}.name as country, {$model->getTableName()}.job_position, {$model->getTableName()}.company , {$model->getTableName()}.university, {$model->getTableName()}.is_online";
 
         /*$schoolName = $request->get('school_name', false);
         if (!empty($schoolName)) {
@@ -992,6 +994,14 @@ class UserController extends BaseController
                     $latitude = $longitude = false;
 
                     $query->where($schoolModel::getTableName() . '.name', 'LIKE', '%' . $keyword . '%');
+                    break;
+                case "country":
+                    $latitude = $longitude = false;
+                    $query->where($countryModel::getTableName() . '.name', 'LIKE', '%' . $keyword . '%');
+                    break;
+                case "city":
+                    $latitude = $longitude = false;
+                    $query->where($cityModel::getTableName() . '.name', 'LIKE', '%' . $keyword . '%');
                     break;
                 case "location":
                     $latitude = $longitude = false;
@@ -1049,6 +1059,7 @@ class UserController extends BaseController
                      });
         });
         $query->leftJoin($cityModel::getTableName(), $model->getTableName() . '.city_id', '=', $cityModel::getTableName() . '.id');
+        $query->leftJoin($countryModel::getTableName(), $model->getTableName() . '.country_id', '=', $countryModel::getTableName() . '.id');
 
         $query->whereNull($userBlockProfilesModel::getTableName() . '.id');
 
