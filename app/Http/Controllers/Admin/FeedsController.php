@@ -18,7 +18,7 @@ class FeedsController extends Controller
      */
     public function index()
     {
-        $feeds = Feed::with('likedByUser')->get();
+        $feeds = Feed::with('likedByUser')->orderBy('id', 'DESC')->get();
         return view('pages.feeds.index', compact('feeds'));
     }
 
