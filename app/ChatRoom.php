@@ -15,7 +15,7 @@ class ChatRoom extends BaseModel
      * @var array
      */
     protected $fillable = [
-        'uuid', 'title', 'group_icon', 'group_icon_actual', 'is_group', 'created_by_admin', 'created_by' , 'group_type', 'city_id', 'country_id'
+        'uuid', 'title', 'description', 'group_icon', 'group_icon_actual', 'is_group', 'created_by_admin', 'created_by' , 'group_type', 'city_id', 'country_id'
     ];
 
     protected $appends = ['encrypted_chat_id', 'country_name', 'city_name'];
@@ -38,6 +38,7 @@ class ChatRoom extends BaseModel
         $validator = Validator::make($data, [
             'uuid'              => ['required', 'string', 'max:255'],
             'title'             => ['nullable', 'string'],
+            'description'       => ['nullable', 'string'],
             'group_icon'        => ['nullable', 'mimes:' . implode(",", $this->allowedExtensions)],
             'group_icon_actual' => ['nullable', 'mimes:' . implode(",", $this->allowedExtensions)],
             'is_group'          => ['in:' . implode(",", array_keys($this->isGroup))],

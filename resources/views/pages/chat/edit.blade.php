@@ -38,6 +38,18 @@
                     @enderror
                 </div>
             </div>
+            <div class="form-group">
+                <label for="title">Description</label>
+                <div>
+                    <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description" placeholder="Description" value="{{ old('description') }}"> {{ $chat_room->description }}
+                    </textarea>
+                    @error('description')
+                        <em class="error invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </em>
+                    @enderror
+                </div>
+            </div>
             @if(!empty($chat_room->group_icon_actual))
                 <div class="">
                     <img width="250" src="{{ $chat_room->group_icon_actual }}">

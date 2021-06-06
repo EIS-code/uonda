@@ -678,6 +678,7 @@ class ChatController extends BaseController
 
         $chat_room->uuid = $data['uuid'];
         $chat_room->title = $request->title;
+        $chat_room->description = !empty($request->description) ? $request->description : NULL;
         $chat_room->is_group = $data['is_group'];
         $chat_room->group_type = isset($data['group_type']) ? $data['group_type'] : 1;
         $chat_room->city_id = !empty($data['city_id']) ? $data['city_id'] : null;

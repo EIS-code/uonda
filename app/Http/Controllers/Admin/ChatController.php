@@ -66,6 +66,7 @@ class ChatController extends Controller
 
         $chat_room->uuid = $data['uuid'];
         $chat_room->title = $request->title;
+        $chat_room->description = !empty($request->description) ? $request->description : NULL;
         $chat_room->is_group = $data['is_group'];
         $chat_room->created_by_admin = $data['created_by_admin'];
         $chat_room->created_by = $data['created_by'];
@@ -178,6 +179,7 @@ class ChatController extends Controller
         }
         $chat_room->uuid = $request->uuid;
         $chat_room->title = $request->title;
+        $chat_room->description = !empty($request->description) ? $request->description : NULL;
         $chat_room->is_group = $data['is_group'];
         $chat_room->group_type = $data['group_type'];
         $chat_room->country_id = !empty($data['country_id']) ? $data['country_id'] : NULL;

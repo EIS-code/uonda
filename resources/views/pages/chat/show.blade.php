@@ -31,6 +31,10 @@
                         <td> {{ ucfirst($chat_room->title) }} </td>
                     </tr>
                     <tr>
+                        <th> Description </th>
+                        <td> {{ !empty($chat_room->description) ? $chat_room->description : '-' }} </td>
+                    </tr>
+                    <tr>
                         <th> Is Group </th>
                         <td> {{ $chat_room->is_group == 1 ? 'Yes' : 'No' }} </td>
                     </tr>
