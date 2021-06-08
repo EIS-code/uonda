@@ -409,8 +409,23 @@ class ChatController extends BaseController
                 return $t2 - $t1;
             });
         }
+        $data = array();
+        foreach($return as $key => $returnData) {
+            $chat_room_id = $returnData['chat_room_id'];
+            $participants = $model::with(['ChatRoomsUsers'])->whereHas('ChatRoomsUsers', 
+                                function($q) use ($chat_room_id) {
+                                    $q->where('chat_room_id', $chat_room_id);
+                                }
+                            )
+                            ->whereNotNull('profile')
+                            ->take(3)
+                            ->pluck('profile_icon')
+                            ->toArray();
+            $returnData['participants'] = $participants;
+            $data[] = $returnData;
+        }
 
-        return $this->returnSuccess(__('User chat list get successfully!'), $return);
+        return $this->returnSuccess(__('User chat list get successfully!'), $data);
     }
 
     public function getUserHistory(Request $request)

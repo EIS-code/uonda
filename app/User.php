@@ -300,6 +300,10 @@ class User extends Authenticatable
         return $this->belongsToMany(Feed::class, 'feed_likes')->withTimestamps();
     }
 
+    public function ChatRoomsUsers() {
+        return $this->belongsTo(ChatRoomUser::class, 'id', 'sender_id');
+    }
+
     //get encrypted user id
     public function getEncryptedUserIdAttribute()
     {
