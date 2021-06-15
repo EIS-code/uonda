@@ -42,7 +42,7 @@ let con  = mysql.createPool({
     password        : env.config(envPath).parsed.DB_PASSWORD,
     database        : env.config(envPath).parsed.DB_DATABASE,
     strict          : false,
-    socketPath      : env.config(envPath).parsed.APP_ENV == 'dev' ? '/opt/lampp/var/mysql/mysql.sock' : ''
+    socketPath      : env.config(envPath).parsed.APP_ENV == 'dev' ? '/var/lib/mysql/mysql.sock' : ''
 });
 
 // Database tables.
@@ -246,8 +246,7 @@ io.on('connection', function (socket) {
 
     if (!isError) {
         con.getConnection(function(err, connection) {
-console.log(err);
-console.log(connection);
+
             let now             = mysqlDate(new Date()),
                 timestampsQuery = "`created_at` = NOW(), `updated_at` = NOW()";
 
