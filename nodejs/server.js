@@ -246,7 +246,8 @@ io.on('connection', function (socket) {
 
     if (!isError) {
         con.getConnection(function(err, connection) {
-
+console.log(err);
+console.log(connection);
             let now             = mysqlDate(new Date()),
                 timestampsQuery = "`created_at` = NOW(), `updated_at` = NOW()";
 
