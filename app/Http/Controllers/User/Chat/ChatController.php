@@ -628,7 +628,7 @@ class ChatController extends BaseController
         $users_count =  User::where('is_admin', 0)->where('id', '!=', $request->user_id)->count();
         $search_users_count = 0;
 
-        $users = User::select('id', 'name', 'profile_pic', 'profile', 'profile_icon')
+        $users = User::select('id', 'name', 'profile', 'profile_icon')
                     ->where('is_admin', 0)
                     ->where('id', '!=', $request->user_id);
         if(!empty($search)) {
@@ -687,6 +687,9 @@ class ChatController extends BaseController
 
         if($request->has('chat_room_id') && !empty($request->chat_room_id)) {
             $chat_room = ChatRoom::find($request->chat_room_id);
+            if(empty($chat_room)) {
+                return $this->returnError(__('Chatroom not found. Check chat_room_id in request.'));
+            }
             $prevIcon = $chat_room->group_icon_actual;
             $chat_room_data = $chat_room->ChatRoomUsers->pluck('id')->toArray();
         }
@@ -770,7 +773,7 @@ class ChatController extends BaseController
         }
 
         $chat_room_details = ChatRoom::with(['chatRoomUsers.Users' => function($q) {
-                                $q->select('id', 'name', 'profile_pic', 'profile', 'profile_icon');
+                                $q->select('id', 'name', 'profile', 'profile_icon');
                             }])
                             ->with(['chatRoomUsers' => function($q) use ($request) {
                                 $q->where('sender_id', '!=', $request->user_id);
@@ -848,7 +851,7 @@ class ChatController extends BaseController
     //Function to get the chat group details
     public function getChatGroupDetails(Request $request, $id) {
         $chat_room_details = ChatRoom::with(['chatRoomUsers.Users' => function($q) {
-                                $q->select('id', 'name', 'profile_pic', 'profile', 'profile_icon');
+                                $q->select('id', 'name', 'profile', 'profile_icon');
                             }])
                             ->where('id', $id)
                             ->get();
