@@ -208,11 +208,11 @@
                                     <i class="metismenu-icon pe-7s-way"></i>Subscription Plans
                                 </a>
                             </li>
-                            <li class="{{ Request::is('groups*') ? 'mm-active' : '' }}">
+                            <!-- <li class="{{ Request::is('groups*') ? 'mm-active' : '' }}">
                                 <a href="{{ route('groups.index') }}" >
                                     <i class="metismenu-icon pe-7s-light"></i>Groups
                                 </a>
-                            </li>
+                            </li> -->
                             <li class="{{ Request::is('chat*') ? 'mm-active' : '' }}">
                                 <a href="{{ route('chats.index') }}" >
                                     <i class="metismenu-icon pe-7s-light"></i>Chat Groups

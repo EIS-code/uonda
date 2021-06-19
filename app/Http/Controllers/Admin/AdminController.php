@@ -9,6 +9,7 @@ use Validator;
 use Hash;
 use Illuminate\Http\UploadedFile;
 use Storage;
+use DB;
 
 class AdminController extends Controller
 {
@@ -20,7 +21,7 @@ class AdminController extends Controller
     public function updateProfile(Request $request) {
         $user = Auth::user();
         $data = $request->all();
-        $prevAttachment = $user->profile;
+        // $prevAttachment = $user->profile;
         $rules = [
             'name' => 'required',
             'email' => 'required|email|unique:users,email,'.$user->id,
@@ -41,23 +42,29 @@ class AdminController extends Controller
             $user->password = Hash::make($request->password);
         }
         if (array_key_exists('attachment', $data) && ($data['attachment'] instanceof UploadedFile)) {
+            
             $attachment = $data['attachment'];
-            if(!empty($prevAttachment)) {
-                Storage::delete('/public/admin-profile//' . $prevAttachment);
-            }
+            // echo "<pre>";
+            // print_r($user);exit;
+            // if(!empty($prevAttachment)) {
+            //     echo "ININ";exit;
+            //     Storage::delete('/public/admin-profile//' . $prevAttachment);
+            // }
+            // echo "ININ1";exit;
             $pathInfos = pathinfo($attachment->getClientOriginalName());
             if (!empty($pathInfos['extension'])) {
 
                 $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
                 $fileName  = removeSpaces($fileName);
                 $storeFile = $attachment->storeAs('admin-profile', $fileName, 'public');
-
+                
                 if ($storeFile) {
                     $user->profile = $fileName;
-
+                    DB::table('users')->where("id", Auth::user()->id)->update(['profile' => $user->profile]);
                 }
             }
         }
+        
         $user->save();
         $request->session()->flash('alert-success', 'Profile successfully updated');
         return redirect()->back();

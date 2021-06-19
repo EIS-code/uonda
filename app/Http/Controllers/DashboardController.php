@@ -8,7 +8,7 @@ use App\School;
 use App\Feed;
 use App\PromoCode;
 use App\SubscriptionPlan;
-use App\Group;
+use App\ChatRoom;
 
 class DashboardController extends Controller
 {
@@ -24,7 +24,7 @@ class DashboardController extends Controller
         $data['feeds_count'] = Feed::count();
         $data['codes_count'] = PromoCode::count();
         $data['plans_count'] = SubscriptionPlan::count();
-        $data['groups_count'] = Group::count();
+        $data['groups_count'] = ChatRoom::count();
         $data['schools_count'] = School::count();
         return view('pages/dashboard', compact('data'));
     }
