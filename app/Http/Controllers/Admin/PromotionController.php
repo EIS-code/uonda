@@ -76,6 +76,7 @@ class PromotionController extends Controller
 
                 if (!empty($folder)) {
                     $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                    $fileName  = removeSpaces($fileName);
                     $storeFile = $attachment->storeAs($folder, $fileName, $promotion->fileSystem);
 
                     if ($storeFile) {
@@ -167,6 +168,7 @@ class PromotionController extends Controller
 
                 if (!empty($folder)) {
                     $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                    $fileName  = removeSpaces($fileName);
                     $storeFile = $attachment->storeAs($folder, $fileName, $promotion->fileSystem);
 
                     if ($storeFile) {

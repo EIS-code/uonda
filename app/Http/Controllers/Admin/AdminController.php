@@ -49,6 +49,7 @@ class AdminController extends Controller
             if (!empty($pathInfos['extension'])) {
 
                 $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                $fileName  = removeSpaces($fileName);
                 $storeFile = $attachment->storeAs('admin-profile', $fileName, 'public');
 
                 if ($storeFile) {

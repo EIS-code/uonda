@@ -74,6 +74,7 @@ class FeedsController extends Controller
 
                 if (!empty($folder)) {
                     $fileName  = (empty($pathInfos['filename']) ? time() : str_replace(" ","-",$pathInfos['filename'])) . '_' . time() . '.' . $pathInfos['extension'];
+                    $fileName  = removeSpaces($fileName);
                     $storeFile = $attachment->storeAs($folder, $fileName, $feed->fileSystem);
 
                     if ($storeFile) {
@@ -159,6 +160,7 @@ class FeedsController extends Controller
 
                 if (!empty($folder)) {
                     $fileName  = (empty($pathInfos['filename']) ? time() : str_replace(" ","-",$pathInfos['filename'])) . '_' . time() . '.' . $pathInfos['extension'];
+                    $fileName  = removeSpaces($fileName);
                     $storeFile = $attachment->storeAs($folder, $fileName, $feed->fileSystem);
 
                     if ($storeFile) {

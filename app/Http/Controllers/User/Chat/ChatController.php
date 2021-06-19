@@ -730,6 +730,7 @@ class ChatController extends BaseController
 
                 if (!empty($folder)) {
                     $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                    $fileName  = removeSpaces($fileName);
                     $storeFile = $attachment->storeAs($folder, $fileName, $chat_room->fileSystem);
 
                     $thumb_image = Image::make($data['group_icon'])->resize(100, 100);
