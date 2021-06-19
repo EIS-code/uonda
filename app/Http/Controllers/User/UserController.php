@@ -800,6 +800,8 @@ class UserController extends BaseController
 
         $query->where($model->getTableName() . '.id', '!=', $model::IS_ADMIN);
 
+        $query->where($model->getTableName() . '.is_accepted', 1);
+
         $records = $query->selectRaw($selectStatements)->get();
 
         if (!empty($records) && !$records->isEmpty()) {

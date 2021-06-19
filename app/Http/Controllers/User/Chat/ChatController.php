@@ -321,7 +321,7 @@ class ChatController extends BaseController
         if (!empty($records)) {
             $userIds = $records->pluck('sender_id');
             $userIds = $userIds->merge($records->pluck('receiver_id'));
-            $users   = $model::selectRaw('*, profile as profile_image, profile_icon as profile_image_icon')->whereIn('id', $userIds->unique())->get()->keyBy('id');
+            $users   = $model::selectRaw('*, profile as profile_image, profile_icon as profile_image_icon')->whereIn('id', $userIds->unique())->where('is_accepted' , 1)->get()->keyBy('id');
 
             $records->map(function($data) use($users, $userId, $storageFolderName, $storageFolderNameIcon, $model, &$returnDatas) {
 
