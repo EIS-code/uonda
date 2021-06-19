@@ -39,7 +39,7 @@ class ContactUsController extends BaseController
 
             if (!empty($pathInfos['extension'])) {
                 $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
-
+                $fileName  = removeSpaces($fileName);
                 $data['attachment'] = $fileName;
             }
         }

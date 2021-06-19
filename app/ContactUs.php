@@ -25,7 +25,7 @@ class ContactUs extends BaseModel
     {
         $validator = Validator::make($data, [
             'text'       => ['required', 'string'],
-            'attachment' => ['nullable', 'mimes:' . implode(",", $this->allowedExtensions)],
+            'attachment' => ['nullable', 'mimes:' . implode(",", $this->allowedExtensions) .'|max:2048'],
             'model_name' => ['required', 'string', 'max:255'],
             'model_id'   => ['required', 'integer']
         ]);
