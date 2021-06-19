@@ -39,8 +39,10 @@ class ChatRoom extends BaseModel
             'uuid'              => ['required', 'string', 'max:255'],
             'title'             => ['nullable', 'string'],
             'description'       => ['nullable', 'string'],
-            'group_icon'        => ['nullable', 'mimes:' . implode(",", $this->allowedExtensions) .'|max:2048'],
-            'group_icon_actual' => ['nullable', 'mimes:' . implode(",", $this->allowedExtensions).'|max:2048'],
+            'group_icon'        => ['nullable', 'mimes:' . implode(",", $this->allowedExtensions)],
+            'group_icon_actual' => ['nullable', 'mimes:' . implode(",", $this->allowedExtensions)],
+            'group_icon' => ['nullable', 'max:2048'],
+            'group_icon_actual' => ['nullable', 'max:2048'],
             'is_group'          => ['in:' . implode(",", array_keys($this->isGroup))],
             'created_by_admin'  => ['nullable'],
             'created_by'        => ['nullable', 'integer', 'exists:' . (new User())->getTableName() . ',id']
