@@ -55,7 +55,7 @@ class Promotions extends Model
             'photo'  => [!empty($requiredFileds['photo']) ? $requiredFileds['photo'] : ['nullable'], 'mimes:' . implode(",", $this->allowedExtensions)],
             'photo' => ['nullable', 'max:10240'],
             'body' => ['required', 'string'],
-            'expiry_date' => ['required', 'date']
+            'expiry_date' => ['required', 'date', 'after_or_equal:today']
         ];
 
         $validator = Validator::make($data, $rules, [

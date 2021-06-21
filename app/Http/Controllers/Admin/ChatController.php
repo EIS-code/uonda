@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Chat;
 use App\ChatRoom;
+use App\UserBlockProfile;
 use App\User;
 use Illuminate\Http\UploadedFile;
 use Storage;
@@ -36,7 +37,14 @@ class ChatController extends Controller
     public function create()
     {
         $countries = Country::get();
-        $users = User::where('is_admin', 0)->get();
+        $blockedUser = UserBlockProfile::where('is_block' , '1')->get()->pluck('user_id')->toArray();
+        
+        if(!empty($blockedUser)) {
+            $users = User::where('is_admin', 0)->whereNotIn('id' , $blockedUser)->get();
+        } else{ 
+            $users = User::where('is_admin', 0)->get();
+        }
+        
         return view('pages.chat.add', compact('users', 'countries'));
     }
 
@@ -145,7 +153,13 @@ class ChatController extends Controller
         $countries = Country::get();
         $chat_room = ChatRoom::with(['ChatRoomUsers'])->find(decrypt($id));
         $chat_room_data = $chat_room->ChatRoomUsers->pluck('sender_id')->toArray();
-        $users = User::where('is_admin', 0)->get();
+        $blockedUser = UserBlockProfile::where('is_block' , '1')->get()->pluck('user_id')->toArray();
+        
+        if(!empty($blockedUser)) {
+            $users = User::where('is_admin', 0)->whereNotIn('id' , $blockedUser)->get();
+        } else{ 
+            $users = User::where('is_admin', 0)->get();
+        }
         $cities = array();
         if(!empty($chat_room->country_id)) {
             $country_id = $chat_room->country_id;

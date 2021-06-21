@@ -86,5 +86,6 @@
     $(document).ready(function() {
         CKEDITOR.replace( 'body' );
 	});
+
 </script>
 @endpush

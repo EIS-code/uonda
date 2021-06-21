@@ -25,6 +25,7 @@ class AuthApi
         'api/school/update',
         'api/user/details',
         'api/user/forgot/password',
+        'api/user/password/reset',
         'api/user/chat/send',
         'api/user/chat/notification/message/send',
         'api/user/chat/notification/message/group/send'
