@@ -7,8 +7,10 @@ use App\Country;
 use App\City;
 use App\State;
 use App\User;
+use App\UserBlockProfile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Auth;
 
 class LocationController extends BaseController
 {
@@ -134,7 +136,15 @@ class LocationController extends BaseController
         if ($validator->fails()) {
             return $this->returnError($validator->errors()->first());
         }
-        $users = User::where('city_id', $request->city_id)->get();
+
+        $blockedUser = UserBlockProfile::where("blocked_by" , Auth::user()->id)->where('is_block' , 1)->pluck('user_id')->toArray();
+
+        if(!empty($blockedUser)) {
+            $users = User::where('city_id', $request->city_id)->whereNotIn('id', $blockedUser)->get();
+        } else {
+            $users = User::where('city_id', $request->city_id)->get();
+        }
+
         $users->each(function($userRow) {
             $userRow->setHidden(['encrypted_user_id', 'permissions', 'total_notifications', 'total_read_notifications', 'total_unread_notifications', 'password', 'created_at', 'personal_flag', 'other_flag', 'school_flag', 'remember_token', 'updated_at', 'oauth_uid', 'oauth_provider']);
         });
