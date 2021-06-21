@@ -28,7 +28,7 @@ class AdminController extends Controller
         $rules = [
             'name' => 'required',
             'email' => 'required|email|unique:users,email,'.$user->id,
-            'password' => ['nullable', 'string', 'min:8'],
+            'password' => ['nullable', 'string'],
             'job_position' => 'nullable',
             'attachment' => 'sometimes|mimes:jpg,jpeg,png'
         ];
