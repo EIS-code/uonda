@@ -409,10 +409,24 @@ class ChatController extends BaseController
                 return $t2 - $t1;
             });
         }
+
+        $blockedUser = UserBlockProfile::where('blocked_by', auth()->user()->id)->where('is_block' , 1)->pluck('user_id')->toArray();
         $data = array();
         foreach($return as $key => $returnData) {
             $chat_room_id = $returnData['chat_room_id'];
-            $participants = $model::with(['ChatRoomsUsers'])->whereHas('ChatRoomsUsers', 
+            if(!empty($blockedUser)) {
+                $participants = $model::with(['ChatRoomsUsers'])->whereHas('ChatRoomsUsers', 
+                function($q) use ($chat_room_id , $blockedUser) {
+                    $q->where('chat_room_id', $chat_room_id)
+                    ->whereNotIn('id', $blockedUser);
+                    }
+                )
+                ->whereNotNull('profile')
+                ->take(3)
+                ->pluck('profile_icon')
+                ->toArray();
+            } else {
+                $participants = $model::with(['ChatRoomsUsers'])->whereHas('ChatRoomsUsers', 
                                 function($q) use ($chat_room_id) {
                                     $q->where('chat_room_id', $chat_room_id);
                                 }
@@ -421,7 +435,10 @@ class ChatController extends BaseController
                             ->take(3)
                             ->pluck('profile_icon')
                             ->toArray();
+            }
+            
             $returnData['participants'] = $participants;
+            $returnData['total_participants'] = count($participants);
             $data[] = $returnData;
         }
 
@@ -635,6 +652,13 @@ class ChatController extends BaseController
             $users = $users->where('name', 'like', $search . '%');
             $search_users_count = $users->count();
         }
+
+
+        $blockedUser = UserBlockProfile::where('blocked_by', $request->user_id)->where('is_block' , 1)->pluck('user_id')->toArray();
+        if(!empty($blockedUser)) {
+            $users = $users->whereNotIn('id' , $blockedUser);
+        }
+
         $users = $users->skip($offset)
                     ->take($per_page)
                     ->get();

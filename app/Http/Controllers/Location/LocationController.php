@@ -137,7 +137,8 @@ class LocationController extends BaseController
             return $this->returnError($validator->errors()->first());
         }
 
-        $blockedUser = UserBlockProfile::where("blocked_by" , Auth::user()->id)->where('is_block' , 1)->pluck('user_id')->toArray();
+        $blockedUser = UserBlockProfile::where('is_block' , 1)->pluck('user_id')->toArray();
+        print_r(($blockedUser));exit;
 
         if(!empty($blockedUser)) {
             $users = User::where('city_id', $request->city_id)->whereNotIn('id', $blockedUser)->get();
