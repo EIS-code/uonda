@@ -410,7 +410,7 @@ class ChatController extends BaseController
             });
         }
 
-        $blockedUser = UserBlockProfile::where('blocked_by', auth()->user()->id)->where('is_block' , 1)->pluck('user_id')->toArray();
+        $blockedUser = UserBlockProfile::where('blocked_by', $userId)->where('is_block' , 1)->pluck('user_id')->toArray();
         $data = array();
         foreach($return as $key => $returnData) {
             $chat_room_id = $returnData['chat_room_id'];
