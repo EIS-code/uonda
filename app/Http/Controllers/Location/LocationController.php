@@ -27,19 +27,51 @@ class LocationController extends BaseController
     {
         $countryId = $request->get('country_id', false);
         $stateId = $request->get('state_id', false);
+        $per_page = $request->has('per_page') ? $request->per_page : 10;
+        $offset = $request->has('offset') ? (int)$request->offset : 0;
+        $search = $request->has('search') ? $request->search : '';
 
+        $next_offset = $offset + $per_page;
+        $cities_count =  City::count();
+        $cities = new City();
         if(!empty($stateId)) {
-            $cities = City::with('state')->where('state_id', (int)$stateId)->get();
-        } else if (!empty($countryId)) {
-            $cities = City::with('state')->whereHas('state', function($q) use ($countryId) {
+            $cities = $cities::with('state')->where('state_id', (int)$stateId);
+        } else if(!empty($countryId)) {
+            $cities = $cities::with('state')->whereHas('state', function($q) use ($countryId) {
                 $q->where('country_id', $countryId);
-            })->get();
-        } else {
-            $cities = City::all();
+            });
+        } 
+
+        if(!empty($search)) {
+            $cities = $cities->where('name', 'like', '%'.$search.'%');
         }
 
+        $cities = $cities->skip($offset)->take($per_page)->get();
+        if($next_offset >= $cities_count) {
+            $next_offset = $offset;
+        }
+
+
+        // if(!empty($stateId)) {
+        //     $cities = City::with('state')->where('state_id', (int)$stateId)->skip($offset)->take($per_page)->get();
+        // } else if (!empty($countryId)) {
+        //     $cities = City::with('state')->whereHas('state', function($q) use ($countryId) {
+        //         $q->where('country_id', $countryId);
+        //     })->skip($offset)->take($per_page)->get();
+        // } else {
+        //     $cities = City::skip($offset)->take($per_page)->get();
+        // }
+
         if (!empty($cities) && !$cities->isEmpty()) {
-            return $this->returnSuccess(__('City fetched successfully!'), $cities);
+            return response()->json([
+                'code' => 200,
+                'msg'  => __('Cities fetched successfully!'),
+                'current_offset' => $offset,
+                'next_offset' => $next_offset,
+                'per_page' => $per_page,
+                'total_cities' => $cities_count,
+                'data' => $cities
+            ], 200);
         }
 
         return $this->returnNull();
