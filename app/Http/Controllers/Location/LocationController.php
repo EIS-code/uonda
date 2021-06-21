@@ -138,7 +138,6 @@ class LocationController extends BaseController
         }
 
         $blockedUser = UserBlockProfile::where('is_block' , 1)->pluck('user_id')->toArray();
-        print_r(($blockedUser));exit;
 
         if(!empty($blockedUser)) {
             $users = User::where('city_id', $request->city_id)->whereNotIn('id', $blockedUser)->get();
