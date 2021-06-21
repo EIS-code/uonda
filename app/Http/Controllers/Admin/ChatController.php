@@ -94,14 +94,14 @@ class ChatController extends Controller
                     $thumb_image = Image::make($data['group_icon'])->resize(100, 100)->save($fileName);
                     \Storage::disk($chat_room->fileSystem)->put($thumb_folder.'/'.$fileName, $thumb_image, $chat_room->fileSystem);
 
-                    if ($storeFile) {
+                    
                         $chat_room = $chat_room->find($id);
 
                         $chat_room->group_icon = $fileName;
                         $chat_room->group_icon_actual = $fileName;
 
-                        $chat_room->save();
-                    }
+                       $chat_room->save();
+                    
                 }
             }
         }
