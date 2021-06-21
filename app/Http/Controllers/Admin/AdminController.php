@@ -10,11 +10,14 @@ use Hash;
 use Illuminate\Http\UploadedFile;
 use Storage;
 use DB;
+use App\User;
 
 class AdminController extends Controller
 {
     public function editProfile(Request $request) {
-        $user = Auth::user();
+        $user = User::select("*" , "profile as new_profile")->where("id",Auth::user()->id)->first();
+        // echo "<pre>";
+        // print_r($user);exit;
         return view('pages.admin-profile.edit', compact('user'));
     }
 
@@ -57,7 +60,8 @@ class AdminController extends Controller
                 $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
                 $fileName  = removeSpaces($fileName);
                 $storeFile = $attachment->storeAs('admin-profile', $fileName, 'public');
-                
+                $user->profile = $fileName;
+                DB::table('users')->where("id", Auth::user()->id)->update(['profile' => $user->profile]);
                 if ($storeFile) {
                     $user->profile = $fileName;
                     DB::table('users')->where("id", Auth::user()->id)->update(['profile' => $user->profile]);
