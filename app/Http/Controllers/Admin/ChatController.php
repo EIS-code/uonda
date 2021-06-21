@@ -91,8 +91,11 @@ class ChatController extends Controller
                     $fileName  = removeSpaces($fileName);
                     $storeFile = $attachment->storeAs($folder, $fileName, $chat_room->fileSystem);
 
-                    $thumb_image = Image::make($data['group_icon'])->resize(100, 100)->save($fileName);
-                    \Storage::disk($chat_room->fileSystem)->put($thumb_folder.'/'.$fileName, $thumb_image, $chat_room->fileSystem);
+                    /* $thumb_image = Image::make($data['group_icon'])->resize(100, 100)->save($fileName);
+                    \Storage::disk($chat_room->fileSystem)->put($thumb_folder.'/'.$fileName, $thumb_image, $chat_room->fileSystem); */
+
+                    $thumb_image = Image::make($data['group_icon'])->resize(100, 100);
+                    \Storage::disk($chat_room->fileSystem)->put($thumb_folder.'/'.$fileName, $thumb_image->encode(), $chat_room->fileSystem);
 
                     
                         $chat_room = $chat_room->find($id);
@@ -210,8 +213,11 @@ class ChatController extends Controller
                     $fileName  = removeSpaces($fileName);
                     $storeFile = $attachment->storeAs($folder, $fileName, $chat_room->fileSystem);
 
-                    $thumb_image = Image::make($data['group_icon'])->resize(100, 100)->save($fileName);
-                    \Storage::disk($chat_room->fileSystem)->put($thumb_folder.'/'.$fileName, $thumb_image, $chat_room->fileSystem);
+                    /* $thumb_image = Image::make($data['group_icon'])->resize(100, 100)->save($fileName);
+                    \Storage::disk($chat_room->fileSystem)->put($thumb_folder.'/'.$fileName, $thumb_image, $chat_room->fileSystem); */
+
+                    $thumb_image = Image::make($data['group_icon'])->resize(100, 100);
+                    \Storage::disk($chat_room->fileSystem)->put($thumb_folder.'/'.$fileName, $thumb_image->encode(), $chat_room->fileSystem);
 
                     if ($storeFile) {
                         $chat_room = $chat_room->find($id);
