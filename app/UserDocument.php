@@ -44,7 +44,7 @@ class UserDocument extends BaseModel
         $validator = Validator::make($data, [
             'document_type' => ['required', 'in:' . implode(",", array_keys($this->documentTypes))],
             'document'      => ['required', 'mimes:' . implode(",", $this->allowedExtensions)],
-            'document' => ['nullable', 'max:2048'],
+            'document' => ['nullable', 'max:10240'],
             'user_id'       => ['required', 'integer', 'exists:' . (new User())->getTableName() . ',id']
         ]);
 
@@ -64,7 +64,7 @@ class UserDocument extends BaseModel
         $validator = Validator::make($data, [
             'document_types.*' => ['required', 'in:' . implode(",", array_keys($this->documentTypes))],
             'documents.*'      => ['required', 'mimes:' . implode(",", $this->allowedExtensions)],
-            'document.*' => ['nullable', 'max:2048'],
+            'document.*' => ['nullable', 'max:10240'],
             'user_id'          => ['required', 'integer', 'exists:' . (new User())->getTableName() . ',id']
         ]);
 

@@ -71,7 +71,7 @@ class Feed extends BaseModel
             'title'       => ['required', 'string', 'max:255'],
             'sub_title'   => ['nullable', 'string', 'max:255'],
             'attachment'  => ['nullable', 'mimes:' . implode(",", $this->allowedExtensions)],
-            'attachment' => ['nullable', 'max:2048'],
+            'attachment' => ['nullable', 'max:10240'],
             'description' => ['required', 'string'],
             'type'        => ['nullable', 'in:' . implode(",", array_keys($this->feedTypes))]
         ];

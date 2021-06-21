@@ -53,7 +53,7 @@ class Promotions extends Model
             'title'       => ['required', 'string', 'max:255'],
             'voucher_code'   => array_merge(['nullable', 'string', 'max:255'], !empty($requiredFileds['voucher_code']) ? $requiredFileds['voucher_code'] : ['unique:' . $this->getTableName()]),
             'photo'  => [!empty($requiredFileds['photo']) ? $requiredFileds['photo'] : ['nullable'], 'mimes:' . implode(",", $this->allowedExtensions)],
-            'photo' => ['nullable', 'max:2048'],
+            'photo' => ['nullable', 'max:10240'],
             'body' => ['required', 'string'],
             'expiry_date' => ['required', 'date']
         ];
