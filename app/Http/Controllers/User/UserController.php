@@ -458,7 +458,7 @@ class UserController extends BaseController
         }
 
         if ($model->isBlocked($requestedUserId, $userId)) {
-            return $this->returnError(__('This profile blocked by user.'));
+            return $this->returnError(__('This profile blocked by user.'), $this->blockCode);
         }
 
         $user = $model::with(['userDocuments','userPermission'])->find($userId);

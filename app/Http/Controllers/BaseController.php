@@ -11,6 +11,7 @@ use Carbon\Carbon;
 class BaseController extends Controller
 {
     public $errorCode     = 401;
+    public $blockCode     = 402;
     public $successCode   = 200;
     public $returnNullMsg = 'No response found!';
 
@@ -19,10 +20,12 @@ class BaseController extends Controller
         dd('Welcome to ' . env('APP_NAME'));
     }
 
-    public function returnError($message = NULL)
+    public function returnError($message = NULL, $code = NULL)
     {
+        $code = empty($code) ? $this->errorCode : $code;
+
         return response()->json([
-            'code' => $this->errorCode,
+            'code' => $code,
             'msg'  => $message
         ]);
     }
