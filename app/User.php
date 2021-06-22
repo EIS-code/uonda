@@ -56,7 +56,7 @@ class User extends Authenticatable
      *
      * @var array
      */
-    public $appends = ['encrypted_user_id', 'permissions', 'total_notifications', 'total_read_notifications', 'total_unread_notifications', 'school_name'];
+    public $appends = ['encrypted_user_id', 'permissions', 'total_notifications', 'total_read_notifications', 'total_unread_notifications', 'school_name', 'is_blocked'];
 
     const MALE = 'm';
     const FEMALE = 'f';
@@ -149,6 +149,15 @@ class User extends Authenticatable
     public function getTableName()
     {
         return with(new static)->getTable();
+    }
+
+    public function appendNewFields($fields)
+    {
+        if (is_array($fields)) {
+            array_merge($fields, $this->appends);
+        } elseif (is_string($fields)) {
+            array_push($this->appends, $fields);
+        }
     }
 
     public function validator(array $data, $requiredFileds = [], $extraFields = [], $returnBoolsOnly = false)
@@ -256,6 +265,14 @@ class User extends Authenticatable
         }
 
         return strtotime($value) * 1000;
+    }
+
+    public function getIsBlockedAttribute()
+    {
+        $userId        = (int)request()->get('user_id', false);
+        $requestUserId = $this->id;
+
+        return (int)$this->isBlocked($userId, $requestUserId);
     }
 
     public function userDocuments()
