@@ -236,7 +236,7 @@ class User extends Authenticatable
     //To set the birthday in date format
     public function setBirthdayAttribute($value)
     {
-        $this->attributes['birthday'] = Carbon::createFromTimestamp($value / 1000)->format('Y-m-d');
+        $this->attributes['birthday'] = Carbon::createFromTimestampMs($value);
     }
 
     public function getGenderAttribute($value)
