@@ -11,6 +11,7 @@ use App\UserBlockProfile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Auth;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class LocationController extends BaseController
 {
@@ -25,7 +26,7 @@ class LocationController extends BaseController
         return $this->returnNull();
     }
 
-    public function getCity(Request $request)
+    /*public function getCity(Request $request)
     {
         $countryId = $request->get('country_id', false);
         $stateId = $request->get('state_id', false);
@@ -74,6 +75,36 @@ class LocationController extends BaseController
                 'total_cities' => $cities_count,
                 'data' => $cities
             ], 200);
+        }
+
+        return $this->returnNull();
+    }*/
+
+    public function getCity(Request $request, $perPage = 10)
+    {
+        $countryId  = $request->get('country_id', false);
+        $stateId    = $request->get('state_id', false);
+        $search     = $request->has('search') ? $request->search : '';
+        $pageNumber = $request->has('page_number') ? $request->page_number : 1;
+
+        $cities = new City();
+
+        if(!empty($stateId)) {
+            $cities = $cities::with('state')->where('state_id', (int)$stateId);
+        } else if(!empty($countryId)) {
+            $cities = $cities::with('state')->whereHas('state', function($q) use ($countryId) {
+                $q->where('country_id', $countryId);
+            });
+        }
+
+        if (!empty($search)) {
+            $cities = $cities->where('name', 'LIKE', '%' . $search . '%');
+        }
+
+        $cities = $cities->paginate($perPage, ['*'], 'page', $pageNumber);
+
+        if (!empty($cities) && count($cities) > 0) {
+            return $this->returnSuccess(__('Cities fetched successfully!'), $cities);
         }
 
         return $this->returnNull();
