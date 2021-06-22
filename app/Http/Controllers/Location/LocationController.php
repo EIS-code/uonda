@@ -98,7 +98,7 @@ class LocationController extends BaseController
         }
 
         if (!empty($search)) {
-            $cities = $cities->where('name', 'LIKE', '%' . $search . '%');
+            $cities = $cities->where('name', 'LIKE', '%' . $search);
         }
 
         $cities = $cities->paginate($perPage, ['*'], 'page', $pageNumber);
