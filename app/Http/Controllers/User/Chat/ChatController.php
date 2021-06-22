@@ -337,7 +337,7 @@ class ChatController extends BaseController
                     $user       = $users[$data->sender_id];
                 }
 
-                if ($model->isBlocked($userId, $opponentId)) {
+                if (!$opponentId || $model->isBlocked($userId, $opponentId)) {
                     return false;
                 }
 
