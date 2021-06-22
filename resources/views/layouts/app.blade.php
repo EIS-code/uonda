@@ -272,7 +272,7 @@
                 </div>
             </div>
         @endauth
-        <div class="app-main__outer">
+        <div class="@auth app-main__outer @endauth">
             <div class="app-main__inner">
                 @yield('content')
             </div>
