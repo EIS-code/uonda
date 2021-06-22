@@ -185,6 +185,8 @@ class LocationController extends BaseController
             $userRow->setHidden(['encrypted_user_id', 'permissions', 'total_notifications', 'total_read_notifications', 'total_unread_notifications', 'password', 'created_at', 'personal_flag', 'other_flag', 'school_flag', 'remember_token', 'updated_at', 'oauth_uid', 'oauth_provider']);
         });
 
+        $users = $modal->removeBlockedUsers($users);
+
         return $this->returnSuccess(__('Users fetched successfully!'), $users);
     }
 

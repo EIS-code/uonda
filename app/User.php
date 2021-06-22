@@ -15,6 +15,7 @@ use App\Notification;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\Collection;
 
 class User extends Authenticatable
 {
@@ -119,6 +120,9 @@ class User extends Authenticatable
 
     const DEVICE_TYPE_IOS       = 'ios';
     const DEVICE_TYPE_ANDROID   = 'android';
+
+    const IS_BLOCKED = '1';
+    const IS_NOT_BLOCKED = '0';
 
     public function __construct(array $attributes = array())
     {
@@ -514,5 +518,18 @@ class User extends Authenticatable
     public function isAndroid()
     {
         return (strtolower($this->device_type) == self::DEVICE_TYPE_ANDROID);
+    }
+
+    public function removeBlockedUsers(Collection $users)
+    {
+        if (!empty($users) && !$users->isEmpty()) {
+            $users->each(function($user, $key) use($users) {
+                if ($user->is_blocked == self::IS_BLOCKED) {
+                    unset($users[$key]);
+                }
+            });
+        }
+
+        return $users;
     }
 }
