@@ -325,7 +325,7 @@ class ChatController extends BaseController
 
             $records->map(function($data) use($users, $userId, $storageFolderName, $storageFolderNameIcon, $model, &$returnDatas) {
 
-                $user = false;
+                $user = $opponentId = false;
 
                 if ($data->sender_id == $userId) {
                     if (!empty($users[$data->receiver_id])) {
