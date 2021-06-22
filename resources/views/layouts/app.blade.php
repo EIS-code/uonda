@@ -22,110 +22,8 @@
 </head>
 <body>
 <div class="app-container app-theme-white body-tabs-shadow fixed-header fixed-sidebar ">
-    <div class="app-header header-shadow">
-        <div class="app-header__logo">
-            <div class="logo-src"></div>
-            <div class="header__pane ml-auto">
-                <div>
-                    <button type="button" class="hamburger close-sidebar-btn hamburger--elastic" data-class="closed-sidebar">
-                    <span class="hamburger-box">
-                    <span class="hamburger-inner"></span>
-                    </span>
-                    </button>
-                </div>
-            </div>
-        </div>
-        <div class="app-header__mobile-menu">
-            <div>
-                <button type="button" class="hamburger hamburger--elastic mobile-toggle-nav">
-                <span class="hamburger-box">
-                <span class="hamburger-inner"></span>
-                </span>
-                </button>
-            </div>
-        </div>
-        <div class="app-header__menu">
-            <span>
-            <button type="button" class="btn-icon btn-icon-only btn btn-primary btn-sm mobile-toggle-header-nav">
-            <span class="btn-icon-wrapper">
-            <i class="fa fa-ellipsis-v fa-w-6"></i>
-            </span>
-            </button>
-            </span>
-        </div>
-        <div class="app-header__content">
-            <div class="app-header-right">
-                <div class="header-btn-lg pr-0">
-                    <div class="widget-content p-0">
-                        <div class="widget-content-wrapper">
-                            <div class="widget-content-left">
-                                <div class="btn-group">
-                                    <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="p-0 btn">
-                                    <img width="42" class="rounded-circle" src="{{ !empty(Auth::user()->profile) ? URL::asset('storage/admin-profile/'. Auth::user()->profile) : asset('assets/images/avatars/2.jpg') }}" alt="">
-                                    <i class="fa fa-angle-down ml-2 opacity-8"></i>
-                                    </a>
-                                    <div tabindex="-1" role="menu" aria-hidden="true" class="rm-pointers dropdown-menu-lg dropdown-menu dropdown-menu-right">
-                                        <div class="dropdown-menu-header">
-                                            <div class="dropdown-menu-header-inner bg-info">
-                                                <div class="menu-header-image opacity-2" style="background-image: url('{{ asset('assets/images/dropdown-header/city3.jpg') }}');"></div>
-                                                <div class="menu-header-content text-left">
-                                                    <div class="widget-content p-0">
-                                                        <div class="widget-content-wrapper">
-                                                            <div class="widget-content-left mr-3">
-                                                                <img width="42" class="rounded-circle" src="{{ !empty(Auth::user()->profile) ? URL::asset('storage/admin-profile/'. Auth::user()->profile) : asset('assets/images/avatars/2.jpg') }}" alt="">
-                                                            </div>
-                                                            <div class="widget-content-left">
-                                                                <div class="widget-heading">{{ ucfirst(Auth::user()->name) }}</div>
-                                                                <div class="widget-subheading opacity-8">Administration Access</div>
-                                                            </div>
-                                                            <div class="widget-content-right mr-2">
-                                                                <a class="btn-pill btn-shadow btn-shine btn btn-focus" href="{{ route('logout') }}" onclick="event.preventDefault();
-                                                                                    document.getElementById('logout-form').submit();">
-                                                                        {{ __('Logout') }}
-                                                                    </a>
-
-                                                                    <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                                                                        @csrf
-                                                                    </form>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="scroll-area-xs" style="height: 70px;">
-                                            <div class="scrollbar-container ps">
-                                                <ul class="nav flex-column">
-                                                    <li class="nav-item-header nav-item">Activity</li>
-                                                    <li class="nav-item">
-                                                        <a href="{{ route('profile') }}" class="nav-link">My Profile
-                                                        </a>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="widget-content-left  ml-3 header-user-info">
-                                <div class="widget-heading"> {{ ucfirst(Auth::user()->name) }} </div>
-                                <div class="widget-subheading"> ADMIN </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- <div class="header-btn-lg">
-                    <button type="button" class="hamburger hamburger--elastic open-right-drawer">
-                    <span class="hamburger-box">
-                    <span class="hamburger-inner"></span>
-                    </span>
-                    </button>
-                </div> -->
-            </div>
-        </div>
-    </div>
-    <div class="app-main">
-        <div class="app-sidebar sidebar-shadow">
+    @auth
+        <div class="app-header header-shadow">
             <div class="app-header__logo">
                 <div class="logo-src"></div>
                 <div class="header__pane ml-auto">
@@ -156,118 +54,224 @@
                 </button>
                 </span>
             </div>
-            <div class="scrollbar-sidebar">
-                <div class="app-sidebar__inner">
-                    <ul class="vertical-nav-menu">
-                        <li class="app-sidebar__heading">Menu</li>
-                            <li class="{{ Request::is('/') ? 'mm-active' : '' }}">
-                                <a href="{{ route('dashboard') }}" >
-                                    <i class="metismenu-icon pe-7s-rocket"></i>Dashboard
-                                </a>
-                            </li>
-                            <li class="{{ Request::is('users*') ? 'mm-active' : '' }}">
-                                <a href="javascript::void(0)">
-                                    <i class="metismenu-icon pe-7s-id"></i>Users
-                                    <i class="metismenu-state-icon pe-7s-angle-down caret-left"></i>
-                                </a>
-                                <ul>
-                                    <li class="{{ Request::is('users-list/accepted*') ? 'mm-active' : '' }}">
-                                        <a href="{{ route('users.index', 'accepted') }}" >
-                                            <i class="metismenu-icon"></i>Accepted Users
+            <div class="app-header__content">
+                <div class="app-header-right">
+                    <div class="header-btn-lg pr-0">
+                        <div class="widget-content p-0">
+                            <div class="widget-content-wrapper">
+                                <div class="widget-content-left">
+                                    <div class="btn-group">
+                                        <a data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="p-0 btn">
+                                        <img width="42" class="rounded-circle" src="{{ !empty(Auth::user()->profile) ? URL::asset('storage/admin-profile/'. Auth::user()->profile) : asset('assets/images/avatars/2.jpg') }}" alt="">
+                                        <i class="fa fa-angle-down ml-2 opacity-8"></i>
                                         </a>
-                                    </li>
-                                    <li class="{{ Request::is('users-list/rejected*') ? 'mm-active' : '' }}">
-                                        <a href="{{ route('users.index', 'rejected') }}" >
-                                            <i class="metismenu-icon"></i>Rejected Users
-                                        </a>
-                                    </li>
-                                    <li class="{{ Request::is('users-list/pending*') ? 'mm-active' : '' }}">
-                                        <a href="{{ route('users.index', 'pending') }}" >
-                                            <i class="metismenu-icon"></i>Pending Users
-                                        </a>
-                                    </li>
-                                </ul>
-                            </li>
-                            <li class="{{ Request::is('schools*') ? 'mm-active' : '' }}">
-                                <a href="{{ route('schools.index') }}" >
-                                    <i class="metismenu-icon pe-7s-display2"></i>Schools
-                                </a>
-                            </li>
-                            <li class="{{ Request::is('promo-codes*') ? 'mm-active' : '' }}">
-                                <a href="{{ route('promo-codes.index') }}" >
-                                    <i class="metismenu-icon pe-7s-diamond"></i>Promocodes
-                                </a>
-                            </li>
-                            <li class="{{ Request::is('feeds*') ? 'mm-active' : '' }}">
-                                <a href="{{ route('feeds.index') }}" >
-                                    <i class="metismenu-icon pe-7s-graph1"></i>Feeds
-                                </a>
-                            </li>
-                            <li class="{{ Request::is('subscription_plan*') ? 'mm-active' : '' }}">
-                                <a href="{{ route('subscription_plan.index') }}" >
-                                    <i class="metismenu-icon pe-7s-way"></i>Subscription Plans
-                                </a>
-                            </li>
-                            <!-- <li class="{{ Request::is('groups*') ? 'mm-active' : '' }}">
-                                <a href="{{ route('groups.index') }}" >
-                                    <i class="metismenu-icon pe-7s-light"></i>Groups
-                                </a>
-                            </li> -->
-                            <li class="{{ Request::is('chat*') ? 'mm-active' : '' }}">
-                                <a href="{{ route('chats.index') }}" >
-                                    <i class="metismenu-icon pe-7s-light"></i>Chat Groups
-                                </a>
-                            </li>
-                            <li class="{{ Request::is('reports-questions*') ? 'mm-active' : '' }}">
-                                <a href="{{ route('reports-questions.index') }}" >
-                                    <i class="metismenu-icon pe-7s-light"></i>Report Questions
-                                </a>
-                            </li>
-                            <li class="{{ Request::is('users-reports*') ? 'mm-active' : '' }}">
-                                <a href="{{ route('users-reports') }}" >
-                                    <i class="metismenu-icon pe-7s-light"></i>User Reports
-                                </a>
-                            </li>
-                            <li class="{{ Request::is('settings*') ? 'mm-active' : '' }}">
-                                <a href="{{ route('settings.index') }}" >
-                                    <i class="metismenu-icon pe-7s-light"></i>Settings
-                                </a>
-                            </li>
-                            <li class="{{ Request::is('emails*') ? 'mm-active' : '' }}">
-                                <a href="{{ route('emails.index') }}" >
-                                    <i class="metismenu-icon pe-7s-light"></i>Sent Emails
-                                </a>
-                            </li>
-                            <li class="{{ Request::is('blocked-users*') ? 'mm-active' : '' }}">
-                                <a href="{{ route('blocked-users') }}" >
-                                    <i class="metismenu-icon pe-7s-light"></i>Blocked Users 
-                                </a>
-                            </li>
-                            <li class="{{ Request::is('promotions*') ? 'mm-active' : '' }}">
-                                <a href="{{ route('promotions.index') }}" >
-                                    <i class="metismenu-icon pe-7s-light"></i>Promotions
-                                </a>
-                            </li>
-                            <li class="{{ Request::is('country*') ? 'mm-active' : '' }}">
-                                <a href="{{ route('country.index') }}" >
-                                    <i class="metismenu-icon pe-7s-light"></i>Country
-                                </a>
-                            </li>
-                            <li class="{{ Request::is('state*') ? 'mm-active' : '' }}">
-                                <a href="{{ route('state.index') }}" >
-                                    <i class="metismenu-icon pe-7s-light"></i>State
-                                </a>
-                            </li>
-                            <li class="{{ Request::is('city*') ? 'mm-active' : '' }}">
-                                <a href="{{ route('city.index') }}" >
-                                    <i class="metismenu-icon pe-7s-light"></i>City
-                                </a>
-                            </li>
-                        </li>
-                    </ul>
+                                        <div tabindex="-1" role="menu" aria-hidden="true" class="rm-pointers dropdown-menu-lg dropdown-menu dropdown-menu-right">
+                                            <div class="dropdown-menu-header">
+                                                <div class="dropdown-menu-header-inner bg-info">
+                                                    <div class="menu-header-image opacity-2" style="background-image: url('{{ asset('assets/images/dropdown-header/city3.jpg') }}');"></div>
+                                                    <div class="menu-header-content text-left">
+                                                        <div class="widget-content p-0">
+                                                            <div class="widget-content-wrapper">
+                                                                <div class="widget-content-left mr-3">
+                                                                    <img width="42" class="rounded-circle" src="{{ !empty(Auth::user()->profile) ? URL::asset('storage/admin-profile/'. Auth::user()->profile) : asset('assets/images/avatars/2.jpg') }}" alt="">
+                                                                </div>
+                                                                <div class="widget-content-left">
+                                                                    <div class="widget-heading">{{ ucfirst(Auth::user()->name) }}</div>
+                                                                    <div class="widget-subheading opacity-8">Administration Access</div>
+                                                                </div>
+                                                                <div class="widget-content-right mr-2">
+                                                                    <a class="btn-pill btn-shadow btn-shine btn btn-focus" href="{{ route('logout') }}" onclick="event.preventDefault();
+                                                                                        document.getElementById('logout-form').submit();">
+                                                                            {{ __('Logout') }}
+                                                                        </a>
+
+                                                                        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                                                                            @csrf
+                                                                        </form>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="scroll-area-xs" style="height: 70px;">
+                                                <div class="scrollbar-container ps">
+                                                    <ul class="nav flex-column">
+                                                        <li class="nav-item-header nav-item">Activity</li>
+                                                        <li class="nav-item">
+                                                            <a href="{{ route('profile') }}" class="nav-link">My Profile
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="widget-content-left  ml-3 header-user-info">
+                                    <div class="widget-heading"> {{ ucfirst(Auth::user()->name) }} </div>
+                                    <div class="widget-subheading"> ADMIN </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- <div class="header-btn-lg">
+                        <button type="button" class="hamburger hamburger--elastic open-right-drawer">
+                        <span class="hamburger-box">
+                        <span class="hamburger-inner"></span>
+                        </span>
+                        </button>
+                    </div> -->
                 </div>
             </div>
         </div>
+    @endauth
+    <div class="app-main">
+        @auth
+            <div class="app-sidebar sidebar-shadow">
+                <div class="app-header__logo">
+                    <div class="logo-src"></div>
+                    <div class="header__pane ml-auto">
+                        <div>
+                            <button type="button" class="hamburger close-sidebar-btn hamburger--elastic" data-class="closed-sidebar">
+                            <span class="hamburger-box">
+                            <span class="hamburger-inner"></span>
+                            </span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="app-header__mobile-menu">
+                    <div>
+                        <button type="button" class="hamburger hamburger--elastic mobile-toggle-nav">
+                        <span class="hamburger-box">
+                        <span class="hamburger-inner"></span>
+                        </span>
+                        </button>
+                    </div>
+                </div>
+                <div class="app-header__menu">
+                    <span>
+                    <button type="button" class="btn-icon btn-icon-only btn btn-primary btn-sm mobile-toggle-header-nav">
+                    <span class="btn-icon-wrapper">
+                    <i class="fa fa-ellipsis-v fa-w-6"></i>
+                    </span>
+                    </button>
+                    </span>
+                </div>
+                <div class="scrollbar-sidebar">
+                    <div class="app-sidebar__inner">
+                        <ul class="vertical-nav-menu">
+                            <li class="app-sidebar__heading">Menu</li>
+                                <li class="{{ Request::is('/') ? 'mm-active' : '' }}">
+                                    <a href="{{ route('dashboard') }}" >
+                                        <i class="metismenu-icon pe-7s-rocket"></i>Dashboard
+                                    </a>
+                                </li>
+                                <li class="{{ Request::is('users*') ? 'mm-active' : '' }}">
+                                    <a href="javascript::void(0)">
+                                        <i class="metismenu-icon pe-7s-id"></i>Users
+                                        <i class="metismenu-state-icon pe-7s-angle-down caret-left"></i>
+                                    </a>
+                                    <ul>
+                                        <li class="{{ Request::is('users-list/accepted*') ? 'mm-active' : '' }}">
+                                            <a href="{{ route('users.index', 'accepted') }}" >
+                                                <i class="metismenu-icon"></i>Accepted Users
+                                            </a>
+                                        </li>
+                                        <li class="{{ Request::is('users-list/rejected*') ? 'mm-active' : '' }}">
+                                            <a href="{{ route('users.index', 'rejected') }}" >
+                                                <i class="metismenu-icon"></i>Rejected Users
+                                            </a>
+                                        </li>
+                                        <li class="{{ Request::is('users-list/pending*') ? 'mm-active' : '' }}">
+                                            <a href="{{ route('users.index', 'pending') }}" >
+                                                <i class="metismenu-icon"></i>Pending Users
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="{{ Request::is('schools*') ? 'mm-active' : '' }}">
+                                    <a href="{{ route('schools.index') }}" >
+                                        <i class="metismenu-icon pe-7s-display2"></i>Schools
+                                    </a>
+                                </li>
+                                <li class="{{ Request::is('promo-codes*') ? 'mm-active' : '' }}">
+                                    <a href="{{ route('promo-codes.index') }}" >
+                                        <i class="metismenu-icon pe-7s-diamond"></i>Promocodes
+                                    </a>
+                                </li>
+                                <li class="{{ Request::is('feeds*') ? 'mm-active' : '' }}">
+                                    <a href="{{ route('feeds.index') }}" >
+                                        <i class="metismenu-icon pe-7s-graph1"></i>Feeds
+                                    </a>
+                                </li>
+                                <li class="{{ Request::is('subscription_plan*') ? 'mm-active' : '' }}">
+                                    <a href="{{ route('subscription_plan.index') }}" >
+                                        <i class="metismenu-icon pe-7s-way"></i>Subscription Plans
+                                    </a>
+                                </li>
+                                <!-- <li class="{{ Request::is('groups*') ? 'mm-active' : '' }}">
+                                    <a href="{{ route('groups.index') }}" >
+                                        <i class="metismenu-icon pe-7s-light"></i>Groups
+                                    </a>
+                                </li> -->
+                                <li class="{{ Request::is('chat*') ? 'mm-active' : '' }}">
+                                    <a href="{{ route('chats.index') }}" >
+                                        <i class="metismenu-icon pe-7s-light"></i>Chat Groups
+                                    </a>
+                                </li>
+                                <li class="{{ Request::is('reports-questions*') ? 'mm-active' : '' }}">
+                                    <a href="{{ route('reports-questions.index') }}" >
+                                        <i class="metismenu-icon pe-7s-light"></i>Report Questions
+                                    </a>
+                                </li>
+                                <li class="{{ Request::is('users-reports*') ? 'mm-active' : '' }}">
+                                    <a href="{{ route('users-reports') }}" >
+                                        <i class="metismenu-icon pe-7s-light"></i>User Reports
+                                    </a>
+                                </li>
+                                <li class="{{ Request::is('settings*') ? 'mm-active' : '' }}">
+                                    <a href="{{ route('settings.index') }}" >
+                                        <i class="metismenu-icon pe-7s-light"></i>Settings
+                                    </a>
+                                </li>
+                                <li class="{{ Request::is('emails*') ? 'mm-active' : '' }}">
+                                    <a href="{{ route('emails.index') }}" >
+                                        <i class="metismenu-icon pe-7s-light"></i>Sent Emails
+                                    </a>
+                                </li>
+                                <li class="{{ Request::is('blocked-users*') ? 'mm-active' : '' }}">
+                                    <a href="{{ route('blocked-users') }}" >
+                                        <i class="metismenu-icon pe-7s-light"></i>Blocked Users 
+                                    </a>
+                                </li>
+                                <li class="{{ Request::is('promotions*') ? 'mm-active' : '' }}">
+                                    <a href="{{ route('promotions.index') }}" >
+                                        <i class="metismenu-icon pe-7s-light"></i>Promotions
+                                    </a>
+                                </li>
+                                <li class="{{ Request::is('country*') ? 'mm-active' : '' }}">
+                                    <a href="{{ route('country.index') }}" >
+                                        <i class="metismenu-icon pe-7s-light"></i>Country
+                                    </a>
+                                </li>
+                                <li class="{{ Request::is('state*') ? 'mm-active' : '' }}">
+                                    <a href="{{ route('state.index') }}" >
+                                        <i class="metismenu-icon pe-7s-light"></i>State
+                                    </a>
+                                </li>
+                                <li class="{{ Request::is('city*') ? 'mm-active' : '' }}">
+                                    <a href="{{ route('city.index') }}" >
+                                        <i class="metismenu-icon pe-7s-light"></i>City
+                                    </a>
+                                </li>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        @endauth
         <div class="app-main__outer">
             <div class="app-main__inner">
                 @yield('content')
