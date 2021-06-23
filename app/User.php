@@ -113,6 +113,8 @@ class User extends Authenticatable
     const IS_ADMIN = '1';
     const IS_USER = '0';
 
+    const ADMIN_ID = '1';
+
     const IS_ONLINE     = '1';
     const IS_NOT_ONLINE = '0';
 

@@ -22,7 +22,7 @@ class SuperadminUserSeeder extends Seeder
             }
 
             User::create([
-                'id'       => 1,
+                'id'       => User::ADMIN_ID,
                 'name'     => 'Superadmin',
                 'email'    => 'community@uonda.com',
                 'password' => Hash::make('uk@2021'),
