@@ -48,7 +48,7 @@ class SendChatMessageNotification implements ShouldQueue
 
         $fromUser                   = User::find($this->fromUserId);
 
-        $this->notificationTitle    = !empty($fromUser) ? $this->notificationTitle . $fromUser->fullName : $this->notificationTitle;
+        $this->notificationTitle    = !empty($fromUser) ? __($this->notificationTitle . $fromUser->fullName) : __($this->notificationTitle);
     }
 
     /**
@@ -113,7 +113,7 @@ class SendChatMessageNotification implements ShouldQueue
 
             $downstreamResponse     = FCM::sendTo($deviceToken, $option, $notification);
 
-            $downstreamResponse->numberSuccess();
+            /* $downstreamResponse->numberSuccess();
             $downstreamResponse->numberFailure();
             $downstreamResponse->numberModification();
 
@@ -127,7 +127,7 @@ class SendChatMessageNotification implements ShouldQueue
             $downstreamResponse->tokensToRetry();
 
             // Return Array (key:token, value:error) - in production you should remove from your database the tokens
-            $downstreamResponse->tokensWithError();
+            $downstreamResponse->tokensWithError(); */
 
             $this->storeNotification($deviceToken);
 
