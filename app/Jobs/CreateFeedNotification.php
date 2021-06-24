@@ -84,7 +84,7 @@ class CreateFeedNotification implements ShouldQueue
 
             $dataBuilder = new PayloadDataBuilder();
 
-            // $dataBuilder->addData(['a_data' => 'my_data']);
+            $dataBuilder->addData(['notification_type' => modalNotification::NOTIFICATION_FEED]);
 
             $option             = $optionBuilder->build();
             $notification       = $notificationBuilder->build();
