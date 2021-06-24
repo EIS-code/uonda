@@ -58,6 +58,7 @@ class SendChatMessageNotification implements ShouldQueue
      */
     public function handle()
     {
+        // ->where('is_online', User::IS_NOT_ONLINE)
         $users = User::where('id', $this->userId)->whereNotNull('device_token')->whereNotNull('device_type')->first();
 
         if (!empty($users)) {
