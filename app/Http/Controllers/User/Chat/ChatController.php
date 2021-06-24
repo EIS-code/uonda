@@ -691,20 +691,32 @@ class ChatController extends BaseController
     public function createChatGroup(Request $request) {
         $chat_room = new ChatRoom();
         $chat = new Chat();
+        $chatRoomUser = new ChatRoomUser();
         $data  = $request->all();
+
+        if (!empty($data['users'])) {
+            if (is_string($data['users'])) {
+                $data['users'] = explode(",", $data['users']);
+            }
+        }
         
         $data['uuid'] = $chat->generateUuid(10);
         $data['is_group'] = $chat_room::IS_GROUP;
         $data['created_by_admin'] = 0;
         $data['created_by'] = $request->user_id;
 
-        if($request->has('users')) {
+        if ($request->has('users')) {
             array_push($data['users'], $request->user_id);
-        } else {
+        }/* else {
             $data['users'] = [$request->user_id];
-        }
+        }*/
 
         $validator = $chat_room->validators($data);
+        if ($validator->fails()) {
+            return $this->returnError($validator->errors()->first());
+        }
+
+        $validator = $chatRoomUser->validatorUsers(['sender_id' => $data['users']]);
         if ($validator->fails()) {
             return $this->returnError($validator->errors()->first());
         }
