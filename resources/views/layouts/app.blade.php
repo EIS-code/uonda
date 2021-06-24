@@ -218,52 +218,52 @@
                                 </li> -->
                                 <li class="{{ Request::is('chat*') ? 'mm-active' : '' }}">
                                     <a href="{{ route('chats.index') }}" >
-                                        <i class="metismenu-icon pe-7s-light"></i>Chat Groups
+                                        <i class="metismenu-icon pe-7s-chat"></i>Chat Groups
                                     </a>
                                 </li>
                                 <li class="{{ Request::is('reports-questions*') ? 'mm-active' : '' }}">
                                     <a href="{{ route('reports-questions.index') }}" >
-                                        <i class="metismenu-icon pe-7s-light"></i>Report Questions
+                                        <i class="metismenu-icon pe-7s-news-paper"></i>Report Questions
                                     </a>
                                 </li>
                                 <li class="{{ Request::is('users-reports*') ? 'mm-active' : '' }}">
                                     <a href="{{ route('users-reports') }}" >
-                                        <i class="metismenu-icon pe-7s-light"></i>User Reports
+                                        <i class="metismenu-icon pe-7s-note2"></i>User Reports
                                     </a>
                                 </li>
                                 <li class="{{ Request::is('settings*') ? 'mm-active' : '' }}">
                                     <a href="{{ route('settings.index') }}" >
-                                        <i class="metismenu-icon pe-7s-light"></i>Settings
+                                        <i class="metismenu-icon pe-7s-config"></i>Settings
                                     </a>
                                 </li>
                                 <li class="{{ Request::is('emails*') ? 'mm-active' : '' }}">
                                     <a href="{{ route('emails.index') }}" >
-                                        <i class="metismenu-icon pe-7s-light"></i>Sent Emails
+                                        <i class="metismenu-icon pe-7s-mail"></i>Sent Emails
                                     </a>
                                 </li>
                                 <li class="{{ Request::is('blocked-users*') ? 'mm-active' : '' }}">
                                     <a href="{{ route('blocked-users') }}" >
-                                        <i class="metismenu-icon pe-7s-light"></i>Blocked Users 
+                                        <i class="metismenu-icon pe-7s-delete-user"></i>Blocked Users 
                                     </a>
                                 </li>
                                 <li class="{{ Request::is('promotions*') ? 'mm-active' : '' }}">
                                     <a href="{{ route('promotions.index') }}" >
-                                        <i class="metismenu-icon pe-7s-light"></i>Promotions
+                                        <i class="metismenu-icon pe-7s-medal"></i>Promotions
                                     </a>
                                 </li>
                                 <li class="{{ Request::is('country*') ? 'mm-active' : '' }}">
                                     <a href="{{ route('country.index') }}" >
-                                        <i class="metismenu-icon pe-7s-light"></i>Country
+                                        <i class="metismenu-icon pe-7s-world"></i>Country
                                     </a>
                                 </li>
                                 <li class="{{ Request::is('state*') ? 'mm-active' : '' }}">
                                     <a href="{{ route('state.index') }}" >
-                                        <i class="metismenu-icon pe-7s-light"></i>State
+                                        <i class="metismenu-icon pe-7s-global"></i>State
                                     </a>
                                 </li>
                                 <li class="{{ Request::is('city*') ? 'mm-active' : '' }}">
                                     <a href="{{ route('city.index') }}" >
-                                        <i class="metismenu-icon pe-7s-light"></i>City
+                                        <i class="metismenu-icon pe-7s-global"></i>City
                                     </a>
                                 </li>
                             </li>

@@ -53,7 +53,7 @@
             <div class="form-group">
                 <label for="expiry_date">Expiry Date</label>
                 <div>
-                    <input type="text" class="form-control @error('expiry_date') is-invalid @enderror" id="expiry_date" name="expiry_date" placeholder="Expiry Date" value="{{ old('expiry_date') }}" data-toggle="datepicker"/>
+                    <input type="date" class="form-control @error('expiry_date') is-invalid @enderror" id="expiry_date" name="expiry_date" placeholder="Expiry Date" value="{{ old('expiry_date') }}"/>
                     @error('expiry_date')
                         <em class="error invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
@@ -85,7 +85,8 @@
     
     $(document).ready(function() {
         CKEDITOR.replace( 'body' );
-	});
+        expiry_date.min = new Date().toISOString().split("T")[0];
+    });
 
 </script>
 @endpush
