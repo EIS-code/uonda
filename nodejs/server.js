@@ -867,7 +867,8 @@ async function sendPushNotifications(receiverId, senderId, message)
         });
     }
 
-    if (!isOnline) {
+    // !isOnline
+    if (true) {
         axios.post(removeTrailingSlash(appUrl) + '/api/user/chat/notification/message/send', {
             "user_id": receiverId,
             "message": message,
