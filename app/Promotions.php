@@ -92,6 +92,6 @@ class Promotions extends Model
     //get promotion formatted expiry date
     public function getFormattedExpiryDateAttribute()
     {
-        return Carbon::parse($this->expiry_date)->format('m/d/Y');
+        return Carbon::parse($this->expiry_date)->format('Y-m-d');
     }
 }
