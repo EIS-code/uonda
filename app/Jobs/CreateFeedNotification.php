@@ -64,7 +64,7 @@ class CreateFeedNotification implements ShouldQueue
         $deviceTokens = [];
 
         foreach ($users as $user) {
-            if (in_array($user->device_type, [User::DEVICE_TYPE_IOS, User::DEVICE_TYPE_ANDROID])) {
+            if (in_array(strtolower($user->device_type), [User::DEVICE_TYPE_IOS, User::DEVICE_TYPE_ANDROID])) {
                 $deviceTokens[$user->id] = $user->device_token;
             }
         }
@@ -84,7 +84,7 @@ class CreateFeedNotification implements ShouldQueue
 
             $dataBuilder = new PayloadDataBuilder();
 
-            // $dataBuilder->addData(['a_data' => 'my_data']);
+            $dataBuilder->addData(['notification_type' => modalNotification::NOTIFICATION_FEED]);
 
             $option             = $optionBuilder->build();
             $notification       = $notificationBuilder->build();
@@ -118,6 +118,7 @@ class CreateFeedNotification implements ShouldQueue
                     'message'       => $description,
                     'device_token'  => $token,
                     'is_success'    => modalNotification::IS_SUCCESS,
+                    'apns_id'       => env('FCM_WEB_API_KEY'),
                     'error_infos'   => json_encode($downstreamResponse->tokensWithError()),
                     'user_id'       => $userId,
                     'created_by'    => User::ADMIN_ID,

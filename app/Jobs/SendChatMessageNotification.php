@@ -48,7 +48,7 @@ class SendChatMessageNotification implements ShouldQueue
 
         $fromUser                   = User::find($this->fromUserId);
 
-        $this->notificationTitle    = !empty($fromUser) ? $this->notificationTitle . $fromUser->fullName : $this->notificationTitle;
+        $this->notificationTitle    = !empty($fromUser) ? __($this->notificationTitle . $fromUser->fullName) : __($this->notificationTitle);
     }
 
     /**
@@ -58,7 +58,7 @@ class SendChatMessageNotification implements ShouldQueue
      */
     public function handle()
     {
-        $users = User::where('id', $this->userId)->whereNotNull('device_token')->whereNotNull('device_type')->where('is_online', User::IS_NOT_ONLINE)->first();
+        $users = User::where('id', $this->userId)->whereNotNull('device_token')->whereNotNull('device_type')->first();
 
         if (!empty($users)) {
             // iOs
@@ -103,6 +103,8 @@ class SendChatMessageNotification implements ShouldQueue
 
             $notificationBuilder    = new PayloadNotificationBuilder($this->notificationTitle);
 
+            $dataBuilder->addData(['notification_type' => NotificationModel::NOTIFICATION_CHAT, 'sender_id' => $this->fromUserId]);
+
             $notificationBuilder->setBody($this->message)->setSound('default');
 
             $option                 = $optionBuilder->build();
@@ -113,7 +115,7 @@ class SendChatMessageNotification implements ShouldQueue
 
             $downstreamResponse     = FCM::sendTo($deviceToken, $option, $notification);
 
-            $downstreamResponse->numberSuccess();
+            /* $downstreamResponse->numberSuccess();
             $downstreamResponse->numberFailure();
             $downstreamResponse->numberModification();
 
@@ -127,7 +129,7 @@ class SendChatMessageNotification implements ShouldQueue
             $downstreamResponse->tokensToRetry();
 
             // Return Array (key:token, value:error) - in production you should remove from your database the tokens
-            $downstreamResponse->tokensWithError();
+            $downstreamResponse->tokensWithError(); */
 
             $this->storeNotification($deviceToken);
 
