@@ -39,6 +39,10 @@
                         <td> {{ $user->email }} </td>
                     </tr>
                     <tr>
+                        <th> Referral Code </th>
+                        <td> {{ $user->referral_code }} </td>
+                    </tr>
+                    <tr>
                         <th> Current Location </th>
                         <td> {{ !empty($user->	current_location) ? $user->	current_location : '-' }} </td>
                     </tr>
@@ -118,6 +122,22 @@
                         <th> Reason for Rejection </th>
                         <td> {{ !empty($user->reason_for_rejection) ? $user->reason_for_rejection : '-' }} </td>
                     </tr>
+                </tbody>
+            </table>
+            <h4 style="text-align:center">Referral Users</h4>
+            <table class="table table-striped course-tables show-details-table">
+                <tbody>
+                    @foreach($user->referralUsers as $ruser)
+                        <tr>
+                            <td>{{ $ruser->user->name }}</td>
+                            <td>{{ $ruser->user->email }}</td>
+                        </tr>
+                    @endforeach
+                    @if(count($user->referralUsers) == 0)
+                        <tr>
+                            <th colspan=2>No referral users found</th>
+                        </tr>
+                    @endif
                 </tbody>
             </table>
             <h4 style="text-align:center">Users Documents</h4>
