@@ -893,17 +893,19 @@ class ChatController extends BaseController
                             ->where('id', $id)
                             ->get();
 
-        $chatRoomDetails->each(function($row, $index) use($chatRoomDetails) {
-            $row->chatRoomUsers->each(function($userRow, $key) use($index, $chatRoomDetails) {
-                if ($userRow->Users->is_blocked == UserBlockProfile::IS_BLOCK) {
-                    unset($chatRoomDetails[$index]->chatRoomUsers[$key]);
-                }
+        if (!empty($chatRoomDetails) && !$chatRoomDetails->isEmpty()) {
+            $chatRoomDetails->each(function($row, $index) use($chatRoomDetails) {
+                $row->chatRoomUsers->each(function($userRow, $key) use($index, $chatRoomDetails) {
+                    if ($userRow->Users->is_blocked == UserBlockProfile::IS_BLOCK) {
+                        unset($chatRoomDetails[$index]->chatRoomUsers[$key]);
+                    }
 
-                $userRow->Users->setHidden(['encrypted_user_id', 'permissions', 'total_notifications', 'total_read_notifications', 'total_unread_notifications']);
+                    $userRow->Users->setHidden(['encrypted_user_id', 'permissions', 'total_notifications', 'total_read_notifications', 'total_unread_notifications']);
+                });
             });
 
-            reset($chatRoomDetails[$index]->chatRoomUsers);
-        });
+            $chatRoomDetails = array_map('array_values', $chatRoomDetails);
+        }
 
         return $this->returnSuccess(__('Chat group details fetched successfully!'), $chatRoomDetails);
     }
