@@ -427,9 +427,8 @@ class ChatController extends BaseController
                 ->toArray();
             } else {
                 $participants = $model::with(['ChatRoomsUsers'])->whereHas('ChatRoomsUsers', 
-                                function($q) use ($chat_room_id, $blockedUser) {
-                                    $q->where('chat_room_id', $chat_room_id)
-                                      ->whereNotIn('id', (array)$blockedUser);
+                                function($q) use ($chat_room_id) {
+                                    $q->where('chat_room_id', $chat_room_id);
                                 }
                             )
                             ->whereNotNull('profile')
@@ -888,17 +887,23 @@ class ChatController extends BaseController
 
     //Function to get the chat group details
     public function getChatGroupDetails(Request $request, $id) {
-        $chat_room_details = ChatRoom::with(['chatRoomUsers.Users' => function($q) {
+        $chatRoomDetails = ChatRoom::with(['chatRoomUsers.Users' => function($q) {
                                 $q->select('id', 'name', 'profile', 'profile_icon');
                             }])
                             ->where('id', $id)
                             ->get();
-        $chat_room_details->each(function($row){
-            $row->chatRoomUsers->each(function($userRow) {
+
+        $chatRoomDetails->each(function($row, $index) {
+            $row->chatRoomUsers->each(function($userRow, $key) {
+                if ($userRow->Users->is_blocked == UserBlockProfile::IS_BLOCK) {
+                    unset($chatRoomDetails[$index]->chatRoomUsers[$key]);
+                }
+
                 $userRow->Users->setHidden(['encrypted_user_id', 'permissions', 'total_notifications', 'total_read_notifications', 'total_unread_notifications']);
             });
         });
-        return $this->returnSuccess(__('Chat group details fetched successfully!'), $chat_room_details);
+
+        return $this->returnSuccess(__('Chat group details fetched successfully!'), $chatRoomDetails);
     }
 
     //Function to exit the chat group
