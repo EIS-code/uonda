@@ -887,17 +887,29 @@ class ChatController extends BaseController
 
     //Function to get the chat group details
     public function getChatGroupDetails(Request $request, $id) {
-        $chat_room_details = ChatRoom::with(['chatRoomUsers.Users' => function($q) {
+        $chatRoomDetails = ChatRoom::with(['chatRoomUsers.Users' => function($q) {
                                 $q->select('id', 'name', 'profile', 'profile_icon');
                             }])
                             ->where('id', $id)
                             ->get();
-        $chat_room_details->each(function($row){
-            $row->chatRoomUsers->each(function($userRow) {
+
+        $chatRoomDetails->each(function(&$row, $index) use($chatRoomDetails) {
+            $userDetails = [];
+
+            $row->chatRoomUsers->each(function($userRow) use(&$userDetails) {
                 $userRow->Users->setHidden(['encrypted_user_id', 'permissions', 'total_notifications', 'total_read_notifications', 'total_unread_notifications']);
+
+                if ($userRow->Users->is_blocked == UserBlockProfile::IS_NOT_BLOCK) {
+                    $userDetails[] = $userRow;
+                }
             });
+
+            unset($chatRoomDetails[$index]->chatRoomUsers);
+
+            $row->chat_room_users = $userDetails;
         });
-        return $this->returnSuccess(__('Chat group details fetched successfully!'), $chat_room_details);
+
+        return $this->returnSuccess(__('Chat group details fetched successfully!'), $chatRoomDetails);
     }
 
     //Function to exit the chat group

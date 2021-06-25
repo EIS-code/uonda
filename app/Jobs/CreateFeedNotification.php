@@ -30,6 +30,8 @@ class CreateFeedNotification implements ShouldQueue
 
     protected $title;
 
+    protected $dataPayload;
+
     /**
      * Create a new job instance.
      *
@@ -82,9 +84,11 @@ class CreateFeedNotification implements ShouldQueue
 
             $notificationBuilder->setBody($description)->setSound('default');
 
-            $dataBuilder = new PayloadDataBuilder();
+            $dataBuilder         = new PayloadDataBuilder();
 
-            $dataBuilder->addData(['notification_type' => modalNotification::NOTIFICATION_FEED]);
+            $this->dataPayload   = ['notification_type' => modalNotification::NOTIFICATION_FEED];
+
+            $dataBuilder->addData($this->dataPayload);
 
             $option             = $optionBuilder->build();
             $notification       = $notificationBuilder->build();
@@ -115,6 +119,7 @@ class CreateFeedNotification implements ShouldQueue
             foreach ($deviceTokens as $userId => $token) {
                 $notifications[] = [
                     'title'         => $title,
+                    'payload'       => json_encode($this->dataPayload),
                     'message'       => $description,
                     'device_token'  => $token,
                     'is_success'    => modalNotification::IS_SUCCESS,
@@ -130,7 +135,7 @@ class CreateFeedNotification implements ShouldQueue
             $create = modalNotification::insert($notifications);
 
             if (!$create) {
-                Log::error(json_encode(['New feed notification logs : ' => $create]));
+                Log::error(json_encode(['New feed notification error logs : ' => $create]));
             }
         }
 

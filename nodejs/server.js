@@ -391,7 +391,9 @@ io.on('connection', function (socket) {
                                     io.sockets.to(receiverRoomId).emit(messageRecieveEmitter, receiverData);
 
                                     // Send push notification if user is not online.
-                                    sendPushNotifications(receiverId, senderId, message);
+                                    if (!io.sockets.adapter.rooms[receiverRoomId]) {
+                                        sendPushNotifications(receiverId, senderId, message);
+                                    }
                                 });
                             });
                         });

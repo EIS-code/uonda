@@ -33,6 +33,8 @@ class SendChatMessageNotification implements ShouldQueue
 
     protected $fromUserId;
 
+    protected $dataPayload;
+
     /**
      * Create a new job instance.
      *
@@ -104,17 +106,23 @@ class SendChatMessageNotification implements ShouldQueue
 
             $notificationBuilder    = new PayloadNotificationBuilder($this->notificationTitle);
 
-            $dataBuilder->addData(['notification_type' => NotificationModel::NOTIFICATION_CHAT, 'sender_id' => $this->fromUserId]);
-
             $notificationBuilder->setBody($this->message)->setSound('default');
+
+            $dataBuilder            = new PayloadDataBuilder();
+
+            $this->dataPayload      = ['notification_type' => NotificationModel::NOTIFICATION_CHAT, 'sender_id' => $this->fromUserId];
+
+            $dataBuilder->addData($this->dataPayload);
 
             $option                 = $optionBuilder->build();
 
             $notification           = $notificationBuilder->build();
 
+            $data                   = $dataBuilder->build();
+
             $deviceToken            = (string)$users->device_token;
 
-            $downstreamResponse     = FCM::sendTo($deviceToken, $option, $notification);
+            $downstreamResponse     = FCM::sendTo($deviceToken, $option, $notification, $data);
 
             /* $downstreamResponse->numberSuccess();
             $downstreamResponse->numberFailure();
@@ -144,6 +152,7 @@ class SendChatMessageNotification implements ShouldQueue
     {
         $data = [
             'title'         => $this->notificationTitle,
+            'payload'       => json_encode($this->dataPayload),
             'message'       => $this->message,
             'device_token'  => $deviceToken,
             'is_success'    => NotificationModel::IS_SUCCESS,
