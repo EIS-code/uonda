@@ -7,6 +7,7 @@ use App\Image;
 use Illuminate\Support\Facades\Mail;
 use View;
 use Carbon\Carbon;
+use GuzzleHttp\Client;
 
 class BaseController extends Controller
 {
@@ -116,5 +117,22 @@ class BaseController extends Controller
         $count = request()->get('count', 50);
 
         return Image::limit($count)->get();
+    }
+
+    public function callSelfApiGet(string $route, string $apiKey, array $param = [])
+    {
+        if (empty($route)) {
+            return false;
+        }
+
+        $client  = new Client(['headers' => ['api-key' => $apiKey]]);
+
+        $request = $client->get($route, ['json' => $param]);
+
+        if ($request->getStatusCode() == $this->successCode) {
+            return json_decode($request->getBody(), true);
+        } else {
+            return json_decode($request->getBody(), true);
+        }
     }
 }

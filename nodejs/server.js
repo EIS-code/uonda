@@ -391,9 +391,7 @@ io.on('connection', function (socket) {
                                     io.sockets.to(receiverRoomId).emit(messageRecieveEmitter, receiverData);
 
                                     // Send push notification if user is not online.
-                                    if (!io.sockets.adapter.rooms[receiverRoomId]) {
-                                        sendPushNotifications(receiverId, senderId, message);
-                                    }
+                                    sendPushNotifications(receiverId, senderId, message, chatRoomId);
                                 });
                             });
                         });
@@ -853,7 +851,7 @@ function buildAttachmentUrl(id, file)
     return attachmentUrl + id + '/' + file;
 }
 
-async function sendPushNotifications(receiverId, senderId, message)
+async function sendPushNotifications(receiverId, senderId, message, chatRoomId)
 {
     var isOnline = false;
 
@@ -874,7 +872,8 @@ async function sendPushNotifications(receiverId, senderId, message)
         axios.post(removeTrailingSlash(appUrl) + '/api/user/chat/notification/message/send', {
             "user_id": receiverId,
             "message": message,
-            "from_user_id": senderId
+            "from_user_id": senderId,
+            "chat_room_id": chatRoomId
         }).then(function(response) {
             /*console.log(response.data);
             console.log(response.status);

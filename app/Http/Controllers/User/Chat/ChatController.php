@@ -283,9 +283,11 @@ class ChatController extends BaseController
         $modelChats           = new Chat();
         $modelChatRooms       = new ChatRoom();
         $modelChatAttachments = new ChatAttachment();
-        $modelChatDelets     = new ChatDelete();
+        $modelChatDelets      = new ChatDelete();
 
-        $userId = $request->get('user_id', false);
+        $userId     = (int)$request->get('user_id', false);
+
+        $chatRoomId = (int)$request->get('chat_room_id', false);
 
         if (empty($userId)) {
             return $this->returnError(__("User id can not be empty."));
@@ -313,8 +315,13 @@ class ChatController extends BaseController
                               ->whereRaw('(' . $modelChatRoomUsers::getTableName() . '.receiver_id = ' . $userId . ' OR ' . $modelChatRoomUsers::getTableName() . '.sender_id = ' . $userId . ')')
                               ->where($modelChatRooms::getTableName() . '.is_group', $modelChatRooms::IS_NOT_GROUP)
                               // ->whereNull($modelChatDelets::getTableName() . '.id')
-                              ->orderBy($modelChats::getTableName() . '.updated_at', 'ASC')
-                              ->get();
+                              ->orderBy($modelChats::getTableName() . '.updated_at', 'ASC');
+
+        if (!empty($chatRoomId)) {
+            $records->where($modelChatRooms::getTableName() . '.id', $chatRoomId);
+        }
+
+        $records = $records->get();
 
         $returnDatas = [];
 
@@ -375,8 +382,13 @@ class ChatController extends BaseController
                               ->where($modelChatRooms::getTableName() . '.is_group', $modelChatRooms::IS_GROUP)
                               ->where($modelChatRoomUsers::getTableName() . '.sender_id', $userId)
                               // ->whereNull($modelChatDelets::getTableName() . '.id')
-                              ->orderBy($modelChats::getTableName() . '.updated_at', 'ASC')
-                              ->get();
+                              ->orderBy($modelChats::getTableName() . '.updated_at', 'ASC');
+
+        if (!empty($chatRoomId)) {
+            $records->where($modelChatRooms::getTableName() . '.id', $chatRoomId);
+        }
+
+        $records = $records->get();
 
         $returnGroupDatas = [];
 
@@ -988,9 +1000,16 @@ class ChatController extends BaseController
         $userId     = (int)$request->get('user_id', false);
         $message    = $request->get('message', NULL);
         $fromUserId = (int)$request->get('from_user_id', false);
+        $chatRoomId = (int)$request->get('chat_room_id', false);
 
-        if (!empty($userId) && !empty($fromUserId)) {
-            SendChatMessageNotification::dispatch($userId, $message, $fromUserId)->delay(now()->addSeconds(2));
+        if (!empty($userId) && !empty($fromUserId) && !empty($chatRoomId)) {
+            $apiKey         = ApiKey::getApiKey($userId);
+
+            $dataPayload    = $this->callSelfApiGet(route('user.chat.users.list'), $apiKey, ['chat_room_id' => $chatRoomId]);
+
+            $dataPayload    = !empty($dataPayload['data']) ? reset($dataPayload['data']) : [];
+
+            SendChatMessageNotification::dispatch($userId, $message, $fromUserId, $dataPayload)->delay(now()->addSeconds(2));
 
             return true;
         }
@@ -1008,10 +1027,16 @@ class ChatController extends BaseController
             $chatRoomUsers = ChatRoomUser::where('chat_room_id', $roomId)->where('sender_id', '!=', $fromUserId)->get();
 
             if (!empty($chatRoomUsers) && !$chatRoomUsers->isEmpty()) {
+                $apiKey         = ApiKey::getApiKey($fromUserId);
+
+                $dataPayload    = $this->callSelfApiGet(route('user.chat.users.list'), $apiKey, ['chat_room_id' => $roomId]);
+
+                $dataPayload    = !empty($dataPayload['data']) ? reset($dataPayload['data']) : [];
+
                 foreach ($chatRoomUsers as $chatRoomUser) {
                     $userId = $chatRoomUser->sender_id;
 
-                    SendChatMessageNotification::dispatch($userId, $message, $fromUserId)->delay(now()->addSeconds(2));
+                    SendChatMessageNotification::dispatch($userId, $message, $fromUserId, $dataPayload)->delay(now()->addSeconds(2));
                 }
 
                 return true;

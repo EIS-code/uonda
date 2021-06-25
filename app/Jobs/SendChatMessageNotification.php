@@ -40,7 +40,7 @@ class SendChatMessageNotification implements ShouldQueue
      *
      * @return void
      */
-    public function __construct(int $userId, string $message = NULL, int $fromUserId = NULL)
+    public function __construct(int $userId, string $message = NULL, int $fromUserId = NULL, $dataPayload)
     {
         $this->userId               = $userId;
 
@@ -51,6 +51,8 @@ class SendChatMessageNotification implements ShouldQueue
         $fromUser                   = User::find($this->fromUserId);
 
         $this->notificationTitle    = !empty($fromUser) ? __($this->notificationTitle . $fromUser->fullName) : __($this->notificationTitle);
+
+        $this->dataPayload          = $dataPayload;
     }
 
     /**
@@ -109,8 +111,6 @@ class SendChatMessageNotification implements ShouldQueue
             $notificationBuilder->setBody($this->message)->setSound('default');
 
             $dataBuilder            = new PayloadDataBuilder();
-
-            $this->dataPayload      = ['notification_type' => NotificationModel::NOTIFICATION_CHAT, 'sender_id' => $this->fromUserId];
 
             $dataBuilder->addData($this->dataPayload);
 
