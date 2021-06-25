@@ -80,7 +80,7 @@ class UserController extends Controller
      */
     public function show($id)
     {
-        $user = User::with(['userDocuments'])->find(decrypt($id));
+        $user = User::with(['userDocuments', 'referralUsers'])->find(decrypt($id));
         $data = array();
         if(!empty($user->school_id)) {
             $data['school_name'] = School::select('name')->where('id', $user->school_id)->first();

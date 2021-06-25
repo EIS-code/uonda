@@ -291,6 +291,11 @@ class User extends Authenticatable
         return $this->hasOne('App\UserSetting', 'user_id', 'id');
     }
 
+    public function referralUsers()
+    {
+        return $this->hasMany('App\UserReferral', 'referral_user_id', 'id')->with('user');
+    }
+    
     public function notifications($isAll = false, $isRead = Notification::IS_UNREAD, $isSuccess = Notification::IS_SUCCESS)
     {
         if ($isAll) {
