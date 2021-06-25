@@ -893,25 +893,21 @@ class ChatController extends BaseController
                             ->where('id', $id)
                             ->get();
 
-        if (!empty($chatRoomDetails) && !$chatRoomDetails->isEmpty()) {
-            $chatRoomDetails->each(function($row, $index) use($chatRoomDetails) {
-                if (empty($row->chatRoomUsers)) {
-                    return false;
+        $chatRoomDetails->each(function(&$row, $index) use($chatRoomDetails) {
+            $userDetails = [];
+
+            $row->chatRoomUsers->each(function($userRow) use(&$userDetails) {
+                $userRow->Users->setHidden(['encrypted_user_id', 'permissions', 'total_notifications', 'total_read_notifications', 'total_unread_notifications']);
+
+                if ($userRow->Users->is_blocked == UserBlockProfile::IS_NOT_BLOCK) {
+                    $userDetails[] = $userRow;
                 }
-
-                $chatRoomUsers = $row->chatRoomUsers;
-
-                $chatRoomUsers->each(function($userRow, $key) use($chatRoomUsers) {
-                    if ($userRow->Users->is_blocked == UserBlockProfile::IS_BLOCK) {
-                        unset($chatRoomUsers[$key]);
-                    }
-
-                    $userRow->Users->setHidden(['encrypted_user_id', 'permissions', 'total_notifications', 'total_read_notifications', 'total_unread_notifications']);
-                });
-
-                $chatRoomDetails[$index]->chat_room_users = array_values($row->chatRoomUsers->toArray());
             });
-        }
+
+            unset($chatRoomDetails[$index]->chatRoomUsers);
+
+            $row->chat_room_users = $userDetails;
+        });
 
         return $this->returnSuccess(__('Chat group details fetched successfully!'), $chatRoomDetails);
     }
