@@ -904,7 +904,7 @@ class ChatController extends BaseController
                 });
             });
 
-            $chatRoomDetails = array_map('array_values', $chatRoomDetails);
+            $chatRoomDetails = array_map('array_values', $chatRoomDetails->toArray());
         }
 
         return $this->returnSuccess(__('Chat group details fetched successfully!'), $chatRoomDetails);
