@@ -893,8 +893,8 @@ class ChatController extends BaseController
                             ->where('id', $id)
                             ->get();
 
-        $chatRoomDetails->each(function($row, $index) {
-            $row->chatRoomUsers->each(function($userRow, $key) {
+        $chatRoomDetails->each(function($row, $index) use($chatRoomDetails) {
+            $row->chatRoomUsers->each(function($userRow, $key) use($chatRoomDetails) {
                 if ($userRow->Users->is_blocked == UserBlockProfile::IS_BLOCK) {
                     unset($chatRoomDetails[$index]->chatRoomUsers[$key]);
                 }
