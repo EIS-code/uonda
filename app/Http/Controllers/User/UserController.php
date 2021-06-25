@@ -18,6 +18,8 @@ use Carbon\Carbon;
 use DB;
 use Intervention\Image\ImageManagerStatic as Image;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use App\UserReferral;
 
 class UserController extends BaseController
 {
@@ -120,66 +122,109 @@ class UserController extends BaseController
         return $this->returnNull();
     }
 
+    public function getReferralCode() {
+        $code = Str::random(6);
+        $check = User::where('referral_code', $code)->first();
+        if (empty($check)) {
+            return $code;
+        } else {
+            return $this->getReferralCode();
+        }
+    }
+    
+    public function addUserReferral(Request $request, $userId){
+        $user = User::where('referral_code', $request->referral_code)->first();
+        $data = [
+            'user_id' => $userId,
+            'referral_user_id' => $user->id,
+            'referral_code' => $request->referral_code
+        ];
+        $model = new UserReferral();
+        
+        $validator = $model->validator($data);
+        if ($validator->fails()) {
+            return ['isError' => true, 'message' => $validator->errors()->first()];
+        }
+        $model->create($data);
+        return ['isError' => false, 'message' => 'successfully added'];
+    }
+
     public function registrationPersonal(Request $request)
     {
-        $data  = $request->all();
-        $model = new User();
+        DB::beginTransaction();
+        try {
+            $data  = $request->all();
+            $referral_code = $this->getReferralCode();
+            $model = new User();
 
-        $data['personal_flag'] = $model::PERSONAL_FLAG_DONE;
+            $data['personal_flag'] = $model::PERSONAL_FLAG_DONE;
+            $data['referral_code'] = $referral_code;
 
-        $data['oauth_provider'] = !empty($data['oauth_provider']) ? (string)$data['oauth_provider'] : $model::OAUTH_NONE;
+            $data['oauth_provider'] = !empty($data['oauth_provider']) ? (string)$data['oauth_provider'] : $model::OAUTH_NONE;
 
-        $validator = $model->validator($data);
+            $validator = $model->validator($data);
 
-        if ($validator->fails()) {
-            return $this->returnError($validator->errors()->first());
-        }
+            if ($validator->fails()) {
+                return $this->returnError($validator->errors()->first());
+            }
 
-        $data['password'] = !empty($data['password']) ? Hash::make($data['password']) : NULL;
+            $data['password'] = !empty($data['password']) ? Hash::make($data['password']) : NULL;
 
-        $create = $model->create($data);
+            $create = $model->create($data);
 
-        if (!empty($data['profile']) && $data['profile'] instanceof UploadedFile) {
-            $profile   = $data['profile'];
-            $pathInfos = pathinfo($profile->getClientOriginalName());
-        
-            if (!empty($pathInfos['extension'])) {
-                $folder     = $model->profile;
-                $folderIcon = $model->profileIcon;
-        
-                if (!empty($folder)) {
-                    $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
-                    $fileName  = removeSpaces($fileName);
-                    $storeFile = $profile->storeAs($folder, $fileName, $model->fileSystem);
-        
-                    if ($storeFile) {
-                        // Set 100 x 100 px icon for later use for example in Chats.
-                        $profileIcon = Image::make($profile)->fit(100)->encode($pathInfos['extension']);
-        
-                        if ($profileIcon) {
-                            $iconName  = time() . '.png';
-                            $storeIcon = Storage::disk($model->fileSystem)->put($folderIcon . '\\' . $iconName, $profileIcon->__toString());
-        
-                            if ($storeIcon) {
-                                $create->update(['profile_icon' => $iconName]);
+            if (!empty($data['profile']) && $data['profile'] instanceof UploadedFile) {
+                $profile   = $data['profile'];
+                $pathInfos = pathinfo($profile->getClientOriginalName());
+
+                if (!empty($pathInfos['extension'])) {
+                    $folder     = $model->profile;
+                    $folderIcon = $model->profileIcon;
+
+                    if (!empty($folder)) {
+                        $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                        $fileName  = removeSpaces($fileName);
+                        $storeFile = $profile->storeAs($folder, $fileName, $model->fileSystem);
+
+                        if ($storeFile) {
+                            // Set 100 x 100 px icon for later use for example in Chats.
+                            $profileIcon = Image::make($profile)->fit(100)->encode($pathInfos['extension']);
+
+                            if ($profileIcon) {
+                                $iconName  = time() . '.png';
+                                $storeIcon = Storage::disk($model->fileSystem)->put($folderIcon . '\\' . $iconName, $profileIcon->__toString());
+
+                                if ($storeIcon) {
+                                    $create->update(['profile_icon' => $iconName]);
+                                }
                             }
+                            $create->update(['profile' => $fileName]);
                         }
-                        $create->update(['profile' => $fileName]);
                     }
                 }
             }
+
+            if ($create) {
+                $userId = $create->id;
+
+                // Privacy
+                UserSetting::create(['user_id' => $userId, 'user_name' => UserSetting::CONSTS_PRIVATE, 'email' => UserSetting::CONSTS_PRIVATE, 'notification' => UserSetting::NOTIFICATION_ON]);
+                if(isset($request->referral_code) && !empty($request->referral_code)) {
+                    $addUserReferral = $this->addUserReferral($request, $userId);
+                    if (!empty($addUserReferral['isError']) && !empty($addUserReferral['message'])) {
+                        return $this->returns($addUserReferral['message'], NULL, true);
+                    }
+                }
+                DB::commit();
+                return $this->returnSuccess(__('User personal details saved successfully!'), $this->getDetails($userId, false, true));
+            }
+            return $this->returnError(__('Something went wrong!'));
+        } catch (\Exception $e) {
+            DB::rollback();
+            throw $e;
+        } catch (\Throwable $e) {
+            DB::rollback();
+            throw $e;
         }
-
-        if ($create) {
-            $userId = $create->id;
-
-            // Privacy
-            UserSetting::create(['user_id' => $userId, 'user_name' => UserSetting::CONSTS_PRIVATE, 'email' => UserSetting::CONSTS_PRIVATE, 'notification' => UserSetting::NOTIFICATION_ON]);
-
-            return $this->returnSuccess(__('User personal details saved successfully!'), $this->getDetails($userId, false, true));
-        }
-
-        return $this->returnError(__('Something went wrong!'));
     }
 
     public function registrationSchool(Request $request)
