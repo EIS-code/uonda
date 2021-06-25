@@ -427,8 +427,9 @@ class ChatController extends BaseController
                 ->toArray();
             } else {
                 $participants = $model::with(['ChatRoomsUsers'])->whereHas('ChatRoomsUsers', 
-                                function($q) use ($chat_room_id) {
-                                    $q->where('chat_room_id', $chat_room_id);
+                                function($q) use ($chat_room_id, $blockedUser) {
+                                    $q->where('chat_room_id', $chat_room_id)
+                                      ->whereNotIn('id', (array)$blockedUser);
                                 }
                             )
                             ->whereNotNull('profile')
