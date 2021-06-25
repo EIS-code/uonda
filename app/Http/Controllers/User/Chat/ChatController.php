@@ -899,15 +899,17 @@ class ChatController extends BaseController
                     return false;
                 }
 
-                $row->chatRoomUsers->each(function($userRow, $key) use($index, $chatRoomDetails) {
+                $chatRoomUsers = $row->chatRoomUsers;
+
+                $chatRoomUsers->each(function($userRow, $key) use($chatRoomUsers) {
                     if ($userRow->Users->is_blocked == UserBlockProfile::IS_BLOCK) {
-                        unset($chatRoomDetails[$index]->chatRoomUsers[$key]);
+                        unset($chatRoomUsers[$key]);
                     }
 
                     $userRow->Users->setHidden(['encrypted_user_id', 'permissions', 'total_notifications', 'total_read_notifications', 'total_unread_notifications']);
                 });
 
-                // $chatRoomDetails[$index]->chatRoomUsers = array_values($chatRoomDetails[$index]->chatRoomUsers->toArray());
+                $chatRoomUsers = array_values($chatRoomUsers->toArray());
             });
         }
 
