@@ -901,9 +901,11 @@ class ChatController extends BaseController
 
                 $userRow->Users->setHidden(['encrypted_user_id', 'permissions', 'total_notifications', 'total_read_notifications', 'total_unread_notifications']);
             });
+
+            reset($chatRoomDetails[$index]->chatRoomUsers);
         });
 
-        return $this->returnSuccess(__('Chat group details fetched successfully!'), reset($chatRoomDetails));
+        return $this->returnSuccess(__('Chat group details fetched successfully!'), $chatRoomDetails);
     }
 
     //Function to exit the chat group
