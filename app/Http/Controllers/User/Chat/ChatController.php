@@ -909,7 +909,7 @@ class ChatController extends BaseController
                     $userRow->Users->setHidden(['encrypted_user_id', 'permissions', 'total_notifications', 'total_read_notifications', 'total_unread_notifications']);
                 });
 
-                $chatRoomDetails[$index]->chatRoomUsers = array_values($row->chatRoomUsers->toArray());
+                $chatRoomDetails[$index]->chat_room_users = array_values($row->chatRoomUsers->toArray());
             });
         }
 
