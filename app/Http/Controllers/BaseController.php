@@ -101,17 +101,7 @@ class BaseController extends Controller
             }
 
             foreach ($to as $mailId) {
-                Email::insert([
-                    'from'           => env('MAIL_FROM_ADDRESS', ''),
-                    'to'             => $toName . ' ' . $mailId,
-                    'cc'             => $cc,
-                    'bcc'            => $bcc,
-                    'subject'        => $subject,
-                    'body'           => $bodyContent,
-                    'attachments'    => json_encode($attachments),
-                    'exception_info' => NULL,
-                    'created_at'     => Carbon::now()
-                ]);
+                Email::store([$toName . ' ' . $mailId], $subject, $bodyContent, $cc, $bcc, json_encode($attachments));
             }
 
             return response()->json([
