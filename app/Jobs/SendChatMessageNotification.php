@@ -104,17 +104,21 @@ class SendChatMessageNotification implements ShouldQueue
 
             $notificationBuilder    = new PayloadNotificationBuilder($this->notificationTitle);
 
-            $dataBuilder->addData(['notification_type' => NotificationModel::NOTIFICATION_CHAT, 'sender_id' => $this->fromUserId]);
-
             $notificationBuilder->setBody($this->message)->setSound('default');
+
+            $dataBuilder            = new PayloadDataBuilder();
+
+            $dataBuilder->addData(['notification_type' => NotificationModel::NOTIFICATION_CHAT, 'sender_id' => $this->fromUserId]);
 
             $option                 = $optionBuilder->build();
 
             $notification           = $notificationBuilder->build();
 
+            $data                   = $dataBuilder->build();
+
             $deviceToken            = (string)$users->device_token;
 
-            $downstreamResponse     = FCM::sendTo($deviceToken, $option, $notification);
+            $downstreamResponse     = FCM::sendTo($deviceToken, $option, $notification, $data);
 
             /* $downstreamResponse->numberSuccess();
             $downstreamResponse->numberFailure();
