@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\User;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,6 +49,15 @@ Route::group(['middleware' => ['auth']], function(){
 
     Route::get('/profile', 'Admin\AdminController@editProfile')->name('profile');
     Route::post('/profile-update', 'Admin\AdminController@updateProfile')->name('profile-update');
+    
+    Route::get('/reset', function() {
+        if(auth()->user()->is_admin == User::IS_ADMIN) {
+            return Redirect::to('/');
+        } else {
+            Auth::logout();
+            return view('reset_success');
+        }
+    });
 });
 
 
