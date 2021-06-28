@@ -786,6 +786,7 @@ class ChatController extends BaseController
 
                     try {
                         $thumbImage = Image::make($attachment);
+                        dd($thumbImage);
                         $thumbImage = $thumbImage->resize(100, 100);
                         Storage::disk($chat_room->fileSystem)->put($thumb_folder . $fileName, $thumbImage->encode());
                     } catch (\Exception $e) {
