@@ -1007,9 +1007,9 @@ class ChatController extends BaseController
             $apiKey = ApiKey::getApiKey($userId);
 
             if (!empty($apiKey)) {
-                $dataPayload    = $this->callSelfApiGet(route('user.chat.users.list'), $apiKey, ['chat_room_id' => $chatRoomId]);
+                $chatUsersList       = $this->callSelfApiGet(route('user.chat.users.list'), $apiKey, ['chat_room_id' => $chatRoomId]);
 
-                $dataPayload    = !empty($dataPayload['data']) ? reset($dataPayload['data']) : [];
+                $dataPayload['data'] = !empty($chatUsersList['data']) ? json_encode(reset($chatUsersList['data'])) : json_encode([]);
 
                 $dataPayload['notification_type'] = Notification::NOTIFICATION_CHAT;
 
@@ -1035,9 +1035,9 @@ class ChatController extends BaseController
                 $apiKey = ApiKey::getApiKey($fromUserId);
 
                 if (!empty($apiKey)) {
-                    $dataPayload    = $this->callSelfApiGet(route('user.chat.users.list'), $apiKey, ['chat_room_id' => $roomId]);
+                    $chatUsersList       = $this->callSelfApiGet(route('user.chat.users.list'), $apiKey, ['chat_room_id' => $roomId]);
 
-                    $dataPayload    = !empty($dataPayload['data']) ? reset($dataPayload['data']) : [];
+                    $dataPayload['data'] = !empty($dataPayload['data']) ? json_encode(reset($dataPayload['data'])) : json_encode([]);
 
                     $dataPayload['notification_type'] = Notification::NOTIFICATION_CHAT_GROUP;
 
