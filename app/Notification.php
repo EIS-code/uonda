@@ -41,8 +41,9 @@ class Notification extends BaseModel
         self::IS_NOT_SUCCESS => 'No'
     ];
 
-    const NOTIFICATION_CHAT = 'chat';
-    const NOTIFICATION_FEED = 'feed';
+    const NOTIFICATION_CHAT         = 'chat';
+    const NOTIFICATION_CHAT_GROUP   = 'chat_group';
+    const NOTIFICATION_FEED         = 'feed';
 
     public function validator(array $data, $returnBoolsOnly = false)
     {
