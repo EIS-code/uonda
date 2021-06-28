@@ -781,17 +781,8 @@ class ChatController extends BaseController
                     $fileName  = removeSpaces($fileName);
                     $storeFile = $attachment->storeAs($folder, $fileName, $chat_room->fileSystem);
 
-                    /*$thumb_image = Image::make($data['group_icon'])->resize(100, 100);
-                    Storage::disk($chat_room->fileSystem)->put($thumb_folder . $fileName, $thumb_image->encode());*/
-
-                    try {
-                        $thumbImage = Image::make($attachment);
-                        dd($thumbImage);
-                        $thumbImage = $thumbImage->resize(100, 100);
-                        Storage::disk($chat_room->fileSystem)->put($thumb_folder . $fileName, $thumbImage->encode());
-                    } catch (\Exception $e) {
-                        dd($e);
-                    }
+                    $thumb_image = Image::make($data['group_icon'])->resize(100, 100);
+                    Storage::disk($chat_room->fileSystem)->put($thumb_folder . $fileName, $thumb_image->encode());
 
                     if ($storeFile) {
                         $chat_room = $chat_room->find($id);
