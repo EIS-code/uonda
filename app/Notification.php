@@ -44,6 +44,8 @@ class Notification extends BaseModel
     const NOTIFICATION_CHAT         = 'chat';
     const NOTIFICATION_CHAT_GROUP   = 'chat_group';
     const NOTIFICATION_FEED         = 'feed';
+    const NOTIFICATION_REJECT_USER  = 'user_reject';
+    const NOTIFICATION_ACCEPT_USER  = 'user_accept';
 
     public function validator(array $data, $returnBoolsOnly = false)
     {
