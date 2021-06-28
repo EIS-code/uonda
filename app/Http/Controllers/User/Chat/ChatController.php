@@ -24,6 +24,7 @@ use Illuminate\Support\Facades\Validator;
 use App\ReportChatRoom;
 use App\Jobs\SendChatMessageNotification;
 use App\ApiKey;
+use App\Notification;
 
 class ChatController extends BaseController
 {
@@ -1003,15 +1004,19 @@ class ChatController extends BaseController
         $chatRoomId = (int)$request->get('chat_room_id', false);
 
         if (!empty($userId) && !empty($fromUserId) && !empty($chatRoomId)) {
-            $apiKey         = ApiKey::getApiKey($userId);
+            $apiKey = ApiKey::getApiKey($userId);
 
-            $dataPayload    = $this->callSelfApiGet(route('user.chat.users.list'), $apiKey, ['chat_room_id' => $chatRoomId]);
+            if (!empty($apiKey)) {
+                $dataPayload    = $this->callSelfApiGet(route('user.chat.users.list'), $apiKey, ['chat_room_id' => $chatRoomId]);
 
-            $dataPayload    = !empty($dataPayload['data']) ? reset($dataPayload['data']) : [];
+                $dataPayload    = !empty($dataPayload['data']) ? reset($dataPayload['data']) : [];
 
-            SendChatMessageNotification::dispatch($userId, $message, $fromUserId, $dataPayload)->delay(now()->addSeconds(2));
+                $dataPayload['notification_type'] = Notification::NOTIFICATION_CHAT;
 
-            return true;
+                SendChatMessageNotification::dispatch($userId, $message, $fromUserId, $dataPayload)->delay(now()->addSeconds(2));
+
+                return true;
+            }
         }
 
         return false;
@@ -1027,19 +1032,23 @@ class ChatController extends BaseController
             $chatRoomUsers = ChatRoomUser::where('chat_room_id', $roomId)->where('sender_id', '!=', $fromUserId)->get();
 
             if (!empty($chatRoomUsers) && !$chatRoomUsers->isEmpty()) {
-                $apiKey         = ApiKey::getApiKey($fromUserId);
+                $apiKey = ApiKey::getApiKey($fromUserId);
 
-                $dataPayload    = $this->callSelfApiGet(route('user.chat.users.list'), $apiKey, ['chat_room_id' => $roomId]);
+                if (!empty($apiKey)) {
+                    $dataPayload    = $this->callSelfApiGet(route('user.chat.users.list'), $apiKey, ['chat_room_id' => $roomId]);
 
-                $dataPayload    = !empty($dataPayload['data']) ? reset($dataPayload['data']) : [];
+                    $dataPayload    = !empty($dataPayload['data']) ? reset($dataPayload['data']) : [];
 
-                foreach ($chatRoomUsers as $chatRoomUser) {
-                    $userId = $chatRoomUser->sender_id;
+                    $dataPayload['notification_type'] = Notification::NOTIFICATION_CHAT_GROUP;
 
-                    SendChatMessageNotification::dispatch($userId, $message, $fromUserId, $dataPayload)->delay(now()->addSeconds(2));
+                    foreach ($chatRoomUsers as $chatRoomUser) {
+                        $userId = $chatRoomUser->sender_id;
+
+                        SendChatMessageNotification::dispatch($userId, $message, $fromUserId, $dataPayload)->delay(now()->addSeconds(2));
+                    }
+
+                    return true;
                 }
-
-                return true;
             }
         }
 
