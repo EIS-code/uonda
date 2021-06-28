@@ -121,6 +121,27 @@ class UserController extends BaseController
 
         return $this->returnNull();
     }
+    
+    public function returns($message = NULL, $with = NULL, $isError = false)
+    {
+        if ($isError && !empty($message)) {
+            $message = !empty($this->errorMsg[$message]) ? __($this->errorMsg[$message]) : __($message);
+        } else {
+            $message = !empty($this->successMsg[$message]) ? __($this->successMsg[$message]) : __($this->returnNullMsg);
+        }
+
+        if (!$isError && !empty($with)) {
+            if ($with instanceof Collection && !$with->isEmpty()) {
+                return $this->returnSuccess($message, array_values($with->toArray()));
+            } else {
+                return $this->returnSuccess($message, $with->toArray());
+            }
+        } elseif ($isError) {
+            return $this->returnError($message);
+        }
+
+        return $this->returnNull();
+    }
 
     public function getReferralCode() {
         $code = Str::random(6);
@@ -134,6 +155,9 @@ class UserController extends BaseController
     
     public function addUserReferral(Request $request, $userId){
         $user = User::where('referral_code', $request->referral_code)->first();
+        if(empty($user)) {
+            return ['isError' => true, 'message' => 'Referral code not found!'];
+        }
         $data = [
             'user_id' => $userId,
             'referral_user_id' => $user->id,
