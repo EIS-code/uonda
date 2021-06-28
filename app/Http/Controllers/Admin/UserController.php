@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Schema;
 use App\User;
+use App\UserDocument;
 use App\School;
 use App\Country;
 use App\City;
@@ -13,6 +14,7 @@ use App\UserBlockProfile;
 use App\Notification;
 use App\Jobs\UserRejectNotification;
 use App\Jobs\UserAcceptNotification;
+use Illuminate\Support\Facades\File;
 
 class UserController extends Controller
 {
@@ -139,6 +141,8 @@ class UserController extends Controller
 
             // For rejection.
             if ($user->is_accepted == User::IS_REJECTED) {
+                $this->resetFlags($user->id, true);
+
                 $dataPayload['data']                = json_encode(['reason_for_rejection' => !empty($user->reason_for_rejection) ? $user->reason_for_rejection : NULL]);
 
                 $dataPayload['notification_type']   = Notification::NOTIFICATION_REJECT_USER;
@@ -178,5 +182,50 @@ class UserController extends Controller
     public function showBlockedUser(Request $request) {
         $block_profiles = UserBlockProfile::with(['user', 'blockedUser'])->get();
         return view('pages.users.blocked-user-listing', compact('block_profiles'));
+    }
+
+    public function resetFlags(int $id, $isUnlinkDocuments = false)
+    {
+        $user   = User::find($id);
+        $update = false;
+
+        if (!empty($user)) {
+            $user->personal_flag = User::PERSONAL_FLAG_PENDING;
+            $user->school_flag   = User::SCHOOL_FLAG_PENDING;
+            $user->other_flag    = User::OTHER_FLAG_PENDING;
+            $user->school_id     = NULL;
+
+            $update = $user->save();
+
+            if ($update && $isUnlinkDocuments) {
+                $userDocuments = $user->userDocuments;
+
+                if (!empty($userDocuments)) {
+                    $modalUserDocument = new UserDocument();
+
+                    foreach ($modalUserDocument->documentTypes as $documentType => $documentName) {
+                        foreach ($userDocuments as $userDocument) {
+                            if (empty($userDocument->getAttributes()['document'])) {
+                                continue;
+                            }
+
+                            if ($userDocument->document_type == $documentType) {
+                                if (!empty(UserDocument::$documentPaths[$documentType])) {
+                                    $documentPath = storage_path() . '\app\public\\' . UserDocument::$documentPaths[$documentType] . '\\' . $userDocument->getAttributes()['document'];
+
+                                    if (File::exists($documentPath)) {
+                                        File::delete($documentPath);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    $user->userDocuments()->delete();
+                }
+            }
+        }
+
+        return $update;
     }
 }
