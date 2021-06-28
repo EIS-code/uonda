@@ -575,16 +575,19 @@ class UserController extends BaseController
 
         $userId = (int)$data['user_id'];
 
-        $user = $model::select('id', 'personal_flag', 'school_flag', 'other_flag' , 'origin_country_id' , 'is_accepted')->with('userDocuments')->find($userId);
+        $user = $model::select('id', 'device_token', 'personal_flag', 'school_flag', 'other_flag' , 'origin_country_id' , 'is_accepted')->with('userDocuments')->find($userId);
 
         if(empty($user)) {
             return $this->returnError(__('User id seems incorrect.'));
         }
 
-        $user->api_key = ApiKey::generateKey($user->id);
         if (!empty($user)) {
             $user->makeVisible(['personal_flag', 'school_flag', 'other_flag', 'origin_country_id' , 'is_accepted']);
 
+            if (isset($data['device_token']) && !empty($data['device_token'])) {
+                $user->update($data);
+            }
+            $user->api_key = ApiKey::generateKey($user->id);
             return $this->returnSuccess(__('User details get successfully!'), $user);
 
             $user->makeHidden(['personal_flag', 'school_flag', 'other_flag', 'origin_country_id' , 'is_accepted']);
