@@ -780,7 +780,7 @@ class ChatController extends BaseController
                     $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
                     $fileName  = removeSpaces($fileName);
                     $storeFile = $attachment->storeAs($folder, $fileName, $chat_room->fileSystem);
-
+var_dump($storeFile);echo PHP_EOL;
                     $thumb_image = Image::make($data['group_icon'])->resize(100, 100);
                     dd($thumb_image->encode());
                     Storage::disk($chat_room->fileSystem)->put($thumb_folder . $fileName, $thumb_image->encode());
