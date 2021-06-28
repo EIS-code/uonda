@@ -10,6 +10,9 @@ use App\School;
 use App\Country;
 use App\City;
 use App\UserBlockProfile;
+use App\Notification;
+use App\Jobs\UserRejectNotification;
+use App\Jobs\UserAcceptNotification;
 
 class UserController extends Controller
 {
@@ -129,8 +132,28 @@ class UserController extends Controller
             if($request->has('user_status')) {
                 $user->is_enable = $request->user_status;
             }
+
             $user->save();
+
+            $user->refresh();
+
+            // For rejection.
+            if ($user->is_accepted == User::IS_REJECTED) {
+                $dataPayload['data']                = json_encode(['reason_for_rejection' => !empty($user->reason_for_rejection) ? $user->reason_for_rejection : NULL]);
+
+                $dataPayload['notification_type']   = Notification::NOTIFICATION_REJECT_USER;
+
+                UserRejectNotification::dispatch($user->id, $dataPayload)->delay(now()->addSeconds(2));
+            } elseif ($user->is_accepted == User::IS_ACCEPTED) {
+                $dataPayload['data']                = json_encode([]);
+
+                $dataPayload['notification_type']   = Notification::NOTIFICATION_ACCEPT_USER;
+
+                UserAcceptNotification::dispatch($user->id, $dataPayload)->delay(now()->addSeconds(2));
+            }
+
             $request->session()->flash('alert-success', 'User successfully updated');
+
             return response()->json(['success' => true, 'status' => 200], 200);
         } else {
             return response()->json(['success' => false, 'status' => 400], 400);

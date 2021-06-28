@@ -126,6 +126,10 @@ class User extends Authenticatable
     const IS_BLOCKED = '1';
     const IS_NOT_BLOCKED = '0';
 
+    const IS_PENDING  = '0';
+    const IS_ACCEPTED = '1';
+    const IS_REJECTED = '2';
+
     public function __construct(array $attributes = array())
     {
         parent::__construct($attributes);

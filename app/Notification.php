@@ -50,7 +50,7 @@ class Notification extends BaseModel
     public function validator(array $data, $returnBoolsOnly = false)
     {
         $validator = Validator::make($data, [
-            'message'      => ['required', 'string'],
+            'message'      => ['nullable', 'string'],
             'device_token' => ['required', 'string'],
             'user_id'      => ['required', 'integer', 'exists:' . (new User())->getTableName() . ',id'],
             'created_by'   => ['required', 'integer', 'exists:' . (new User())->getTableName() . ',id'],
