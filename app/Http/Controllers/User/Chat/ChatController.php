@@ -782,6 +782,7 @@ class ChatController extends BaseController
                     $storeFile = $attachment->storeAs($folder, $fileName, $chat_room->fileSystem);
 
                     $thumb_image = Image::make($data['group_icon'])->resize(100, 100);
+                    dd($thumb_image->encode());
                     Storage::disk($chat_room->fileSystem)->put($thumb_folder . $fileName, $thumb_image->encode());
 
                     if ($storeFile) {
