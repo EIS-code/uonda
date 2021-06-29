@@ -396,6 +396,8 @@ class UserController extends BaseController
                         $save = $model->updateOrCreate(['document_type' => $data['document_type'], 'user_id' => $userId], ['document_type' => $data['document_type'], 'document' => $fileName, 'user_id' => $userId]);
 
                         if ($save) {
+                            User::setPendingUser($userId);
+
                             return $this->returnSuccess(__('User document saved successfully!'), $this->getDetails($userId));
                         }
                     }
@@ -455,6 +457,8 @@ class UserController extends BaseController
         }
 
         if ($save) {
+            User::setPendingUser($userId);
+
             return $this->returnSuccess(__('User documents saved successfully!'), $this->getDetails($userId));
         }
 

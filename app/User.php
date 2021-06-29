@@ -543,4 +543,17 @@ class User extends Authenticatable
 
         return $users;
     }
+
+    public static function setPendingUser(int $userId)
+    {
+        $find = self::find($userId);
+
+        if (!empty($find)) {
+            $find->is_accepted = self::IS_PENDING;
+
+            return $find->save();
+        }
+
+        return false;
+    }
 }
