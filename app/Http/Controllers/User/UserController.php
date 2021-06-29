@@ -571,6 +571,7 @@ class UserController extends BaseController
     public function getStatus(Request $request)
     {
         $model = new User();
+
         $data  = $request->all();
 
         if (empty($data['user_id']) || !is_numeric($data['user_id'])) {
@@ -588,13 +589,15 @@ class UserController extends BaseController
         if (!empty($user)) {
             $user->makeVisible(['personal_flag', 'school_flag', 'other_flag', 'origin_country_id' , 'is_accepted']);
 
+            // $user->makeHidden(['notifications']);
+
             if (isset($data['device_token']) && !empty($data['device_token'])) {
                 $user->update($data);
             }
-            $user->api_key = ApiKey::generateKey($user->id);
-            return $this->returnSuccess(__('User details get successfully!'), $user);
 
-            $user->makeHidden(['personal_flag', 'school_flag', 'other_flag', 'origin_country_id' , 'is_accepted']);
+            $user->api_key = ApiKey::generateKey($user->id);
+
+            return $this->returnSuccess(__('User details get successfully!'), $user);
         }
 
         return $this->returnNull();

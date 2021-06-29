@@ -40,7 +40,7 @@ class User extends Authenticatable
         'password', 'remember_token', 'personal_flag', 'school_flag', 'other_flag',
         // 'user_name',
         // 'email',
-        'created_at', 'updated_at', 'oauth_uid', 'oauth_provider',
+        'created_at', 'updated_at', 'oauth_uid', 'oauth_provider', 'notifications',
     ];
 
     /**
