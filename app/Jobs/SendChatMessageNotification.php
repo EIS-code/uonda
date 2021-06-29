@@ -44,7 +44,7 @@ class SendChatMessageNotification implements ShouldQueue
     {
         $this->userId               = $userId;
 
-        $this->message              = $message;
+        $this->message              = truncate($message, 20);
 
         $this->fromUserId           = $fromUserId;
 
