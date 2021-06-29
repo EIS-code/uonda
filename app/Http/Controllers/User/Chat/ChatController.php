@@ -1037,7 +1037,7 @@ class ChatController extends BaseController
                 if (!empty($apiKey)) {
                     $chatUsersList       = $this->callSelfApiGet(route('user.chat.users.list'), $apiKey, ['chat_room_id' => $roomId]);
 
-                    $dataPayload['data'] = !empty($dataPayload['data']) ? json_encode(reset($dataPayload['data'])) : json_encode([]);
+                    $dataPayload['data'] = !empty($chatUsersList['data']) ? json_encode(reset($chatUsersList['data'])) : json_encode([]);
 
                     $dataPayload['notification_type'] = Notification::NOTIFICATION_CHAT_GROUP;
 
