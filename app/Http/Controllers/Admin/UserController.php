@@ -127,9 +127,23 @@ class UserController extends Controller
                 $user->reason_for_rejection = $request->description;
                 $user->is_accepted = 2;
             }
-            if($request->has('ís_accepted')) {
+            if($request->has('is_accepted')) {
                 $user->reason_for_rejection = NULL;
                 $user->is_accepted = 1;
+
+                if ($user->personal_flag == User::PERSONAL_FLAG_PENDING) {
+                    $request->session()->flash('alert-danger', __('User personal details still pending for this user.'));
+
+                    return response()->json(['success' => false, 'status' => 200], 200);
+                } elseif ($user->personal_flag == User::SCHOOL_FLAG_PENDING) {
+                    $request->session()->flash('alert-danger', __('User school details still pending for this user.'));
+
+                    return response()->json(['success' => false, 'status' => 200], 200);
+                } elseif ($user->personal_flag == User::OTHER_FLAG_PENDING) {
+                    $request->session()->flash('alert-danger', __('User other details still pending for this user.'));
+
+                    return response()->json(['success' => false, 'status' => 200], 200);
+                }
             }
             if($request->has('user_status')) {
                 $user->is_enable = $request->user_status;

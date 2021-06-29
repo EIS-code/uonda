@@ -162,9 +162,9 @@
                     url: url,
                     type: "POST",
                     headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                    data: { 'ís_accepted' : 1, '_method' : "PUT"}, 
+                    data: { 'is_accepted' : 1, '_method' : "PUT"}, 
                     success: function(data) {
-                        if(data.status == 200) {
+                        if (data.status == 200) {
                             location.reload();
                         }
                     },

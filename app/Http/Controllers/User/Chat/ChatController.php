@@ -1003,7 +1003,7 @@ class ChatController extends BaseController
         $fromUserId = (int)$request->get('from_user_id', false);
         $chatRoomId = (int)$request->get('chat_room_id', false);
 
-        if (!empty($userId) && !empty($fromUserId) && !empty($chatRoomId)) {
+        if (!empty($userId) && !empty($message) && !empty($fromUserId) && !empty($chatRoomId)) {
             $apiKey = ApiKey::getApiKey($userId);
 
             if (!empty($apiKey)) {
@@ -1028,7 +1028,7 @@ class ChatController extends BaseController
         $message    = $request->get('message', NULL);
         $fromUserId = (int)$request->get('from_user_id', false);
 
-        if (!empty($roomId) && !empty($fromUserId)) {
+        if (!empty($roomId) && !empty($message) && !empty($fromUserId)) {
             $chatRoomUsers = ChatRoomUser::where('chat_room_id', $roomId)->where('sender_id', '!=', $fromUserId)->get();
 
             if (!empty($chatRoomUsers) && !$chatRoomUsers->isEmpty()) {
