@@ -22,11 +22,12 @@ class SuperadminUserSeeder extends Seeder
             }
 
             User::create([
-                'id'       => User::ADMIN_ID,
-                'name'     => 'Superadmin',
-                'email'    => 'community@uonda.com',
-                'password' => Hash::make('uk@2021'),
-    			'is_admin' => User::IS_ADMIN
+                'id'            => User::ADMIN_ID,
+                'name'          => 'Superadmin',
+                'email'         => 'community@uonda.com',
+                'password'      => Hash::make('uk@2021'),
+                'is_admin'      => User::IS_ADMIN,
+                'device_type'   => 'web'
             ]);
         }
     }

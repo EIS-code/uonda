@@ -41,11 +41,12 @@ class Notification extends BaseModel
         self::IS_NOT_SUCCESS => 'No'
     ];
 
-    const NOTIFICATION_CHAT         = 'chat';
-    const NOTIFICATION_CHAT_GROUP   = 'chat_group';
-    const NOTIFICATION_FEED         = 'feed';
-    const NOTIFICATION_REJECT_USER  = 'user_reject';
-    const NOTIFICATION_ACCEPT_USER  = 'user_accept';
+    const NOTIFICATION_CHAT                 = 'chat';
+    const NOTIFICATION_CHAT_GROUP           = 'chat_group';
+    const NOTIFICATION_FEED                 = 'feed';
+    const NOTIFICATION_REJECT_USER          = 'user_reject';
+    const NOTIFICATION_ACCEPT_USER          = 'user_accept';
+    const NOTIFICATION_SCREENSHOT_CAPTURED  = 'screenshot_captured';
 
     public function validator(array $data, $returnBoolsOnly = false)
     {
