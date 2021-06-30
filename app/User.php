@@ -431,9 +431,9 @@ class User extends Authenticatable
     {
         $userBlockProfilesModel = new UserBlockProfile();
 
-        $userId = request()->get('user_id', false);
+        $userId          = request()->get('user_id', false);
         $requestedUserId = request()->get('request_user_id', false);
-        $showRejected = request()->get('show_rejected', false);
+        $showRejected    = request()->get('show_rejected', false);
 
         if (!empty($userId)) {
             // Check is blocked first.
@@ -442,7 +442,7 @@ class User extends Authenticatable
                              ->where($userBlockProfilesModel::getTableName() . '.is_block', '1')
                              ->where($userBlockProfilesModel::getTableName() . '.blocked_by', $userId);*/
 
-                return parent::newQuery($excludeDeleted)->whereRaw("{$this->getTableName()}.id not in (select `user_id` from {$userBlockProfilesModel::getTableName()} where `blocked_by` = {$userId} and `is_block` = '".$userBlockProfilesModel::IS_BLOCK."') and {$this->getTableName()}.id not in (select `blocked_by` from {$userBlockProfilesModel::getTableName()} where `user_id` = {$userId} and `is_block` = '".$userBlockProfilesModel::IS_BLOCK."')")->where('is_accepted', '!=', self::IS_REJECTED);
+                return parent::newQuery($excludeDeleted)->whereRaw("{$this->getTableName()}.id not in (select `user_id` from {$userBlockProfilesModel::getTableName()} where `blocked_by` = {$userId} and `is_block` = '".$userBlockProfilesModel::IS_BLOCK."') and {$this->getTableName()}.id not in (select `blocked_by` from {$userBlockProfilesModel::getTableName()} where `user_id` = {$userId} and `is_block` = '".$userBlockProfilesModel::IS_BLOCK."') and (({$this->getTableName()}.is_accepted = '" . self::IS_REJECTED . "' AND {$this->getTableName()}.id = '" . $userId . "') OR {$this->getTableName()}.is_accepted != '" . self::IS_REJECTED . "')");
             }
         }
 
@@ -450,7 +450,7 @@ class User extends Authenticatable
             return parent::newQuery($excludeDeleted);
         }
 
-        return parent::newQuery($excludeDeleted)->where('is_accepted', '!=', self::IS_REJECTED);
+        return parent::newQuery($excludeDeleted)->whereRaw("(({$this->getTableName()}.is_accepted = '" . self::IS_REJECTED . "' AND {$this->getTableName()}.id = '" . $userId . "') OR {$this->getTableName()}.is_accepted != '" . self::IS_REJECTED . "')");
     }
 
     public function isBlocked(int $userId, int $requestedUserId)
