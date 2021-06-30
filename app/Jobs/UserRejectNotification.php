@@ -48,6 +48,8 @@ class UserRejectNotification implements ShouldQueue
      */
     public function handle()
     {
+        request()->merge(['show_rejected' => true]);
+
         $user = User::where('id', $this->id)->where('is_admin', User::IS_USER)->whereNotNull('device_token')->whereNotNull('device_type')->first();
 
         if (empty($user)) {
@@ -99,6 +101,8 @@ class UserRejectNotification implements ShouldQueue
         $downstreamResponse->tokensWithError(); */
 
         $this->storeNotification($deviceToken, $downstreamResponse);
+
+        request()->merge(['show_rejected' => false]);
     }
 
     public function storeNotification($token, $downstreamResponse)
