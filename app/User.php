@@ -433,6 +433,7 @@ class User extends Authenticatable
 
         $userId = request()->get('user_id', false);
         $requestedUserId = request()->get('request_user_id', false);
+        $showRejected = request()->get('show_rejected', false);
 
         if (!empty($userId)) {
             // Check is blocked first.
@@ -443,6 +444,10 @@ class User extends Authenticatable
 
                 return parent::newQuery($excludeDeleted)->whereRaw("{$this->getTableName()}.id not in (select `user_id` from {$userBlockProfilesModel::getTableName()} where `blocked_by` = {$userId} and `is_block` = '".$userBlockProfilesModel::IS_BLOCK."') and {$this->getTableName()}.id not in (select `blocked_by` from {$userBlockProfilesModel::getTableName()} where `user_id` = {$userId} and `is_block` = '".$userBlockProfilesModel::IS_BLOCK."')")->where('is_accepted', '!=', self::IS_REJECTED);
             }
+        }
+
+        if ($showRejected === true) {
+            return parent::newQuery($excludeDeleted);
         }
 
         return parent::newQuery($excludeDeleted)->where('is_accepted', '!=', self::IS_REJECTED);

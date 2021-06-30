@@ -30,7 +30,11 @@ class UserController extends Controller
         $orderOrder = ($request->input('sortOrder') && ($request->input('sortOrder') == 'asc' || $request->input('sortOrder') == 'desc'))?$request->input('sortOrder'):'asc';
         $limit = env('PAGINATION_PER_PAGE_RECORDS') ? env('PAGINATION_PER_PAGE_RECORDS') : 200;
         $search = ($request->input('search') && $request->input('search') != '')?$request->input('search'):'';
+
+        $request->merge(['show_rejected' => true]);
+
         $users = User::where('is_admin', 0);
+
         $users->where(function($query) use ($search){
             if($search) {
                 $searchColumn = ['name', 'email'];
@@ -53,6 +57,9 @@ class UserController extends Controller
                 $users->where('is_accepted', 1);
         }
         $users = $users->orderBy($orderBy, $orderOrder)->paginate($limit);
+
+        $request->merge(['show_rejected' => false]);
+
         return view('pages.users.index', compact('users', 'type'));
     }
 
