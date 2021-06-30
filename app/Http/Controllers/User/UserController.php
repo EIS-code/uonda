@@ -1011,12 +1011,23 @@ class UserController extends BaseController
         return $this->returnNull();
     }
 
-    //Function to logout the user
-    public function logoutUser(Request $request) {
-        if(!empty($request->user_id)) {
-            $model = ApiKey::where('user_id', $request->user_id)->delete();
+    // Function to logout the user
+    public function logoutUser(Request $request)
+    {
+        if (!empty($request->user_id)) {
+            ApiKey::where('user_id', $request->user_id)->delete();
+
+            $user = User::find($request->user_id);
+
+            if (!empty($user)) {
+                $user->device_token = NULL;
+
+                $user->save();
+            }
+
             return $this->returnSuccess(__('You are successfully logged out!'));
         }
+
         return $this->returnError(__('Something went wrong!'));
     }
 
