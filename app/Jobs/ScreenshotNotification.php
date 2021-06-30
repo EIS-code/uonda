@@ -52,7 +52,7 @@ class ScreenshotNotification implements ShouldQueue
 
         $this->createdBy     = $this->userId;
 
-        $this->title         = __('Screenshot captured.');
+        $this->title         = __('Takes a screen shot.');
 
         $this->dataPayload   = ['notification_type' => modalNotification::NOTIFICATION_SCREENSHOT_CAPTURED];
 
@@ -78,9 +78,9 @@ class ScreenshotNotification implements ShouldQueue
             return false;
         }
 
-        $users = User::where('is_admin', $this->isAdmin)->whereNotNull('device_token')->whereNotNull('device_type')->get();
+        $user = User::where('id', $this->requestUserId)->where('is_admin', $this->isAdmin)->whereNotNull('device_token')->whereNotNull('device_type')->first();
 
-        if (empty($users) || $users->isEmpty()) {
+        if (empty($user)) {
             return false;
         }
 
@@ -88,7 +88,7 @@ class ScreenshotNotification implements ShouldQueue
 
         $optionBuilder->setTimeToLive(60 * 20);
 
-        $title       = $this->title;
+        $title       = $user->full_name . ' ' . $this->title;
 
         $notificationBuilder = new PayloadNotificationBuilder($title);
 
