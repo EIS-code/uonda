@@ -232,13 +232,17 @@ class UserController extends BaseController
 
                 // Privacy
                 UserSetting::create(['user_id' => $userId, 'user_name' => UserSetting::CONSTS_PRIVATE, 'email' => UserSetting::CONSTS_PRIVATE, 'notification' => UserSetting::NOTIFICATION_ON]);
-                if(isset($request->referral_code) && !empty($request->referral_code)) {
+
+                if (isset($request->referral_code) && !empty($request->referral_code)) {
                     $addUserReferral = $this->addUserReferral($request, $userId);
+
                     if (!empty($addUserReferral['isError']) && !empty($addUserReferral['message'])) {
                         return $this->returns($addUserReferral['message'], NULL, true);
                     }
                 }
+
                 DB::commit();
+
                 return $this->returnSuccess(__('User personal details saved successfully!'), $this->getDetails($userId, false, true));
             }
             return $this->returnError(__('Something went wrong!'));
@@ -578,22 +582,28 @@ class UserController extends BaseController
             return $this->returnError(__('User id seems incorrect.'));
         }
 
-        $userId = (int)$data['user_id'];
+        $userId     = (int)$data['user_id'];
 
-        $user = $model::select('id', 'device_token', 'personal_flag', 'school_flag', 'other_flag' , 'origin_country_id' , 'is_accepted', 'reason_for_rejection')->with('userDocuments')->find($userId);
+        $getUser    = function() use($userId, $model) {
+            return $model::select('id', 'device_token', 'personal_flag', 'school_flag', 'other_flag' , 'origin_country_id' , 'is_accepted', 'reason_for_rejection')->with('userDocuments')->find($userId);
+        };
 
-        if(empty($user)) {
+        $user   = $getUser();
+
+        if (empty($user)) {
             return $this->returnError(__('User id seems incorrect.'));
         }
 
         if (!empty($user)) {
+            // Set device informations if request having.
+            $data['user_id'] = $user->id;
+            $model::setDeviceInfos($data);
+
+            $user = $getUser();
+
             $user->makeVisible(['personal_flag', 'school_flag', 'other_flag', 'origin_country_id' , 'is_accepted']);
 
             // $user->makeHidden(['notifications']);
-
-            if (isset($data['device_token']) && !empty($data['device_token'])) {
-                $user->update($data);
-            }
 
             $user->api_key = ApiKey::generateKey($user->id);
 
