@@ -90,6 +90,8 @@ class ScreenshotNotification implements ShouldQueue
 
         $title       = $user->full_name . ' ' . $this->title;
 
+        $this->title = $title;
+
         $notificationBuilder = new PayloadNotificationBuilder($title);
 
         $notificationBuilder->setBody($this->description)->setSound('default');
