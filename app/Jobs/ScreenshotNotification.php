@@ -78,7 +78,7 @@ class ScreenshotNotification implements ShouldQueue
             return false;
         }
 
-        $user = User::where('id', $this->requestUserId)->where('is_admin', $this->isAdmin)->whereNotNull('device_token')->whereNotNull('device_type')->first();
+        $user = User::where('id', $this->userId)->where('is_admin', $this->isAdmin)->whereNotNull('device_token')->whereNotNull('device_type')->first();
 
         if (empty($user)) {
             return false;
