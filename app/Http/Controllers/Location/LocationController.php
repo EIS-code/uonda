@@ -136,18 +136,16 @@ class LocationController extends BaseController
         $next_offset = $offset + $per_page;
         $cities_count = City::count();
         if($with_pagination == 0) {
-            $cities = City::withCount('UsersWithoutRejected')->having('users_without_rejected_count', '>', 0)->get();
+            $cities = City::withCount('Users')->having('users_count', '>', 0)->get();
         } else {
-            $cities = City::withCount('UsersWithoutRejected')->having('users_without_rejected_count', '>', 0)->skip($offset)->take($per_page)->get();
+            $cities = City::withCount('Users')->having('users_count', '>', 0)->skip($offset)->take($per_page)->get();
         }
         
         if($next_offset >= $cities_count) {
             $next_offset = $offset;
         }
         $cities->each(function($userRow) {
-            $userRow->users_count = $userRow->users_without_rejected_count;
-
-            $userRow->setHidden(['encrypted_city_id', 'created_at', 'updated_at', 'state_id', 'users_without_rejected_count']);
+            $userRow->setHidden(['encrypted_city_id', 'created_at', 'updated_at', 'state_id']);
         });
         return response()->json([
             'code' => $status,
