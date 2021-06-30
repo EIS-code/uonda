@@ -153,6 +153,10 @@ class UserController extends Controller
                     $request->session()->flash('alert-danger', __('User other details still pending for this user.'));
 
                     return response()->json(['success' => false, 'status' => 200], 200);
+                } elseif ($user->userDocuments->count() <= 0) {
+                    $request->session()->flash('alert-danger', __('User documents still pending for this user.'));
+
+                    return response()->json(['success' => false, 'status' => 200], 200);
                 }
             }
             if($request->has('user_status')) {
