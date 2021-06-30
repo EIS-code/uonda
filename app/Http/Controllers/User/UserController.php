@@ -865,8 +865,8 @@ class UserController extends BaseController
         if ($latitude && $longitude) {
             $selectStatements .= "
                 , SQRT(
-                POW(69.1 * (latitude - {$latitude}), 2) +
-                POW(69.1 * ({$longitude} - longitude) * COS(latitude / 57.3), 2)) AS miles
+                POW(69.1 * ({$cityModel::getTableName()}.latitude - {$latitude}), 2) +
+                POW(69.1 * ({$longitude} - {$cityModel::getTableName()}.longitude) * COS({$cityModel::getTableName()}.latitude / 57.3), 2)) AS miles
             ";
 
             $query->having('miles', '<=', $distance);
@@ -889,7 +889,7 @@ class UserController extends BaseController
 
         $query->where($model->getTableName() . '.id', '!=', $model::IS_ADMIN);
 
-        $query->where($model->getTableName() . '.is_accepted', 1);
+        $query->where($model->getTableName() . '.is_accepted', '!=', $model::IS_REJECTED);
 
         $records = $query->selectRaw($selectStatements)->get();
 
@@ -1138,8 +1138,8 @@ class UserController extends BaseController
         if ($latitude && $longitude) {
             $selectStatements .= "
                 , SQRT(
-                POW(69.1 * (latitude - {$latitude}), 2) +
-                POW(69.1 * ({$longitude} - longitude) * COS(latitude / 57.3), 2)) AS miles
+                POW(69.1 * ({$cityModel::getTableName()}.latitude - {$latitude}), 2) +
+                POW(69.1 * ({$longitude} - {$cityModel::getTableName()}.longitude) * COS({$cityModel::getTableName()}.latitude / 57.3), 2)) AS miles
             ";
 
             $query->having('miles', '<=', $distance);
@@ -1162,16 +1162,20 @@ class UserController extends BaseController
         $query->where($model->getTableName() . '.id', '!=', $userId);
 
         $query->where($model->getTableName() . '.id', '!=', $model::IS_ADMIN);
-        $total_counts = $query->count();
-        
+
+        $query->where($model->getTableName() . '.is_accepted', '!=', $model::IS_REJECTED);
+
         $records = $query->selectRaw($selectStatements)->skip($offset)->take($per_page)->get();
-        
-        if($next_offset >= $total_counts) {
+
+        $total_counts = $records->count();
+
+        if ($next_offset >= $total_counts) {
             $next_offset = $offset;
         }
 
         if (!empty($records) && !$records->isEmpty()) {
             $records->makeHidden(['permissions', 'encrypted_user_id', 'notifications']);
+
             return response()->json([
                 'code' => $status,
                 'msg'  => __('Users found successfully!'),

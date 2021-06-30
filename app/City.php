@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Support\Facades\Validator;
 use App\State;
+use App\User;
 
 class City extends BaseModel
 {
@@ -51,5 +52,10 @@ class City extends BaseModel
     public function Users()
     {
         return $this->hasMany('App\User', 'city_id', 'id');
+    }
+
+    public function UsersWithoutRejected()
+    {
+        return $this->hasMany('App\User', 'city_id', 'id')->where('is_accepted', '!=', User::IS_REJECTED);
     }
 }
