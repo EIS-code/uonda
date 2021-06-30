@@ -471,8 +471,6 @@ class UserController extends BaseController
 
     public function doLogin(Request $request)
     {
-        $request->merge(['show_rejected' => true]);
-
         $model = new User();
         $data  = $request->all();
 
@@ -517,18 +515,12 @@ class UserController extends BaseController
             $data['user_id'] = $user->id;
             $model::setDeviceInfos($data);
 
-            $request->merge(['show_rejected' => false]);
-
             return $this->returnSuccess(__('Logged in successfully!'), $this->getDetails($user->id, false, true));
         } elseif ($isOauthLogin) {
             $this->errorCode = 402;
 
-            $request->merge(['show_rejected' => false]);
-
             return $this->returnError(__('OauthId is incorrect.'));
         }
-
-        $request->merge(['show_rejected' => false]);
 
         return $this->returnError(__('Username or Password is incorrect.'));
     }
