@@ -126,7 +126,10 @@ class UserController extends Controller
      */
     public function update(Request $request, $id)
     {
+        $request->merge(['show_rejected' => true]);
+
         $user = User::find(decrypt($id));
+
         if(!empty($user)) {
             $data  = $request->all();
         
@@ -179,11 +182,14 @@ class UserController extends Controller
 
             $request->session()->flash('alert-success', 'User successfully updated');
 
+            $request->merge(['show_rejected' => false]);
+
             return response()->json(['success' => true, 'status' => 200], 200);
-        } else {
-            return response()->json(['success' => false, 'status' => 400], 400);
         }
-        
+
+        $request->merge(['show_rejected' => false]);
+
+        return response()->json(['success' => false, 'status' => 400], 400);
     }
 
     /**
