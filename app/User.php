@@ -295,6 +295,16 @@ class User extends Authenticatable
         return $this->hasOne('App\UserSetting', 'user_id', 'id');
     }
 
+    public function userPermissionNotificationOn()
+    {
+        return $this->hasOne('App\UserSetting', 'user_id', 'id')->where('notification', UserSetting::NOTIFICATION_ON);
+    }
+
+    public function userPermissionScreenshotOn()
+    {
+        return $this->hasOne('App\UserSetting', 'user_id', 'id')->where('screenshot', UserSetting::SCREENSHOT_ON);
+    }
+
     public function referralUsers()
     {
         return $this->hasMany('App\UserReferral', 'referral_user_id', 'id')->with('user');
