@@ -55,6 +55,20 @@
                 </span>
             </div>
             <div class="app-header__content">
+                <div class="dropdown">
+                    <a class="dropbtn fa fa-bell" onclick="myFunction()">
+                        <span class="badge">5</span>
+                    </a>
+                    <div id="myDropdown" class="dropdown-content">
+                        <li>Notification 1</li>
+                        <li>Notification 2</li>
+                        <li>Notification 3</li>
+                        <li>Notification 4</li>
+                        <li>Notification 5</li>
+                    </div>
+                </div>
+                
+                
                 <div class="app-header-right">
                     <div class="header-btn-lg pr-0">
                         <div class="widget-content p-0">
@@ -115,7 +129,7 @@
                             </div>
                         </div>
                     </div>
-                    <!-- <div class="header-btn-lg">
+<!--                     <div class="header-btn-lg">
                         <button type="button" class="hamburger hamburger--elastic open-right-drawer">
                         <span class="hamburger-box">
                         <span class="hamburger-inner"></span>
@@ -236,6 +250,11 @@
                                         <i class="metismenu-icon pe-7s-config"></i>Settings
                                     </a>
                                 </li>
+                                <li class="{{ Request::is('notification*') ? 'mm-active' : '' }}">
+                                    <a href="{{ route('notification.index') }}" >
+                                        <i class="metismenu-icon pe-7s-info"></i>Notification
+                                    </a>
+                                </li>
                                 <li class="{{ Request::is('emails*') ? 'mm-active' : '' }}">
                                     <a href="{{ route('emails.index') }}" >
                                         <i class="metismenu-icon pe-7s-mail"></i>Sent Emails
@@ -324,6 +343,24 @@
   </div>
 </div>
 <script>
+    function myFunction() {
+        document.getElementById("myDropdown").classList.toggle("show");
+      }
+
+      // Close the dropdown if the user clicks outside of it
+      window.onclick = function(event) {
+        if (!event.target.matches('.dropbtn')) {
+          var dropdowns = document.getElementsByClassName("dropdown-content");
+          var i;
+          for (i = 0; i < dropdowns.length; i++) {
+            var openDropdown = dropdowns[i];
+            if (openDropdown.classList.contains('show')) {
+              openDropdown.classList.remove('show');
+            }
+          }
+        }
+      }
+    
     $('.close-modal').on('click', function() {
         $('.rejection-description').val('');
         $('.rejection-description-err').hide();

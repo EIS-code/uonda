@@ -38,6 +38,8 @@ Route::group(['middleware' => ['auth']], function(){
     Route::resource('reports-questions', 'Admin\UserReportsQuestionController');
     Route::get('users-reports', 'Admin\UserReportsQuestionController@showUserReports')->name('users-reports');
     Route::resource('promotions', 'Admin\PromotionController');
+    Route::resource('notification', 'Admin\NotificationController');
+    Route::get('notification/{id}/read', 'Admin\NotificationController@read')->name('notification.read');
 
     Route::group(['prefix' => 'user', 'namespace' => 'User'], function () {
         Route::group(['prefix' => 'chat', 'namespace' => 'Chat'], function () {
