@@ -211,7 +211,12 @@ class UserController extends Controller
 
     //
     public function showBlockedUser(Request $request) {
+        $request->merge(['show_rejected' => true]);
+
         $block_profiles = UserBlockProfile::with(['user', 'blockedUser'])->get();
+
+        $request->merge(['show_rejected' => false]);
+
         return view('pages.users.blocked-user-listing', compact('block_profiles'));
     }
 
