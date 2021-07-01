@@ -49,4 +49,9 @@ class UserSetting extends BaseModel
             'user_id'      => ['required', 'integer', 'exists:' . (new User())->getTableName() . ',id']
         ]);
     }
+
+    public function isScreenshotOn()
+    {
+        return ($this->screenshot == self::SCREENSHOT_ON);
+    }
 }

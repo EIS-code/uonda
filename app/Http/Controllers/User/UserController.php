@@ -232,13 +232,17 @@ class UserController extends BaseController
 
                 // Privacy
                 UserSetting::create(['user_id' => $userId, 'user_name' => UserSetting::CONSTS_PRIVATE, 'email' => UserSetting::CONSTS_PRIVATE, 'notification' => UserSetting::NOTIFICATION_ON]);
-                if(isset($request->referral_code) && !empty($request->referral_code)) {
+
+                if (isset($request->referral_code) && !empty($request->referral_code)) {
                     $addUserReferral = $this->addUserReferral($request, $userId);
+
                     if (!empty($addUserReferral['isError']) && !empty($addUserReferral['message'])) {
                         return $this->returns($addUserReferral['message'], NULL, true);
                     }
                 }
+
                 DB::commit();
+
                 return $this->returnSuccess(__('User personal details saved successfully!'), $this->getDetails($userId, false, true));
             }
             return $this->returnError(__('Something went wrong!'));
@@ -328,9 +332,9 @@ class UserController extends BaseController
             return $this->returnError($validator->errors()->first());
         }
 
-        if (!empty($data['birthday']) && strlen($data['birthday']) > 10) {
+        /*if (!empty($data['birthday']) && strlen($data['birthday']) > 10) {
             $data['birthday'] = $data['birthday'] / 1000;
-        }
+        }*/
 
         $user = $model::find($data['user_id']);
 
@@ -396,6 +400,8 @@ class UserController extends BaseController
                         $save = $model->updateOrCreate(['document_type' => $data['document_type'], 'user_id' => $userId], ['document_type' => $data['document_type'], 'document' => $fileName, 'user_id' => $userId]);
 
                         if ($save) {
+                            User::setPendingUser($userId);
+
                             return $this->returnSuccess(__('User document saved successfully!'), $this->getDetails($userId));
                         }
                     }
@@ -455,6 +461,8 @@ class UserController extends BaseController
         }
 
         if ($save) {
+            User::setPendingUser($userId);
+
             return $this->returnSuccess(__('User documents saved successfully!'), $this->getDetails($userId));
         }
 
@@ -567,30 +575,39 @@ class UserController extends BaseController
     public function getStatus(Request $request)
     {
         $model = new User();
+
         $data  = $request->all();
 
         if (empty($data['user_id']) || !is_numeric($data['user_id'])) {
             return $this->returnError(__('User id seems incorrect.'));
         }
 
-        $userId = (int)$data['user_id'];
+        $userId     = (int)$data['user_id'];
 
-        $user = $model::select('id', 'device_token', 'personal_flag', 'school_flag', 'other_flag' , 'origin_country_id' , 'is_accepted')->with('userDocuments')->find($userId);
+        $getUser    = function() use($userId, $model) {
+            return $model::select('id', 'device_token', 'personal_flag', 'school_flag', 'other_flag' , 'origin_country_id' , 'is_accepted', 'reason_for_rejection')->with('userDocuments')->find($userId);
+        };
 
-        if(empty($user)) {
+        $user   = $getUser();
+
+        if (empty($user)) {
             return $this->returnError(__('User id seems incorrect.'));
         }
 
         if (!empty($user)) {
+            // Set device informations if request having.
+            $data['user_id'] = $user->id;
+            $model::setDeviceInfos($data);
+
+            $user = $getUser();
+
             $user->makeVisible(['personal_flag', 'school_flag', 'other_flag', 'origin_country_id' , 'is_accepted']);
 
-            if (isset($data['device_token']) && !empty($data['device_token'])) {
-                $user->update($data);
-            }
-            $user->api_key = ApiKey::generateKey($user->id);
-            return $this->returnSuccess(__('User details get successfully!'), $user);
+            // $user->makeHidden(['notifications']);
 
-            $user->makeHidden(['personal_flag', 'school_flag', 'other_flag', 'origin_country_id' , 'is_accepted']);
+            $user->api_key = ApiKey::generateKey($user->id);
+
+            return $this->returnSuccess(__('User details get successfully!'), $user);
         }
 
         return $this->returnNull();
@@ -848,8 +865,8 @@ class UserController extends BaseController
         if ($latitude && $longitude) {
             $selectStatements .= "
                 , SQRT(
-                POW(69.1 * (latitude - {$latitude}), 2) +
-                POW(69.1 * ({$longitude} - longitude) * COS(latitude / 57.3), 2)) AS miles
+                POW(69.1 * ({$cityModel::getTableName()}.latitude - {$latitude}), 2) +
+                POW(69.1 * ({$longitude} - {$cityModel::getTableName()}.longitude) * COS({$cityModel::getTableName()}.latitude / 57.3), 2)) AS miles
             ";
 
             $query->having('miles', '<=', $distance);
@@ -872,7 +889,7 @@ class UserController extends BaseController
 
         $query->where($model->getTableName() . '.id', '!=', $model::IS_ADMIN);
 
-        $query->where($model->getTableName() . '.is_accepted', 1);
+        $query->where($model->getTableName() . '.is_accepted', '!=', $model::IS_REJECTED);
 
         $records = $query->selectRaw($selectStatements)->get();
 
@@ -994,12 +1011,23 @@ class UserController extends BaseController
         return $this->returnNull();
     }
 
-    //Function to logout the user
-    public function logoutUser(Request $request) {
-        if(!empty($request->user_id)) {
-            $model = ApiKey::where('user_id', $request->user_id)->delete();
+    // Function to logout the user
+    public function logoutUser(Request $request)
+    {
+        if (!empty($request->user_id)) {
+            ApiKey::where('user_id', $request->user_id)->delete();
+
+            $user = User::find($request->user_id);
+
+            if (!empty($user)) {
+                $user->device_token = NULL;
+
+                $user->save();
+            }
+
             return $this->returnSuccess(__('You are successfully logged out!'));
         }
+
         return $this->returnError(__('Something went wrong!'));
     }
 
@@ -1121,8 +1149,8 @@ class UserController extends BaseController
         if ($latitude && $longitude) {
             $selectStatements .= "
                 , SQRT(
-                POW(69.1 * (latitude - {$latitude}), 2) +
-                POW(69.1 * ({$longitude} - longitude) * COS(latitude / 57.3), 2)) AS miles
+                POW(69.1 * ({$cityModel::getTableName()}.latitude - {$latitude}), 2) +
+                POW(69.1 * ({$longitude} - {$cityModel::getTableName()}.longitude) * COS({$cityModel::getTableName()}.latitude / 57.3), 2)) AS miles
             ";
 
             $query->having('miles', '<=', $distance);
@@ -1145,16 +1173,20 @@ class UserController extends BaseController
         $query->where($model->getTableName() . '.id', '!=', $userId);
 
         $query->where($model->getTableName() . '.id', '!=', $model::IS_ADMIN);
-        $total_counts = $query->count();
-        
+
+        $query->where($model->getTableName() . '.is_accepted', '!=', $model::IS_REJECTED);
+
         $records = $query->selectRaw($selectStatements)->skip($offset)->take($per_page)->get();
-        
-        if($next_offset >= $total_counts) {
+
+        $total_counts = $records->count();
+
+        if ($next_offset >= $total_counts) {
             $next_offset = $offset;
         }
 
         if (!empty($records) && !$records->isEmpty()) {
             $records->makeHidden(['permissions', 'encrypted_user_id', 'notifications']);
+
             return response()->json([
                 'code' => $status,
                 'msg'  => __('Users found successfully!'),

@@ -18,12 +18,17 @@ use LaravelFCM\Message\PayloadDataBuilder;
 use LaravelFCM\Message\PayloadNotificationBuilder;
 use FCM;
 use Illuminate\Support\Facades\Storage;
+use App\Jobs\ScreenshotNotification;
 
 class NotificationController extends BaseController
 {
     public function storeScreenshot(Request $request)
     {
-        $data          = $request->all();
+        ScreenshotNotification::dispatch($request)->delay(now()->addSeconds(2));
+
+        return $this->returnSuccess(__('Notification create successfully!'));
+
+        /* $data          = $request->all();
         $model         = new Notification();
         $userId        = !empty($data['user_id']) ? (int)$data['user_id'] : false;
         $requestUserId = !empty($data['request_user_id']) ? (int)$data['request_user_id'] : false;
@@ -52,7 +57,6 @@ class NotificationController extends BaseController
         if ($create) {
             switch ($deviceType) {
                 case 'web':
-
                     break;
                 case 'ios':
                     break;
@@ -62,10 +66,12 @@ class NotificationController extends BaseController
                     break;
             }
 
+            ScreenshotNotification::dispatch($request)->delay(now()->addSeconds(2));
+
             return $this->returnSuccess(__('Notification create successfully!'), $create);
         }
 
-        return $this->returnNull();
+        return $this->returnNull(); */
     }
 
     public function testIOS(Request $request)

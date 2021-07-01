@@ -43,6 +43,8 @@ class AuthApi
         $apiKey = (!empty($request->header('api-key'))) ? $request->header('api-key') : false;
 
         if (in_array($request->route()->uri, $this->excludedRoutes)) {
+            $request->merge(['show_rejected' => true]);
+
             return $next($request);
         }
 

@@ -33,18 +33,31 @@ class UserDocument extends BaseModel
 
     public $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'txt', 'doc', 'pdf', 'docx'];
 
-    public $fileSystem     = 'public';
-    public $graduation     = 'user\\document\\graduation';
-    public $studentIdCard  = 'user\\document\\id_card';
-    public $photoInUniform = 'user\\document\\photo_in_uniform';
-    public $classPhoto     = 'user\\document\\class_photo';
+    public $fileSystem          = 'public';
+
+    const GRADUATION_PATH       = 'user\\document\\graduation';
+    const STUDENT_ID_CARD_PATH  = 'user\\document\\id_card';
+    const PHOTO_IN_UNIFORM_PATH = 'user\\document\\photo_in_uniform';
+    const CLASS_PATH            = 'user\\document\\class_photo';
+
+    public $graduation     = self::GRADUATION_PATH;
+    public $studentIdCard  = self::STUDENT_ID_CARD_PATH;
+    public $photoInUniform = self::PHOTO_IN_UNIFORM_PATH;
+    public $classPhoto     = self::CLASS_PATH;
+
+    public static $documentPaths  = [
+        self::GRADUATION_CERTIFICATE => self::GRADUATION_PATH,
+        self::STUDENT_ID_CARD        => self::STUDENT_ID_CARD_PATH,
+        self::PHOTO_IN_UNIFORM       => self::PHOTO_IN_UNIFORM_PATH,
+        self::CLASS_PHOTO            => self::CLASS_PATH
+    ];
 
     public function validator(array $data, $returnBoolsOnly = false)
     {
         $validator = Validator::make($data, [
             'document_type' => ['required', 'in:' . implode(",", array_keys($this->documentTypes))],
             'document'      => ['required', 'mimes:' . implode(",", $this->allowedExtensions)],
-            'document' => ['nullable', 'max:10240'],
+            'document'      => ['nullable', 'max:6000'],
             'user_id'       => ['required', 'integer', 'exists:' . (new User())->getTableName() . ',id']
         ]);
 

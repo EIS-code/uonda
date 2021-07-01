@@ -1003,7 +1003,7 @@ class ChatController extends BaseController
         $fromUserId = (int)$request->get('from_user_id', false);
         $chatRoomId = (int)$request->get('chat_room_id', false);
 
-        if (!empty($userId) && !empty($fromUserId) && !empty($chatRoomId)) {
+        if (!empty($userId) && !empty($message) && !empty($fromUserId) && !empty($chatRoomId)) {
             $apiKey = ApiKey::getApiKey($userId);
 
             if (!empty($apiKey)) {
@@ -1028,7 +1028,7 @@ class ChatController extends BaseController
         $message    = $request->get('message', NULL);
         $fromUserId = (int)$request->get('from_user_id', false);
 
-        if (!empty($roomId) && !empty($fromUserId)) {
+        if (!empty($roomId) && !empty($message) && !empty($fromUserId)) {
             $chatRoomUsers = ChatRoomUser::where('chat_room_id', $roomId)->where('sender_id', '!=', $fromUserId)->get();
 
             if (!empty($chatRoomUsers) && !$chatRoomUsers->isEmpty()) {
@@ -1037,7 +1037,7 @@ class ChatController extends BaseController
                 if (!empty($apiKey)) {
                     $chatUsersList       = $this->callSelfApiGet(route('user.chat.users.list'), $apiKey, ['chat_room_id' => $roomId]);
 
-                    $dataPayload['data'] = !empty($dataPayload['data']) ? json_encode(reset($dataPayload['data'])) : json_encode([]);
+                    $dataPayload['data'] = !empty($chatUsersList['data']) ? json_encode(reset($chatUsersList['data'])) : json_encode([]);
 
                     $dataPayload['notification_type'] = Notification::NOTIFICATION_CHAT_GROUP;
 
