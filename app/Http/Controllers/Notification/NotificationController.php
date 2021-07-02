@@ -24,7 +24,7 @@ class NotificationController extends BaseController
 {
     public function storeScreenshot(Request $request)
     {
-        ScreenshotNotification::dispatch($request)->delay(now()->addSeconds(2));
+        ScreenshotNotification::dispatch()->delay(now()->addSeconds(2));
 
         return $this->returnSuccess(__('Notification create successfully!'));
 
