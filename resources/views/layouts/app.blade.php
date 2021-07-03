@@ -56,18 +56,16 @@
             </div>
             <div class="app-header__content">
                 <div class="dropdown">
-                    <a class="dropbtn fa fa-bell" onclick="myFunction()">
-                        <span class="badge">5</span>
+                    <a class="dropbtn fa fa-bell read-all" data-ids="">
+                        <span class="badge">0</span>
                     </a>
-                    <div id="myDropdown" class="dropdown-content">
-                        <li>Notification 1</li>
-                        <li>Notification 2</li>
-                        <li>Notification 3</li>
-                        <li>Notification 4</li>
-                        <li>Notification 5</li>
+
+                    <div id="notification-dropdown" class="dropdown-content">
+                        <a href="{{ route('notification.index') }}">
+                            <li class="text-center all-notifications">{{ __('Open all') }}</li>
+                        </a>
                     </div>
                 </div>
-                
                 
                 <div class="app-header-right">
                     <div class="header-btn-lg pr-0">
@@ -313,9 +311,7 @@
 <script type="text/javascript" src="{{ asset('plugins/cropper/cropper.min.js') }}"></script>
 <script type="text/javascript" src="{{ asset('plugins/ckeditor/ckeditor.js') }}"></script>
 <!-- The core Firebase JS SDK is always required and must be listed first -->
-<script src="https://www.gstatic.com/firebasejs/8.2.3/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.2.3/firebase-analytics.js"></script>
-<script src="https://www.gstatic.com/firebasejs/3.7.2/firebase.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.7.0/firebase.js"></script>
 @stack('custom-scripts')
 </body>
 </html>
@@ -343,9 +339,101 @@
   </div>
 </div>
 <script>
-    function myFunction() {
-        document.getElementById("myDropdown").classList.toggle("show");
-      }
+    function readAll(event) {
+        event.preventDefault();
+
+        // document.getElementById("notification-dropdown").classList.toggle("show");
+        $(document).find('#notification-dropdown').toggleClass("show");
+
+        let self            = $(this),
+            notificationIds = self.attr('data-ids');
+
+        if (notificationIds.length > 0) {
+            $.ajax({
+                url: "{{ route('notification.read.all') }}",
+                type: "POST",
+                headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                data: {"ids": JSON.parse(notificationIds)},
+                success: function(data) {
+                    if (data > '0') {
+                        $(document).find('.dropbtn').find('.badge').html("0");
+
+                        // $(document).find('#notification-dropdown').find('a.actual-notification').remove();
+
+                        self.attr('data-ids', "");
+                    }
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        }
+    }
+
+    function appendNotification(payload)
+    {
+        let title                = payload.notification.title;
+
+        let notificationDropdown = $(document).find('#notification-dropdown');
+
+        if (title != "" && title != null && title.length > 0 && notificationDropdown.length > 0) {
+            getAllNotificaionts();
+        }
+    }
+
+    function getAllNotificaionts()
+    {
+        let notificationDropdown  = $(document).find('.dropdown'),
+            notificationDropbtn   = notificationDropdown.find('.dropbtn'),
+            notificationCounter   = notificationDropdown.find('.badge'),
+            notificationLi        = notificationDropdown.find('#notification-dropdown'),
+            notificationIds       = [],
+            notificationHtml      = "",
+            notificationRoute     = "{{ route('notification.index') }}";
+
+        notificationDropbtn.attr('data-ids', "");
+        notificationLi.prepend(notificationHtml).find('a.actual-notification').remove();
+
+        $.ajax({
+            url: "{{ route('notification.get.all') }}",
+            type: "GET",
+            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+            success: function(data) {
+                let dataArray = JSON.parse(data);
+
+                notificationCounter.empty();
+                notificationCounter.html(dataArray.length);
+
+                if (dataArray.length > 0) {
+                    $.each(dataArray, function(key, item) {
+                        if (key > 9) {
+                            return false;
+                        }
+
+                        let notificationHref = notificationRoute + "?search=" + item.id + "#" + item.id;
+
+                        notificationIds.push(item.id);
+
+                        notificationHtml += "<a href=\"" + notificationHref + "\" class=\"actual-notification\">";
+                            notificationHtml += "<li>";
+                                notificationHtml += item.title;
+                            notificationHtml += "</li>";
+                        notificationHtml += "</a>";
+                    });
+
+                    notificationDropbtn.attr('data-ids', JSON.stringify(notificationIds));
+                    notificationLi.prepend(notificationHtml);
+                }
+            },
+            error: function(error) {
+                console.log(error);
+            }
+        });
+    }
+
+    $(document).find('.read-all').on("click", readAll);
+
+    getAllNotificaionts();
 
       // Close the dropdown if the user clicks outside of it
       window.onclick = function(event) {
@@ -356,6 +444,8 @@
             var openDropdown = dropdowns[i];
             if (openDropdown.classList.contains('show')) {
               openDropdown.classList.remove('show');
+
+              getAllNotificaionts();
             }
           }
         }
@@ -394,51 +484,16 @@
         }
     });
 
-    function notifyMe() {
-        // Let's check if the browser supports notifications
-        if (!("Notification" in window)) {
-            console.log("This browser does not support desktop notification");
-        }
-
-        // Let's check if the user is okay to get some notification
-        else if (Notification.permission === "granted") {
-            // If it's okay let's create a notification
-            // var notification = new Notification("Hi there!");
-        }
-
-        // Otherwise, we need to ask the user for permission
-        // Note, Chrome does not implement the permission static property
-        // So we have to check for NOT 'denied' instead of 'default'
-        else if (Notification.permission !== 'denied') {
-            Notification.requestPermission(function (permission) {
-
-                // Whatever the user answers, we make sure we store the information
-                if (!('permission' in Notification)) {
-                    Notification.permission = permission;
-                }
-
-                // If the user is okay, let's create a notification
-                if (permission === "granted") {
-                    var notification = new Notification("Hi there!");
-                }
-            });
-        } else {
-            console.log(`Permission is ${Notification.permission}`);
-        }
-    }
-
-    notifyMe();
-
     // Web FCM.
     // Your web app's Firebase configuration
     // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-    var apiKey = "{{ env('FCM_WEB_API_KEY', 'AIzaSyCxEFpe9_c9Xor-1WInOzBN6pubOLr3eeU') }}",
-        authDomain = "{{ env('FCM_WEB_AUTH_DOMAIN', 'community-uonda.firebaseapp.com') }}",
-        projectId = "{{ env('FCM_WEB_PROJECT_ID', 'community-uonda') }}",
-        storageBucket = "{{ env('FCM_WEB_STORAGE_BUCKET', 'community-uonda.appspot.com') }}",
-        messagingSenderId = "{{ env('FCM_WEB_MESSAGING_SENDER_ID', '622244680827') }}",
-        appId = "{{ env('FCM_WEB_APP_ID', '1:622244680827:web:b84c2df20d1de31ca07ede') }}",
-        measurementId = "{{ env('FCM_WEB_MEASUREMENT_ID', 'G-45S2SFQWB6') }}";
+    var apiKey              = "{{ env('FCM_WEB_API_KEY', '') }}",
+        authDomain          = "{{ env('FCM_WEB_AUTH_DOMAIN', '') }}",
+        projectId           = "{{ env('FCM_WEB_PROJECT_ID', '') }}",
+        storageBucket       = "{{ env('FCM_WEB_STORAGE_BUCKET', '') }}",
+        messagingSenderId   = "{{ env('FCM_SENDER_ID', '') }}",
+        appId               = "{{ env('FCM_WEB_APP_ID', '') }}",
+        measurementId       = "{{ env('FCM_WEB_MEASUREMENT_ID', '') }}";
 
     var firebaseConfig = {
         apiKey: apiKey,
@@ -450,29 +505,68 @@
         measurementId: measurementId
     };
 
-    // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
-    // firebase.analytics();
 
     const messaging = firebase.messaging();
 
-    messaging.requestPermission()
-    .then(function() {
-        console.log('Notification permission granted.');
-        return messaging.getToken();
-    })
-    .then(function(token) {
-        console.log(token);
-    })
-    .catch(function(err) {
-        console.log('Unable to get permission to notify.', err);
+    function startFCM() {
+        messaging
+            .requestPermission()
+            .then(function () {
+                return messaging.getToken()
+            })
+            .then(function (response) {
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+
+                $.ajax({
+                    url: '{{ route("store.token") }}',
+                    type: 'POST',
+                    data: {
+                        token: response
+                    },
+                    dataType: 'JSON',
+                    success: function (response) {
+                        // console.log('Token stored.');
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    },
+                });
+
+            }).catch(function (error) {
+                console.log(error);
+            });
+    }
+
+    messaging.onMessage(function (payload) {
+        console.log(payload);
+
+        const title = payload.notification.title;
+
+        const options = {
+            body: payload.notification.body,
+            icon: payload.notification.icon,
+            // click_action: "{{ route('notification.index') }}",
+            // data: {click_action: "{{ route('notification.index') }}"}
+        };
+
+        var notification = new Notification(title, options);
+
+        notification.onclick = function(event) {
+            // Prevent the browser from focusing the Notification's tab
+            event.preventDefault();
+
+            window.open("{{ route('notification.index') }}", '_blank');
+
+            notification.close();
+        }
+
+        appendNotification(payload);
     });
 
-    messaging.onMessage(function(payload){
-        console.log('onMessage',payload);
-    });
+    startFCM();
 </script>
-
-
-
-

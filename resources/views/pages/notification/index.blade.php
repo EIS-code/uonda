@@ -60,7 +60,7 @@
             </thead>
             <tbody>
                 @foreach($notifications as $key => $notification)
-                    <tr>
+                    <tr id="{{ $notification->id }}" class="highlight">
                         <td>{{ Helper::listIndex($notifications->currentPage(), $notifications->perPage(), $key) }}</td>
                         <td>{{ ucfirst($notification->title) }}</td>
                         <td>{{ ucfirst($notification->message) }}</td>
@@ -90,4 +90,19 @@
 </div>
 @endsection
 @push('custom-scripts')
+    <script type="text/javascript">
+        function highlightRow(id) {
+            $(document).find(id).toggleClass('highlight-row');
+
+            setTimeout(function() {
+                $(document).find(id).removeClass('highlight-row');
+            }, 5000);
+        }
+
+        $(window).on('hashchange', function(event){
+            highlightRow(window.location.hash);
+        });
+
+        highlightRow(window.location.hash);
+    </script>
 @endpush

@@ -62,7 +62,11 @@ class BaseNotification
             if ($isFeed === true) {
                 $this->deviceTokens = $this->requestUsers->pluck('device_token', 'id')->toArray();
             } else {
-                $this->deviceTokens = [$this->requestUserId => $this->requestUsers->device_token];
+                if ($this->isAdmin == User::IS_ADMIN) {
+                    $this->deviceTokens = [User::ADMIN_ID => $this->requestUsers->device_token];
+                } else {
+                    $this->deviceTokens = [$this->requestUserId => $this->requestUsers->device_token];
+                }
             }
         }
 
@@ -80,18 +84,24 @@ class BaseNotification
     {
         $requestUser = User::query();
 
-        $requestUser->whereNotNull('device_token')->whereNotNull('device_type')->has('userPermissionNotificationOn');
+        if ($this->isAdmin == User::IS_USER) {
+            $requestUser->whereNotNull('device_token')->whereNotNull('device_type')->has('userPermissionNotificationOn');
+        }
 
         if ($isFeed === true) {
             $requestUser->where('is_admin', User::IS_USER);
 
             $requestUser = $requestUser->get();
         } else {
-            if ($isScreenShot) {
+            if ($isScreenShot && $this->isAdmin == User::IS_USER) {
                 $requestUser->has('userPermissionScreenshotOn');
             }
 
-            $requestUser->where('id', $this->requestUserId)->where('is_admin', $this->isAdmin);
+            if ($this->isAdmin == User::IS_ADMIN) {
+                $requestUser->where('id', User::ADMIN_ID)->where('is_admin', $this->isAdmin);
+            } else {
+                $requestUser->where('id', $this->requestUserId)->where('is_admin', $this->isAdmin);
+            }
 
             $requestUser = $requestUser->first();
         }
@@ -109,7 +119,7 @@ class BaseNotification
             'message'       => $this->description,
             'device_token'  => $token,
             'is_success'    => modalNotification::IS_SUCCESS,
-            'apns_id'       => env('FCM_WEB_API_KEY'),
+            'apns_id'       => env('FCM_SERVER_KEY'),
             'error_infos'   => json_encode($this->downstreamResponse->tokensWithError()),
             'user_id'       => $userId,
             'created_by'    => $this->userId

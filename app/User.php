@@ -119,6 +119,7 @@ class User extends Authenticatable
     const IS_NOT_ONLINE = '0';
 
     const ADMIN_DEVICE_TOKEN = 'admin';
+    const ADMIN_DEVICE_TYPE  = 'admin';
 
     const DEVICE_TYPE_IOS       = 'ios';
     const DEVICE_TYPE_ANDROID   = 'android';

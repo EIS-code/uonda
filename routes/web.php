@@ -20,6 +20,8 @@ Route::get('/get-states/{id}', 'Admin\SchoolController@getStateDetails')->name('
 Route::get('/get-cities-of-country/{id}', 'Admin\SchoolController@getCitiesFromCountry')->name('get-cities-of-country');
 Route::get('/get-cities/{id}', 'Admin\SchoolController@getCitiesDetails')->name('get-cities');
 
+Route::post('/store-token', 'Admin\UserController@storeToken')->name('store.token');
+
 Route::group(['middleware' => ['auth']], function(){
     Route::get('/', 'DashboardController@index')->name('dashboard');
     Route::resource('users', 'Admin\UserController');
@@ -38,8 +40,10 @@ Route::group(['middleware' => ['auth']], function(){
     Route::resource('reports-questions', 'Admin\UserReportsQuestionController');
     Route::get('users-reports', 'Admin\UserReportsQuestionController@showUserReports')->name('users-reports');
     Route::resource('promotions', 'Admin\PromotionController');
+    Route::get('notification/get-all', 'Admin\NotificationController@getAllNotifications')->name('notification.get.all');
     Route::resource('notification', 'Admin\NotificationController');
     Route::get('notification/{id}/read', 'Admin\NotificationController@read')->name('notification.read');
+    Route::post('notification/readAll', 'Admin\NotificationController@readAll')->name('notification.read.all');
 
     Route::group(['prefix' => 'user', 'namespace' => 'User'], function () {
         Route::group(['prefix' => 'chat', 'namespace' => 'Chat'], function () {

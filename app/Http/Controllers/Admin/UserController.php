@@ -63,6 +63,19 @@ class UserController extends Controller
         return view('pages.users.index', compact('users', 'type'));
     }
 
+    public function storeToken(Request $request)
+    {
+        $token = $request->get('token', NULL);
+
+        if (!empty($token)) {
+            auth()->user()->update(['device_token' => $token, 'device_type' => User::ADMIN_DEVICE_TYPE]);
+
+            return response()->json(['Successfully stored.']);
+        }
+
+        return response()->json(['Unsuccessfully stored.']);
+    }
+
     /**
      * Show the form for creating a new resource.
      *

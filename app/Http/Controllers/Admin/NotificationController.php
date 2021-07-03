@@ -18,12 +18,12 @@ class NotificationController extends Controller
     {
         $columns=Schema::getColumnListing('notifications');
         $orderBy = ($request->input('sortBy') && in_array($request->input('sortBy'), $columns))?$request->input('sortBy'):'id';
-        $orderOrder = ($request->input('sortOrder') && ($request->input('sortOrder') == 'asc' || $request->input('sortOrder') == 'desc'))?$request->input('sortOrder'):'asc';
+        $orderOrder = ($request->input('sortOrder') && ($request->input('sortOrder') == 'asc' || $request->input('sortOrder') == 'desc'))?$request->input('sortOrder'):'desc';
         $limit = env('PAGINATION_PER_PAGE_RECORDS') ? env('PAGINATION_PER_PAGE_RECORDS') : 200;
         $search = ($request->input('search') && $request->input('search') != '')?$request->input('search'):'';
         $notifications = Notification::where('user_id', auth()->user()->id)->where(function($query) use ($search){
             if($search) {
-                $searchColumn = ['title'];
+                $searchColumn = ['id', 'title'];
                 foreach ($searchColumn as $singleSearchColumn) {
                     $query->orWhere($singleSearchColumn, "LIKE", '%' . $search . '%');
                 }
@@ -105,5 +105,26 @@ class NotificationController extends Controller
         $notification->where('id', $id)->update(['is_read' => Notification::IS_READ]);
         \Session::flash('alert-success','Notification read successfully');
         return redirect(url()->previous());
+    }
+
+    public function readAll(Request $request)
+    {
+        $update          = false;
+        $notificationIds = $request->get('ids', []);
+
+        if (!empty($notificationIds)) {
+            $update = Notification::whereIn('id', $notificationIds)->update(['is_read' => Notification::IS_READ]);
+        }
+
+        return $update;
+    }
+
+    public function getAllNotifications()
+    {
+        $user           = auth()->user();
+
+        $notifications  = $user->notifications(false, Notification::IS_UNREAD)->orderBy('id', 'desc')->get();
+
+        echo json_encode($notifications);
     }
 }
