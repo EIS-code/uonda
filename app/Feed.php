@@ -38,7 +38,8 @@ class Feed extends BaseModel
         '3gp',
         'mov',
         'avi',
-        'wmv'
+        'wmv',
+        'mkv'
     ];
 
     /**
