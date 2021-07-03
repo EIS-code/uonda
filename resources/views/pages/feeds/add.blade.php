@@ -50,6 +50,18 @@
                     @enderror
                 </div>
             </div>
+            <div class="form-group">
+                <label for="description">Short Description</label>
+                <div>
+                    <textarea type="text" class="form-control @error('short_description') is-invalid @enderror" id="short_description" name="short_description" placeholder="Short Description" value="{{ old('short_description') }}">{{ old('short_description') }}</textarea>
+
+                    @error('short_description')
+                        <em class="error invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </em>
+                    @enderror
+                </div>
+            </div>
             <div class="position-relative form-group">
                 <label for="exampleSelect" class="">Type</label>
                 <select name="type" id="type" class="form-control @error('type') is-invalid @enderror">
@@ -97,6 +109,8 @@
     
     $(document).ready(function() {
         CKEDITOR.replace( 'description', {contentsCss: "body {font-size: 20px;}"}  );
+
+        CKEDITOR.replace( 'short_description', {contentsCss: "body {font-size: 20px;}"}  );
         
         const image = document.getElementById('image');
         var cropper = '';
@@ -149,6 +163,10 @@
             var filename = $('input[type=file]').val().replace(/C:\\fakepath\\/i, '')
             var ckValue = CKEDITOR.instances["description"].getData();
             $('#description').val(ckValue);
+
+            var shortDescriptionValue = CKEDITOR.instances["short_description"].getData();
+            $('#short_description').val(shortDescriptionValue);
+
             // var formData = new FormData(document.querySelector('form'))
             if($('#type').val() == 1) {
                 cropper.getCroppedCanvas().toBlob((blob) => {

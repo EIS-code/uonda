@@ -13,7 +13,7 @@ class Feed extends BaseModel
      * @var array
      */
     protected $fillable = [
-        'title', 'sub_title', 'attachment', 'description', 'type'
+        'title', 'sub_title', 'attachment', 'description', 'short_description', 'type'
     ];
 
     public $allowedExtensions = [
@@ -80,6 +80,7 @@ class Feed extends BaseModel
             'attachment'  => ['nullable', 'mimes:' . implode(",", $this->allowedExtensions)],
             'attachment' => ['nullable', 'max:10240'],
             'description' => ['required', 'string'],
+            'short_description' => ['required', 'string'],
             'type'        => ['nullable', 'in:' . implode(",", array_keys($this->feedTypes))]
         ];
 

@@ -38,6 +38,10 @@
                         <th> Description </th>
                         <td> {!! html_entity_decode($feed->description) !!} </td>
                     </tr>
+                    <tr>
+                        <th> Short Description </th>
+                        <td> {!! html_entity_decode($feed->short_description) !!} </td>
+                    </tr>
                     @if(!empty($feed->attachment))
                     <tr>
                         <th> attachment Type </th>
