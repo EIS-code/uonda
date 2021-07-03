@@ -23,7 +23,7 @@ class NotificationController extends Controller
         $search = ($request->input('search') && $request->input('search') != '')?$request->input('search'):'';
         $notifications = Notification::where('user_id', auth()->user()->id)->where(function($query) use ($search){
             if($search) {
-                $searchColumn = ['id', 'title'];
+                $searchColumn = ['id', 'title', 'message', 'is_read'];
                 foreach ($searchColumn as $singleSearchColumn) {
                     $query->orWhere($singleSearchColumn, "LIKE", '%' . $search . '%');
                 }

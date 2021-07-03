@@ -42,16 +42,16 @@
             <thead>
             <tr>
                 <th>
-                    <a href="{{Helper::generateURLWithFilter(route('notification.index'),1,'id',(request('sortOrder','asc')=='asc'?'desc':'asc'),request('search'))}}"># {!! Helper::sortingDesign('id',request('sortBy'),request('sortOrder')) !!}</a>
+                    #
                 </th>
                 <th>
-                    <a href="{{Helper::generateURLWithFilter(route('notification.index'),1,'name',(request('sortOrder','asc')=='asc'?'desc':'asc'),request('search'))}}">Title {!! Helper::sortingDesign('title',request('sortBy'),request('sortOrder')) !!}</a>
+                    <a href="{{Helper::generateURLWithFilter(route('notification.index'),1,'title',(request('sortOrder','asc')=='asc'?'desc':'asc'),request('search'))}}">Title {!! Helper::sortingDesign('title',request('sortBy'),request('sortOrder')) !!}</a>
                 </th>
                 <th>
-                    <a href="{{Helper::generateURLWithFilter(route('notification.index'),1,'state_id',(request('sortOrder','asc')=='asc'?'desc':'asc'),request('search'))}}">Message {!! Helper::sortingDesign('message',request('sortBy'),request('sortOrder')) !!}</a>
+                    <a href="{{Helper::generateURLWithFilter(route('notification.index'),1,'message',(request('sortOrder','asc')=='asc'?'desc':'asc'),request('search'))}}">Message {!! Helper::sortingDesign('message',request('sortBy'),request('sortOrder')) !!}</a>
                 </th>
                 <th>
-                    <a href="{{Helper::generateURLWithFilter(route('notification.index'),1,'country_id',(request('sortOrder','asc')=='asc'?'desc':'asc'),request('search'))}}">Is Read {!! Helper::sortingDesign('is_read',request('sortBy'),request('sortOrder')) !!}</a>
+                    <a href="{{Helper::generateURLWithFilter(route('notification.index'),1,'is_read',(request('sortOrder','asc')=='asc'?'desc':'asc'),request('search'))}}">Is Read {!! Helper::sortingDesign('is_read',request('sortBy'),request('sortOrder')) !!}</a>
                 </th>
                 <th>
                     <a href="{{Helper::generateURLWithFilter(route('notification.index'),1,'created_at',(request('sortOrder','asc')=='asc'?'desc':'asc'),request('search'))}}">Created At {!! Helper::sortingDesign('created_at',request('sortBy'),request('sortOrder')) !!}</a>
@@ -59,23 +59,31 @@
             </tr>
             </thead>
             <tbody>
-                @foreach($notifications as $key => $notification)
-                    <tr id="{{ $notification->id }}" class="highlight">
-                        <td>{{ Helper::listIndex($notifications->currentPage(), $notifications->perPage(), $key) }}</td>
-                        <td>{{ ucfirst($notification->title) }}</td>
-                        <td>{{ ucfirst($notification->message) }}</td>
-                        @if($notification->is_read == "0")         
-                        <td>
-                            <form id="formName-{{ $notification->id }}" action="{{ route('notification.read', $notification->id) }}" method="GET">
-                                <input type ="checkbox" name="cBox[]" value = "{{$notification->id}}" onchange="this.form.submit()"></input>
-                            </form>
+                @if (!empty($notifications) && !$notifications->isEmpty())
+                    @foreach($notifications as $key => $notification)
+                        <tr id="{{ $notification->id }}" class="highlight">
+                            <td>{{ Helper::listIndex($notifications->currentPage(), $notifications->perPage(), $key) }}</td>
+                            <td>{{ !empty($notification->title) ? ucfirst($notification->title) : '-' }}</td>
+                            <td>{{ !empty($notification->message) ? ucfirst($notification->message) : '-' }}</td>
+                            @if($notification->is_read == "0")         
+                            <td>
+                                <form id="formName-{{ $notification->id }}" action="{{ route('notification.read', $notification->id) }}" method="GET">
+                                    <input type ="checkbox" name="cBox[]" value = "{{$notification->id}}" onchange="this.form.submit()"></input>
+                                </form>
+                            </td>
+                            @else
+                                <td>{{ 'Yes' }}</td>        
+                            @endif
+                            <td>{{ !empty($notification->created_at) ? Carbon\Carbon::parse($notification->created_at)->format('jS M Y') : '-' }}</td>
+                        </tr>
+                    @endforeach
+                @else
+                    <tr class="text-center">
+                        <td colspan="6">
+                            <mark>{{ __('No records found!') }}</mark>
                         </td>
-                        @else
-                            <td>{{ 'Yes' }}</td>        
-                        @endif
-                        <td>{{ !empty($notification->created_at) ? Carbon\Carbon::parse($notification->created_at)->format('jS M Y') : '-' }}</td>
                     </tr>
-                @endforeach
+                @endif
             </tbody>
         </table>
         <div class="row">
