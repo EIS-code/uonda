@@ -254,15 +254,23 @@
                                                 <i class="metismenu-icon"></i>Constants
                                             </a>
                                         </li>
-                                        <li class="{{ Request::is('settings/notification/texts*') ? 'mm-active' : '' }}">
-                                            <a href="{{ route('notification.texts') }}" >
-                                                <i class="metismenu-icon"></i>Notification texts
+                                        <li class="{{ Request::is('settings/notification*') ? 'mm-active' : '' }}">
+                                            <a href="javascript::void(0)" >
+                                                <i class="metismenu-icon"></i>Texts
+                                                <i class="metismenu-state-icon pe-7s-angle-down caret-left"></i>
                                             </a>
-                                        </li>
-                                        <li class="{{ Request::is('settings/apiResponse/texts*') ? 'mm-active' : '' }}">
-                                            <a href="{{ route('apiResponse.texts') }}" >
-                                                <i class="metismenu-icon"></i>API response texts
-                                            </a>
+                                            <ul>
+                                                <li class="{{ Request::is('settings/notification/texts*') ? 'mm-active' : '' }}">
+                                                    <a href="{{ route('notification.texts') }}" >
+                                                        <i class="metismenu-icon"></i>Notification texts
+                                                    </a>
+                                                </li>
+                                                <li class="{{ Request::is('settings/apiResponse/texts*') ? 'mm-active' : '' }}">
+                                                    <a href="{{ route('apiResponse.texts') }}" >
+                                                        <i class="metismenu-icon"></i>API response texts
+                                                    </a>
+                                                </li>
+                                            </ul>
                                         </li>
                                     </ul>
                                 </li>
