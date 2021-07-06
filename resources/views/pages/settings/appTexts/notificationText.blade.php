@@ -20,7 +20,7 @@
             <tr>
                 <th>No</th>
                 <th>English Text</th>
-                <th>show Text</th>
+                <th>Show Text</th>
             </tr>
             </thead>
             <tbody>
@@ -70,7 +70,6 @@
           restoreButton:false,
           onSuccess:function(data, textStatus, jqXHR)
           {
-               location.reload();
           }
         });
 
