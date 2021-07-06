@@ -57,7 +57,7 @@ class SchoolController extends BaseController
                 unset($data->city);
             });
 
-            return $this->returnSuccess(__('Schools found successfully!'), $schools);
+            return $this->returnSuccess(__(SCHOOLS_FOUND), $schools);
         }
 
         return $this->returnNull();
@@ -86,10 +86,10 @@ class SchoolController extends BaseController
         }
 
         if ($create) {
-            return $this->returnSuccess(__('School saved successfully!'), $school_data);
+            return $this->returnSuccess(__(SCHOOL_SAVED), $school_data);
         }
 
-        return $this->returnError(__('Something went wrong!'));
+        return $this->returnError(__(SOMETHING_WENT_WRONG));
     }
 
     public function updateSchool(Request $request)
@@ -99,13 +99,13 @@ class SchoolController extends BaseController
         $schoolId = !empty($data['school_id']) ? (int)$data['school_id'] : false;
 
         if (empty($schoolId)) {
-            return $this->returnError(__('School id not available!'));
+            return $this->returnError(__(SCHOOL_NOT_AVAILABLE));
         }
 
         $record = $model::find($schoolId);
 
         if (empty($record)) {
-            return $this->returnError(__('School not found!'));
+            return $this->returnError(__(SCHOOL_NOT_FOUND));
         }
 
         $validator = $model->validator($data, $record->id);
@@ -124,9 +124,9 @@ class SchoolController extends BaseController
         if ($update) {
             $record->refresh();
 
-            return $this->returnSuccess(__('School updated successfully!'), $record);
+            return $this->returnSuccess(__(SCHOOL_UPDATED), $record);
         }
 
-        return $this->returnError(__('Something went wrong!'));
+        return $this->returnError(__(SOMETHING_WENT_WRONG));
     }
 }

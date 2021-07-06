@@ -8,13 +8,14 @@ use Illuminate\Support\Facades\Mail;
 use View;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
+use App\AppText;
 
 class BaseController extends Controller
 {
     public $errorCode     = 401;
     public $blockCode     = 402;
     public $successCode   = 200;
-    public $returnNullMsg = 'No response found!';
+    public $returnNullMsg = NO_RESPONSE;
 
     public function index()
     {
@@ -53,7 +54,7 @@ class BaseController extends Controller
         if (empty($view)) {
             return response()->json([
                 'code' => 401,
-                'msg'  => __('Please provide email view.')
+                'msg'  => __(PROVIDE_EMAIL_VIEW)
             ]);
         }
 
@@ -94,7 +95,7 @@ class BaseController extends Controller
         if (Mail::failures()) {
             return response()->json([
                 'code' => 401,
-                'msg'  => __('Email not sent')
+                'msg'  => __(EMAIL_NOT_SENT)
             ]);
         } else {
             if (!is_array($to)) {
@@ -107,7 +108,7 @@ class BaseController extends Controller
 
             return response()->json([
                 'code' => 200,
-                'msg'  => __('Email sent successfully !')
+                'msg'  => __(EMAIL_SENT)
             ]);
         }
     }

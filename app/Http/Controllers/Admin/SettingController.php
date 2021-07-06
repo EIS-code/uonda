@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Constant;
+use App\AppText;
 
 class SettingController extends Controller
 {
@@ -15,8 +16,8 @@ class SettingController extends Controller
      */
     public function index()
     {
-        $constants = Constant::all();
-        return view('pages.settings.index', compact('constants'));
+//        $constants = Constant::all();
+//        return view('pages.settings.index', compact('constants'));
     }
 
     /**
@@ -132,5 +133,39 @@ class SettingController extends Controller
         Constant::where('id', decrypt($id))->delete();
 		$request->session()->flash('success','Settings deleted successfully');
 		return redirect(url()->previous());
+    }
+    
+    public function getConstants() {
+        
+        $constants = Constant::all();
+        return view('pages.settings.index', compact('constants'));
+    }
+    
+    public function getNotificationText() {
+        
+        $notificationTexts = AppText::where('type', (string) AppText::NOTIFICATION)->get();
+        return view('pages.settings.appTexts.notificationText', compact('notificationTexts'));
+    }
+    
+    public function getApiResponseText() {
+        
+        $apiResponseTexts = AppText::where('type', (string) AppText::API_RESPONSE)->get();
+        return view('pages.settings.appTexts.apiResponseText', compact('apiResponseTexts'));
+    }
+    
+    public function updateNotificationText(Request $request) {
+        
+        if ($request->ajax()) {
+            AppText::find($request->id)->update(['show_text' => $request->show_text]);
+            return response()->json(['success' => true]);
+        }
+    }
+    
+    public function updateApiResponseText(Request $request) {
+        
+        if ($request->ajax()) {
+            AppText::find($request->id)->update(['show_text' => $request->show_text]);
+            return response()->json(['success' => true]);
+        }
     }
 }

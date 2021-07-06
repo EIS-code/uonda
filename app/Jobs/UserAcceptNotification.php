@@ -25,7 +25,7 @@ class UserAcceptNotification extends BaseNotification implements ShouldQueue
 
         request()->merge(['request_user_id' => $userId]);
 
-        parent::__construct(__('You are accepted by Admin.'), NULL, $dataPayload);
+        parent::__construct(__(ACCEPT_BY_ADMIN), NULL, $dataPayload);
     }
 
     /**

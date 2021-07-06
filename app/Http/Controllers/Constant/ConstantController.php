@@ -10,7 +10,7 @@ class ConstantController extends BaseController
     public function termsAndConditions()
     {
         if (defined('TERMS_AND_CONDITIONS')) {
-            return $this->returnSuccess(__('Terms and conditions found successfully!'), TERMS_AND_CONDITIONS);
+            return $this->returnSuccess(__(TERMS_AND_CONDITIONS_ADDED), TERMS_AND_CONDITIONS);
         }
 
         return $this->returnNull();
@@ -19,7 +19,7 @@ class ConstantController extends BaseController
     public function aboutUs()
     {
         if (defined('ABOUT_US')) {
-            return $this->returnSuccess(__('About Us found successfully!'), ABOUT_US);
+            return $this->returnSuccess(__(ABOUT_US_FOUND), ABOUT_US);
         }
 
         return $this->returnNull();

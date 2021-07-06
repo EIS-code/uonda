@@ -25,7 +25,7 @@ class UserRejectNotification extends BaseNotification implements ShouldQueue
 
         request()->merge(['request_user_id' => $userId]);
 
-        parent::__construct(__('You are rejected by Admin.'), NULL, $dataPayload);
+        parent::__construct(__(REJECT_BY_ADMIN), NULL, $dataPayload);
     }
 
     /**

@@ -16,7 +16,7 @@ class SendChatMessageNotification extends BaseNotification implements ShouldQueu
 
     protected $message;
 
-    protected $notificationTitle = 'Message received from ';
+    protected $notificationTitle = MASSAGE_RECEIVED_FROM;
 
     /**
      * Create a new job instance.

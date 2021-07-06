@@ -60,7 +60,7 @@ class ContactUsController extends BaseController
                 }
             }
 
-            return $this->returnSuccess(__('Contact us created successfully!'), $create->refresh());
+            return $this->returnSuccess(__(CONTACT_US_SAVED), $create->refresh());
         }
 
         return $this->returnNull();

@@ -16,7 +16,7 @@ class UserSettingController extends BaseController
         $model = new UserSetting();
 
         if (empty($data['user_id']) || !is_numeric($data['user_id'])) {
-            return $this->returnError(__('User id seems incorrect.'));
+            return $this->returnError(__(INCORRECT_USERID));
         }
 
         $userId = (int)$data['user_id'];
@@ -58,10 +58,10 @@ class UserSettingController extends BaseController
         $create = $model->updateOrCreate(['user_id' => $userId], $createData);
 
         if ($create) {
-            return $this->returnSuccess(__('User account privacy saved successfully!'), $create);
+            return $this->returnSuccess(__(USER_ACCOUNT_PRIVACY_SAVED), $create);
         }
 
-        return $this->returnError(__('Something went wrong!'));
+        return $this->returnError(__(SOMETHING_WENT_WRONG));
     }
 
     public function changePassword(Request $request)
@@ -70,19 +70,19 @@ class UserSettingController extends BaseController
         $model = new User();
 
         if (empty($data['user_id']) || !is_numeric($data['user_id'])) {
-            return $this->returnError(__('User id seems incorrect.'));
+            return $this->returnError(__(INCORRECT_USERID));
         }
 
         if (empty($data['old_password'])) {
-            return $this->returnError(__('Old password seems incorrect.'));
+            return $this->returnError(__(INCORRECT_OLD_PASSWORD));
         }
 
         if (empty($data['new_password'])) {
-            return $this->returnError(__('New password seems incorrect.'));
+            return $this->returnError(__(INCORRECT_NEW_PASSWORD));
         }
 
         if ($data['old_password'] == $data['new_password']) {
-            return $this->returnError(__('Old & New password both are same! Please use different.'));
+            return $this->returnError(__(SAME_PASSWORDS));
         }
 
         $userId      = (int)$data['user_id'];
@@ -106,7 +106,7 @@ class UserSettingController extends BaseController
         if (!empty($user)) {
             // Check old entered password.
             if (!Hash::check($oldPassword, $user->password)) {
-                return $this->returnError(__('Old password seems incorrect.'));
+                return $this->returnError(__(INCORRECT_OLD_PASSWORD));
             }
 
             $user->password = Hash::make($newPassword);
@@ -114,11 +114,11 @@ class UserSettingController extends BaseController
             if ($user->save()) {
                 $user->refresh();
 
-                return $this->returnSuccess(__('User password updated successfully!'), $user);
+                return $this->returnSuccess(__(USER_PASSWORD_UPDATED), $user);
             }
         }
 
-        return $this->returnError(__('Something went wrong!'));
+        return $this->returnError(__(SOMETHING_WENT_WRONG));
     }
 
     public function userNotification(Request $request)
@@ -127,7 +127,7 @@ class UserSettingController extends BaseController
         $model = new UserSetting();
 
         if (empty($data['user_id']) || !is_numeric($data['user_id'])) {
-            return $this->returnError(__('User id seems incorrect.'));
+            return $this->returnError(__(INCORRECT_USERID));
         }
 
         $userId = (int)$data['user_id'];
@@ -161,10 +161,10 @@ class UserSettingController extends BaseController
         $create = $model->updateOrCreate(['user_id' => $userId], $createData);
 
         if ($create) {
-            return $this->returnSuccess(__('User notification turn ' . $model->notifications[$create->notification] . ' successfully!'), $create);
+            return $this->returnSuccess(__(USER_NOTIFICATION_TURN . $model->notifications[$create->notification] . ' successfully!'), $create);
         }
 
-        return $this->returnError(__('Something went wrong!'));
+        return $this->returnError(__(SOMETHING_WENT_WRONG));
     }
 
     public function userScreenshot(Request $request)
@@ -173,7 +173,7 @@ class UserSettingController extends BaseController
         $model = new UserSetting();
 
         if (empty($data['user_id']) || !is_numeric($data['user_id'])) {
-            return $this->returnError(__('User id seems incorrect.'));
+            return $this->returnError(__(INCORRECT_USERID));
         }
 
         $userId = (int)$data['user_id'];
@@ -207,10 +207,10 @@ class UserSettingController extends BaseController
         $create = $model->updateOrCreate(['user_id' => $userId], $createData);
 
         if ($create) {
-            return $this->returnSuccess(__('User screenshot turn ' . $model->screenshots[$create->screenshot] . ' successfully!'), $create);
+            return $this->returnSuccess(__(USER_NOTIFICATION_TURN . $model->screenshots[$create->screenshot] . ' successfully!'), $create);
         }
 
-        return $this->returnError(__('Something went wrong!'));
+        return $this->returnError(__(SOMETHING_WENT_WRONG));
     }
 
     public function getPrivacy(Request $request)
@@ -219,7 +219,7 @@ class UserSettingController extends BaseController
         $model = new UserSetting();
 
         if (empty($data['user_id']) || !is_numeric($data['user_id'])) {
-            return $this->returnError(__('User id seems incorrect.'));
+            return $this->returnError(__(INCORRECT_USERID));
         }
 
         $userId = (int)$data['user_id'];
@@ -227,9 +227,9 @@ class UserSettingController extends BaseController
         $userSetting = $model::select('user_name', 'email', 'notification', 'screenshot', 'user_id')->where('user_id', $userId)->first();
 
         if ($userSetting) {
-            return $this->returnSuccess(__('User privacy get successfully!'), $userSetting);
+            return $this->returnSuccess(__(USER_PRIVACY_GET), $userSetting);
         }
 
-        return $this->returnNull(__('User not found!'));
+        return $this->returnNull(__(USER_NOT_FOUND));
     }
 }

@@ -33,7 +33,12 @@ Route::group(['middleware' => ['auth']], function(){
     Route::resource('chats', 'Admin\ChatController');
     Route::resource('country', 'Admin\CountryController');
     Route::resource('state', 'Admin\StateController');
-    Route::resource('city', 'Admin\CityController');
+    Route::resource('city', 'Admin\CityControllerupdateApiResponseText');
+    Route::get('settings/constants', 'Admin\SettingController@getConstants')->name('settings.constants');
+    Route::get('settings/notification/texts', 'Admin\SettingController@getNotificationText')->name('notification.texts');
+    Route::post('notification/texts/update', 'Admin\SettingController@updateNotificationText')->name('update.notification.text');
+    Route::get('settings/apiResponse/texts', 'Admin\SettingController@getApiResponseText')->name('apiResponse.texts');
+    Route::post('apiResponse/texts/update', 'Admin\SettingController@updateApiResponseText')->name('update.apiResponse.text');
     Route::resource('settings', 'Admin\SettingController');
     Route::get('blocked-users', 'Admin\UserController@showBlockedUser')->name('blocked-users');
     Route::resource('emails', 'Admin\EmailController');

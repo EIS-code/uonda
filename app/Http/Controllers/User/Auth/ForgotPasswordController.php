@@ -31,7 +31,7 @@ class ForgotPasswordController extends BaseController
         $email = $request->get('email', false);
 
         if ($email) {
-            Email::store([$email], __('Sent password reset link.'), trans($response));
+            Email::store([$email], __(PASSWORD_RESET_LINK_SENT), trans($response));
 
             $user = $model::with('userDocuments')->where('email', $email)->first();
         }
@@ -43,7 +43,7 @@ class ForgotPasswordController extends BaseController
     {
         $email = $request->get('email', false);
 
-        Email::store([$email], __('Exception! While password reset link send.'), trans($response), [], [], NULL, Email::IS_NOT_SEND, trans($response));
+        Email::store([$email], __(RESET_LINK_EXCEPTION), trans($response), [], [], NULL, Email::IS_NOT_SEND, trans($response));
 
         return $this->returnError(trans($response));
     }

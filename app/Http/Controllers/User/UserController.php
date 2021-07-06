@@ -116,7 +116,7 @@ class UserController extends BaseController
                 }
             }
 
-            return $this->returnSuccess(__('User registration done successfully!'), $this->getDetails($create->id));
+            return $this->returnSuccess(__(USER_REGISTERD), $this->getDetails($create->id));
         }
 
         return $this->returnNull();
@@ -156,7 +156,7 @@ class UserController extends BaseController
     public function addUserReferral(Request $request, $userId){
         $user = User::where('referral_code', $request->referral_code)->first();
         if(empty($user)) {
-            return ['isError' => true, 'message' => 'Referral code not found!'];
+            return ['isError' => true, 'message' => CODE_NOT_FOUND];
         }
         $data = [
             'user_id' => $userId,
@@ -170,7 +170,7 @@ class UserController extends BaseController
             return ['isError' => true, 'message' => $validator->errors()->first()];
         }
         $model->create($data);
-        return ['isError' => false, 'message' => 'successfully added'];
+        return ['isError' => false, 'message' => REFERRAL_USER_ADDED];
     }
 
     public function registrationPersonal(Request $request)
@@ -243,9 +243,9 @@ class UserController extends BaseController
 
                 DB::commit();
 
-                return $this->returnSuccess(__('User personal details saved successfully!'), $this->getDetails($userId, false, true));
+                return $this->returnSuccess(__(USER_PERSONAL_DETAILS_SAVED), $this->getDetails($userId, false, true));
             }
-            return $this->returnError(__('Something went wrong!'));
+            return $this->returnError(__(SOMETHING_WENT_WRONG));
         } catch (\Exception $e) {
             DB::rollback();
             throw $e;
@@ -283,10 +283,10 @@ class UserController extends BaseController
         $user->school_flag = $model::SCHOOL_FLAG_DONE;
 
         if ($user->save()) {
-            return $this->returnSuccess(__('User school details saved successfully!'), $this->getDetails($user->id));
+            return $this->returnSuccess(__(USER_SCHOOL_DETAILS_SAVED), $this->getDetails($user->id));
         }
 
-        return $this->returnError(__('Something went wrong!'));
+        return $this->returnError(__(SOMETHING_WENT_WRONG));
     }
 
     public function registrationOther(Request $request)
@@ -354,10 +354,10 @@ class UserController extends BaseController
         if ($user->save()) {
             $data = $this->getDetails($user->id);
             $data->api_key = ApiKey::generateKey($user->id);
-            return $this->returnSuccess(__('User other details saved successfully!'), $data);
+            return $this->returnSuccess(__(USER_OTHERS_DETAILS_SAVED), $data);
         }
 
-        return $this->returnError(__('Something went wrong!'));
+        return $this->returnError(__(SOMETHING_WENT_WRONG));
     }
 
     public function registrationDocument(Request $request)
@@ -402,14 +402,14 @@ class UserController extends BaseController
                         if ($save) {
                             User::setPendingUser($userId);
 
-                            return $this->returnSuccess(__('User document saved successfully!'), $this->getDetails($userId));
+                            return $this->returnSuccess(__(USER_DOCUMENTS_SAVED), $this->getDetails($userId));
                         }
                     }
                 }
             }
         }
 
-        return $this->returnError(__('Something went wrong!'));
+        return $this->returnError(__(SOMETHING_WENT_WRONG));
     }
 
     public function registrationDocuments(Request $request)
@@ -463,10 +463,10 @@ class UserController extends BaseController
         if ($save) {
             User::setPendingUser($userId);
 
-            return $this->returnSuccess(__('User documents saved successfully!'), $this->getDetails($userId));
+            return $this->returnSuccess(__(USER_DOCUMENTS_SAVED), $this->getDetails($userId));
         }
 
-        return $this->returnError(__('Something went wrong!'));
+        return $this->returnError(__(SOMETHING_WENT_WRONG));
     }
 
     public function doLogin(Request $request)
@@ -515,14 +515,14 @@ class UserController extends BaseController
             $data['user_id'] = $user->id;
             $model::setDeviceInfos($data);
 
-            return $this->returnSuccess(__('Logged in successfully!'), $this->getDetails($user->id, false, true));
+            return $this->returnSuccess(__(LOGGED_IN), $this->getDetails($user->id, false, true));
         } elseif ($isOauthLogin) {
             $this->errorCode = 402;
 
-            return $this->returnError(__('OauthId is incorrect.'));
+            return $this->returnError(__(INCORRECT_OAUTHID));
         }
 
-        return $this->returnError(__('Username or Password is incorrect.'));
+        return $this->returnError(__(INCORRECT_USERNAME_PASSWORD));
     }
 
     public function getDetails(int $userId, $isApi = false, $apiKey = false)
@@ -559,7 +559,7 @@ class UserController extends BaseController
                 // Set device informations if request having.
                 $model::setDeviceInfos(request()->all());
 
-                return $this->returnSuccess(__('User details get successfully!'), $user);
+                return $this->returnSuccess(__(USER_DETAILS_GET), $user);
             }
 
             return $user;
@@ -579,7 +579,7 @@ class UserController extends BaseController
         $data  = $request->all();
 
         if (empty($data['user_id']) || !is_numeric($data['user_id'])) {
-            return $this->returnError(__('User id seems incorrect.'));
+            return $this->returnError(__(INCORRECT_USERID));
         }
 
         $userId     = (int)$data['user_id'];
@@ -591,7 +591,7 @@ class UserController extends BaseController
         $user   = $getUser();
 
         if (empty($user)) {
-            return $this->returnError(__('User id seems incorrect.'));
+            return $this->returnError(__(INCORRECT_USERID));
         }
 
         if (!empty($user)) {
@@ -607,7 +607,7 @@ class UserController extends BaseController
 
             $user->api_key = ApiKey::generateKey($user->id);
 
-            return $this->returnSuccess(__('User details get successfully!'), $user);
+            return $this->returnSuccess(__(USER_DETAILS_GET), $user);
         }
 
         return $this->returnNull();
@@ -619,7 +619,7 @@ class UserController extends BaseController
         $data  = $request->all();
 
         if (empty($data['user_id']) || !is_numeric($data['user_id'])) {
-            return $this->returnError(__('User id seems incorrect.'));
+            return $this->returnError(__(INCORRECT_USERID));
         }
 
         $userId = (int)$data['user_id'];
@@ -731,7 +731,7 @@ class UserController extends BaseController
                     }
                 }
 
-                return $this->returnSuccess(__('User profile details updated successfully') . $msg . '!', $this->getDetails($user->id));
+                return $this->returnSuccess(__(USER_DETAILS_UPDATED) . $msg . '!', $this->getDetails($user->id));
             }
         }
 
@@ -896,7 +896,7 @@ class UserController extends BaseController
         if (!empty($records) && !$records->isEmpty()) {
             $records->makeHidden(['permissions', 'encrypted_user_id']);
 
-            return $this->returnSuccess(__('Users found successfully!'), $records);
+            return $this->returnSuccess(__(USERS_FOUND), $records);
         }
 
         return $this->returnNull();
@@ -931,10 +931,10 @@ class UserController extends BaseController
         $user->longitude = $data['longitude'];
 
         if ($user->save()) {
-            return $this->returnSuccess(__('User locations saved successfully!'), $this->getDetails($user->id));
+            return $this->returnSuccess(__(USER_LOCATION_SAVED), $this->getDetails($user->id));
         }
 
-        return $this->returnError(__('Something went wrong!'));
+        return $this->returnError(__(SOMETHING_WENT_WRONG));
     }
 
     public function removeDocument(Request $request)
@@ -945,20 +945,20 @@ class UserController extends BaseController
         $id     = !empty($data['id']) ? (int)$data['id']: false;
 
         if (empty($userId)) {
-            return $this->returnError(__('User id seems incorrect.'));
+            return $this->returnError(__(INCORRECT_USERID));
         }
 
         if (empty($id)) {
-            return $this->returnError(__('Document id seems incorrect.'));
+            return $this->returnError(__(INCORRECT_DOCUMENTID));
         }
 
         $userDocument = $model::where('id', $id)->where('user_id', $userId)->limit(1)->delete();
 
         if ($userDocument) {
-            return $this->returnSuccess(__('User document removed successfully!'));
+            return $this->returnSuccess(__(USER_DOCUMENT_REMOVED));
         }
 
-        return $this->returnError(__('Something went wrong!'));
+        return $this->returnError(__(SOMETHING_WENT_WRONG));
     }
 
     //Function to save the location of user
@@ -967,7 +967,7 @@ class UserController extends BaseController
         $data  = $request->all();
         
         if (empty($data['user_id']) || !is_numeric($data['user_id'])) {
-            return $this->returnError(__('User id seems incorrect.'));
+            return $this->returnError(__(INCORRECT_USERID));
         }
 
         $userId = (int)$data['user_id'];
@@ -1006,7 +1006,7 @@ class UserController extends BaseController
             $msg = NULL;
             $data = $this->getDetails($user->id);
             $data->api_key = ApiKey::getApiKey($user->id);
-            return $this->returnSuccess(__('User location details updated successfully') . $msg . '!', $data);
+            return $this->returnSuccess(__(USER_LOCATION_UPDATED) . $msg . '!', $data);
         }
         return $this->returnNull();
     }
@@ -1025,10 +1025,10 @@ class UserController extends BaseController
                 $user->save();
             }
 
-            return $this->returnSuccess(__('You are successfully logged out!'));
+            return $this->returnSuccess(__(LOGGED_OUT));
         }
 
-        return $this->returnError(__('Something went wrong!'));
+        return $this->returnError(__(SOMETHING_WENT_WRONG));
     }
 
     public function getUserExplore(Request $request)
@@ -1208,8 +1208,8 @@ class UserController extends BaseController
 
         if (!empty($userId)) {
             $documents = UserDocument::where('user_id', $userId)->get();
-            return $this->returnSuccess(__('User documents are successfully fetched!'), $documents);
+            return $this->returnSuccess(__(USER_DOCUMENT_FETCHED), $documents);
         }
-        return $this->returnError(__('Something went wrong!'));
+        return $this->returnError(__(SOMETHING_WENT_WRONG));
     }
 }

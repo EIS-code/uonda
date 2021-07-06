@@ -26,7 +26,7 @@ class NotificationController extends BaseController
     {
         ScreenshotNotification::dispatch()->delay(now()->addSeconds(2));
 
-        return $this->returnSuccess(__('Notification create successfully!'));
+        return $this->returnSuccess(__(NOTIFICATION_CREATED));
 
         /* $data          = $request->all();
         $model         = new Notification();
@@ -88,7 +88,7 @@ class NotificationController extends BaseController
         $userId     = !empty($data['user_id']) ? (int)$data['user_id'] : false;
 
         if (empty($userId)) {
-            return $this->returnError(__('User id required.'));
+            return $this->returnError(__(USERID_REQUIRED));
         }
 
         // Check user exists.
@@ -134,7 +134,7 @@ class NotificationController extends BaseController
             $res[] = $response->getErrorDescription();
         }
 
-        return $this->returnSuccess(__('Notification sent successfully!'), $res);
+        return $this->returnSuccess(__(NOTIFICATION_SENT), $res);
     }
 
     public function testAndroid(Request $request)
@@ -144,7 +144,7 @@ class NotificationController extends BaseController
         $userId     = !empty($data['user_id']) ? (int)$data['user_id'] : false;
 
         if (empty($userId)) {
-            return $this->returnError(__('User id required.'));
+            return $this->returnError(__(USERID_REQUIRED));
         }
 
         // Check user exists.
@@ -180,7 +180,7 @@ class NotificationController extends BaseController
 
         $downstreamResponse->tokensWithError();
 
-        return $this->returnSuccess(__('Notification sent successfully!'));
+        return $this->returnSuccess(__(NOTIFICATION_SENT));
     }
 
     public function getNotifications(Request $request)
@@ -191,7 +191,7 @@ class NotificationController extends BaseController
         $userId    = !empty($data['user_id']) ? (int)$data['user_id'] : false;
 
         if (empty($userId)) {
-            return $this->returnError(__('User id is required.'));
+            return $this->returnError(__(USERID_REQUIRED));
         }
 
         $notifications = $model::selectRaw($model::getTableName() . '.*, ' . $modelUser->getTableName() . '.profile, ' . $modelUser->getTableName() . '.profile_icon')
@@ -221,7 +221,7 @@ class NotificationController extends BaseController
             });
         }
 
-        return $this->returnSuccess(__('Notifications get successfully!'), $notifications);
+        return $this->returnSuccess(__(NOTIFICATION_GET), $notifications);
     }
 
     public function removeNotification(Request $request)
@@ -232,11 +232,11 @@ class NotificationController extends BaseController
         $id     = !empty($data['id']) ? (int)$data['id'] : false;
 
         if (empty($userId)) {
-            return $this->returnError(__('User id is required.'));
+            return $this->returnError(__(USERID_REQUIRED));
         }
 
         if (empty($id)) {
-            return $this->returnError(__('Notification id is required.'));
+            return $this->returnError(__(NOTIFICATION_ID_REQUIRED));
         }
 
         $notification = $model::where('user_id', (int)$userId)->where('id', (int)$id)->first();
@@ -246,11 +246,11 @@ class NotificationController extends BaseController
             $remove = $notification->delete();
 
             if ($remove) {
-                return $this->returnSuccess(__('Notification removed successfully!'), $this->getDetails(0, $userId, true));
+                return $this->returnSuccess(__(NOTIFICATION_REMOVED), $this->getDetails(0, $userId, true));
             }
         }
 
-        return $this->returnError(__('Notification could\'t found.'));
+        return $this->returnError(__(NOTIFICATION_NOT_FOUND));
     }
 
     public function readNotification(Request $request)
@@ -261,11 +261,11 @@ class NotificationController extends BaseController
         $id     = !empty($data['id']) ? (int)$data['id'] : false;
 
         if (empty($userId)) {
-            return $this->returnError(__('User id is required.'));
+            return $this->returnError(__(USERID_REQUIRED));
         }
 
         if (empty($id)) {
-            return $this->returnError(__('Notification id is required.'));
+            return $this->returnError(__(NOTIFICATION_ID_REQUIRED));
         }
 
         $notification = $model::where('user_id', (int)$userId)->where('id', (int)$id);
@@ -274,10 +274,10 @@ class NotificationController extends BaseController
         if ($isRead) {
             $notification = $notification->first();
 
-            return $this->returnSuccess(__('Notification read successfully!'), $this->getDetails($notification->id, false, true));
+            return $this->returnSuccess(__(NOTIFICATION_READ), $this->getDetails($notification->id, false, true));
         }
 
-        return $this->returnError(__('Notification could\'t found.'));
+        return $this->returnError(__(NOTIFICATION_NOT_FOUND));
     }
 
     public function getDetails(int $id, $userId = false, $totalOnly = false, $isApi = false)
@@ -293,10 +293,10 @@ class NotificationController extends BaseController
         if (!empty($notification)) {
             if ($isApi) {
                 if ($totalOnly) {
-                    return $this->returnSuccess(__('Notification details get successfully!'), ['total_notifications' => $notification->total_notifications, 'total_read_notifications' => $notification->total_read_notifications, 'total_unread_notifications' => $notification->total_unread_notifications]);
+                    return $this->returnSuccess(__(NOTIFICATION_DETAILS_GET), ['total_notifications' => $notification->total_notifications, 'total_read_notifications' => $notification->total_read_notifications, 'total_unread_notifications' => $notification->total_unread_notifications]);
                 }
 
-                return $this->returnSuccess(__('Notification details get successfully!'), $notification);
+                return $this->returnSuccess(__(NOTIFICATION_DETAILS_GET), $notification);
             }
 
             if ($totalOnly) {

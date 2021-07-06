@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use App\Constant;
+use App\AppText;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -37,6 +38,21 @@ class AppServiceProvider extends ServiceProvider
 
                 if (!defined(strtoupper($constant->key))) {
                     define(strtoupper($constant->key), $constant->value);
+                }
+            }
+        }
+        
+        $appTexts = AppText::all();
+        if (!empty($appTexts) && !$appTexts->isEmpty()) {
+            foreach ($appTexts as $appText) {
+                if (empty($appText->key)) {
+                    continue;
+                }
+
+                if (!defined(strtoupper($appText->key))) {
+                    
+                    $value = empty($appText->show_text) ? $appText->english_text : $appText->show_text;                 
+                    define(strtoupper($appText->key), $value);
                 }
             }
         }

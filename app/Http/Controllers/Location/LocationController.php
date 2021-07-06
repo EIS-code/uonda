@@ -18,9 +18,9 @@ class LocationController extends BaseController
     public function getCountry()
     {
         $countries = Country::all();
-
+        
         if (!empty($countries) && !$countries->isEmpty()) {
-            return $this->returnSuccess(__('Country fetched successfully!'), $countries);
+            return $this->returnSuccess(__(COUNTRY_FETCHED), $countries);
         }
 
         return $this->returnNull();
@@ -104,7 +104,7 @@ class LocationController extends BaseController
         $cities = $cities->paginate($perPage, ['*'], 'page', $pageNumber);
 
         if (!empty($cities) && count($cities) > 0) {
-            return $this->returnSuccess(__('Cities fetched successfully!'), $cities);
+            return $this->returnSuccess(__(CITY_FETCHED), $cities);
         }
 
         return $this->returnNull();
@@ -121,7 +121,7 @@ class LocationController extends BaseController
         }
 
         if (!empty($states) && !$states->isEmpty()) {
-            return $this->returnSuccess(__('State fetched successfully!'), $states);
+            return $this->returnSuccess(__(STATE_FETCHED), $states);
         }
 
         return $this->returnNull();
@@ -149,7 +149,7 @@ class LocationController extends BaseController
         });
         return response()->json([
             'code' => $status,
-            'msg'  => __('Cities fetched successfully!'),
+            'msg'  => __(CITY_FETCHED),
             'current_offset' => $offset,
             'next_offset' => $next_offset,
             'per_page' => $per_page,
@@ -187,7 +187,7 @@ class LocationController extends BaseController
 
         $users = $modal->removeBlockedUsers($users);
 
-        return $this->returnSuccess(__('Users fetched successfully!'), $users);
+        return $this->returnSuccess(__(USERS_FETCHED), $users);
     }
 
     //Function to get all the cities with search and pagination
@@ -215,7 +215,7 @@ class LocationController extends BaseController
         }
         return response()->json([
             'code' => $status,
-            'msg'  => __('Cities fetched successfully!'),
+            'msg'  => __(CITY_FETCHED),
             'current_offset' => $offset,
             'next_offset' => $next_offset,
             'per_page' => $per_page,

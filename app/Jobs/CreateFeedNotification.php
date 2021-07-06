@@ -32,7 +32,7 @@ class CreateFeedNotification extends BaseNotification implements ShouldQueue
 
         $dataPayload    = ['notification_type' => modalNotification::NOTIFICATION_FEED];
 
-        parent::__construct(__('New Feed Created'), $this->getDescription(), $dataPayload, false, true);
+        parent::__construct(__(NEWS_FEED_ADD), $this->getDescription(), $dataPayload, false, true);
     }
 
     /**

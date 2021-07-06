@@ -23,7 +23,7 @@ class ScreenshotNotification extends BaseNotification implements ShouldQueue
     {
         $dataPayload = ['notification_type' => modalNotification::NOTIFICATION_SCREENSHOT_CAPTURED];
 
-        parent::__construct(__('Takes a screen shot.'), NULL, $dataPayload, true);
+        parent::__construct(__(SCRREN_SHOT_TAKE), NULL, $dataPayload, true);
     }
 
     /**

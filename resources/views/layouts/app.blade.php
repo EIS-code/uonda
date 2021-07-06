@@ -242,12 +242,31 @@
                                     <a href="{{ route('users-reports') }}" >
                                         <i class="metismenu-icon pe-7s-note2"></i>User Reports
                                     </a>
-                                </li>
+                                </li>                                
                                 <li class="{{ Request::is('settings*') ? 'mm-active' : '' }}">
-                                    <a href="{{ route('settings.index') }}" >
+                                    <a href="javascript::void(0)">
                                         <i class="metismenu-icon pe-7s-config"></i>Settings
+                                        <i class="metismenu-state-icon pe-7s-angle-down caret-left"></i>
                                     </a>
+                                    <ul>
+                                        <li class="{{ Request::is('settings/constants*') ? 'mm-active' : '' }}">
+                                            <a href="{{ route('settings.constants') }}" >
+                                                <i class="metismenu-icon"></i>Constants
+                                            </a>
+                                        </li>
+                                        <li class="{{ Request::is('settings/notification/texts*') ? 'mm-active' : '' }}">
+                                            <a href="{{ route('notification.texts') }}" >
+                                                <i class="metismenu-icon"></i>Notification texts
+                                            </a>
+                                        </li>
+                                        <li class="{{ Request::is('settings/apiResponse/texts*') ? 'mm-active' : '' }}">
+                                            <a href="{{ route('apiResponse.texts') }}" >
+                                                <i class="metismenu-icon"></i>API response texts
+                                            </a>
+                                        </li>
+                                    </ul>
                                 </li>
+                                                                                                                                                                                             
                                 <li class="{{ Request::is('notification*') ? 'mm-active' : '' }}">
                                     <a href="{{ route('notification.index') }}" >
                                         <i class="metismenu-icon pe-7s-info"></i>Notification

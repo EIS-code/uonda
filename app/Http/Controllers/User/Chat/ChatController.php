@@ -82,10 +82,10 @@ class ChatController extends BaseController
 
             $redis->publish('messageSend', $chat);*/
 
-            return $this->returnSuccess(__('Message send successfully!'), $chat);
+            return $this->returnSuccess(__(MESSAGE_SEND), $chat);
         }
 
-        return $this->returnError(__('Something went wrong!'));
+        return $this->returnError(__(SOMETHING_WENT_WRONG));
     }
 
     public function sendMessageAttachments(Request $request)
@@ -102,27 +102,26 @@ class ChatController extends BaseController
         $isGroup             = false;
 
         if (empty($userId)) {
-            return $this->returnError(__('User id required.'));
+            return $this->returnError(__(USERID_REQUIRED));
         }
 
         if (empty($receiverId) && empty($groupId)) {
-            return $this->returnError(__('Receiver id or Group id required.'));
+            return $this->returnError(__(RECEIVER_GROUP_ID_REQUIRED));
         }
 
         if (!empty($data['name']) && empty($data['contacts'])) {
-            return $this->returnError(__('Contact required if name present.'));
+            return $this->returnError(__(CONTACT_REQUIRED));
         } elseif (!empty($data['contacts']) && empty($data['name'])) {
-            return $this->returnError(__('Name required if contacts present.'));
+            return $this->returnError(__(NAME_REQUIRED));
         }/* elseif (!empty($data['url']) && empty($data['address'])) {
             return $this->returnError(__('Address required if URL present.'));
         } elseif (empty($data['url']) && !empty($data['address'])) {
             return $this->returnError(__('URL required if Address present.'));
         } */elseif (empty($data['url']) && empty($data['attachment']) && empty($data['name']) && empty($data['contacts'])) {
-            return $this->returnError(__('Provide attachment, url or contacts.'));
+            return $this->returnError(__(ATTACHMENT_URL_CONTACTS_PROVIDE));
         }
 
         if (!empty($data)) {
-            $group = "";
 
             if (!empty($receiverId)) {
                 $roomUser = $modelChatRoomUser->where(function($query) use($userId, $receiverId) {
@@ -154,19 +153,17 @@ class ChatController extends BaseController
                 $chatRoom = $modelChatRoom::find($groupId);
 
                 if (empty($chatRoom)) {
-                    return $this->returnError(__('Group not found.'));
+                    return $this->returnError(__(GROUP_NOT_FOUND));
                 }
 
                 $chatRoomUser = $modelChatRoomUser::where('chat_room_id', (int)$groupId)->where('sender_id', (int)$userId)->first();
 
                 if (empty($chatRoomUser)) {
-                    return $this->returnError(__('User not added in this group.'));
+                    return $this->returnError(__(USER_NOT_ADDED_TO_GROUP));
                 }
 
                 $chatRoomUserId = $chatRoomUser->id;
                 $chatRoomId     = $groupId;
-
-                $group      = __('group');
 
                 $isGroup    = true;
             }
@@ -211,12 +208,12 @@ class ChatController extends BaseController
                                     $this->chatMessage($request);
                                 }
 
-                                return $this->returnSuccess(__('Chat ' . $group . ' attachment inserted successfully!'), $isInserted);
+                                return $this->returnSuccess(__(ATTACHMENT_ADDED), $isInserted);
                             }
                         }
                     }
 
-                    return $this->returnError(__('Chat ' . $group . ' attachment doesn\'t inserted. Try again.'));
+                    return $this->returnError(__(ATTACHMENT_NOT_ADDED));
 
                 } elseif (!empty($data['url'])) {
                     $address = !empty($data['address']) ? $data['address'] : NULL;
@@ -238,10 +235,10 @@ class ChatController extends BaseController
                             $this->chatMessage($request);
                         }
 
-                        return $this->returnSuccess(__('Chat ' . $group . ' URL & Address inserted successfully!'), $isInserted);
+                        return $this->returnSuccess(__(URL_ADDRESS_ADDED), $isInserted);
                     }
 
-                    return $this->returnError(__('Chat ' . $group . ' URL & Address doesn\'t inserted. Try again.'));
+                    return $this->returnError(__(URL_ADDRESS_NOT_ADDED));
 
                 } elseif (!empty($data['name']) && !empty($data['contacts'])) {
                     $isInserted = $modelChatAttachment->create(['name' => $data['name'], 'contacts' => $data['contacts'], 'chat_id' => $chatId]);
@@ -261,10 +258,10 @@ class ChatController extends BaseController
                             $this->chatMessage($request);
                         }
 
-                        return $this->returnSuccess(__('Chat ' . $group . ' contact inserted successfully!'), $isInserted);
+                        return $this->returnSuccess(__(GROUP_CONTACT_ADDED), $isInserted);
                     }
 
-                    return $this->returnError(__('Chat ' . $group . ' contact doesn\'t inserted. Try again.'));
+                    return $this->returnError(__(GROUP_CONTACT_NOT_ADDED));
 
                 }
             }
@@ -274,7 +271,7 @@ class ChatController extends BaseController
             }
         }
 
-        return $this->returnError(__('Something went wrong!'));
+        return $this->returnError(__(SOMETHING_WENT_WRONG));
     }
 
     public function getUsersList(Request $request)
@@ -455,7 +452,7 @@ class ChatController extends BaseController
             $data[] = $returnData;
         }
 
-        return $this->returnSuccess(__('User chat list get successfully!'), $data);
+        return $this->returnSuccess(__(USER_CHAT_LIST_GET), $data);
     }
 
     public function getUserHistory(Request $request)
@@ -561,7 +558,7 @@ class ChatController extends BaseController
                 });
             }
         }
-        return $this->returnSuccess(__('User chat history get successfully!'), $records);
+        return $this->returnSuccess(__(USER_HISTORY_GET), $records);
     }
 
     public function removeChat(Request $request)
@@ -638,13 +635,13 @@ class ChatController extends BaseController
                 return $this->returnError($errorMessage);
             } elseif (!empty($delete)) {
                 if ($modelChatDelets::insert($delete)) {
-                    return $this->returnSuccess(__('User chat removed successfully!'));
+                    return $this->returnSuccess(__(USER_CHAT_REMOVED));
                 }
             }
         }
 
-        // return $this->returnError(__('Something went wrong!'));
-        return $this->returnSuccess(__('User chat removed successfully!'));
+        // return $this->returnError(__(SOMETHING_WENT_WRONG));
+        return $this->returnSuccess(__(USER_CHAT_REMOVED));
     }
 
     //function to get all the users for group
@@ -837,9 +834,9 @@ class ChatController extends BaseController
             });
         });
         if ($request->has('chat_room_id')) {
-            return $this->returnSuccess(__('Chat group edited successfully!'), $chat_room_details);    
+            return $this->returnSuccess(__(CHAT_GROUP_UPDATED), $chat_room_details);    
         }
-        return $this->returnSuccess(__('Chat group created successfully!'), $chat_room_details);
+        return $this->returnSuccess(__(CHAT_GROUP_CREATED), $chat_room_details);
     }
 
     //Function to add the user in group
@@ -866,7 +863,7 @@ class ChatController extends BaseController
             }
         }
         
-        return $this->returnSuccess(__('User successfully added to Chat group!'));
+        return $this->returnSuccess(__(USER_ADDED_TO_CHAT));
     }
 
     //Function to remove the user from group
@@ -875,7 +872,7 @@ class ChatController extends BaseController
         $data  = $request->all();
 
         if(!$request->has('userId') || empty($request->userId)) {
-            return $this->returnError(__('UserId is mandatory.'));
+            return $this->returnError(__(USERID_REQUIRED));
         }
 
         $validator = $chat_room_user->validators($data);
@@ -885,7 +882,7 @@ class ChatController extends BaseController
         $loggedInUserDetails = ApiKey::where('key', $request->header('api_key'))->first();
         $chatRoomDetails = ChatRoom::find($request->chat_room_id);
         if($chatRoomDetails->created_by != $loggedInUserDetails->user_id) {
-            return $this->returnError(__('You do not have rights to remove the users from this group.'));
+            return $this->returnError(__(NO_RIGHTS));
         }
 
         foreach($request->userId as $user) {
@@ -895,7 +892,7 @@ class ChatController extends BaseController
             }
         }
         
-        return $this->returnSuccess(__('Users successfully removed from Chat group!'));
+        return $this->returnSuccess(__(USER_REMOVED));
     }
 
     //Function to get the chat group details
@@ -922,7 +919,7 @@ class ChatController extends BaseController
             $row->chat_room_users = $userDetails;
         });
 
-        return $this->returnSuccess(__('Chat group details fetched successfully!'), $chatRoomDetails);
+        return $this->returnSuccess(__(CHAT_FETCHED), $chatRoomDetails);
     }
 
     //Function to exit the chat group
@@ -942,12 +939,12 @@ class ChatController extends BaseController
         ])->first();
         if(!empty($chat_room_details)) {
             if($chat_room_details->delete()) {
-                return $this->returnSuccess(__('You exit the group successfully!'));
+                return $this->returnSuccess(__(EXIT_GROUP));
             }
         } else {
-            return $this->returnError(__('You are not associated with this group!'));
+            return $this->returnError(__(NOT_ASSOCIATED));
         }
-        return $this->returnError(__('Something went wrong!'));
+        return $this->returnError(__(SOMETHING_WENT_WRONG));
     }
 
     //function to report the chat-group
@@ -968,7 +965,7 @@ class ChatController extends BaseController
             $report->description = $request->description;
         }
         $report->save();
-        return $this->returnSuccess(__('You successfully reported the group!'));
+        return $this->returnSuccess(__(REPORTED_GROUP));
     }
 
     //Function to delete the chat group
@@ -989,11 +986,11 @@ class ChatController extends BaseController
                 //Remove chat group
                 $chat_room_details->delete();
                 
-                return $this->returnSuccess(__('You successfully removed the group!'));
+                return $this->returnSuccess(__(REMOVED_GROUP));
             }
-            return $this->returnError(__('You don\'t have rights to remove the group'));
+            return $this->returnError(__(NO_RIGHTS_REMOVE_GROUP));
         }
-        return $this->returnError(__('Something went wrong!'));
+        return $this->returnError(__(SOMETHING_WENT_WRONG));
     }
 
     public function chatMessage(Request $request)
@@ -1068,6 +1065,6 @@ class ChatController extends BaseController
             $chat_groups = $chat_groups->where('city_id', $request->city_id); 
         }
         $groups = $chat_groups->get();
-        return $this->returnSuccess(__('Chat groups fetched successfully!'), $groups);
+        return $this->returnSuccess(__(CHAT_GROUPS_FETCHED), $groups);
     }
 }

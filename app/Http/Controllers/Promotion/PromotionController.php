@@ -16,7 +16,7 @@ class PromotionController extends BaseController
         $promotions = $model::orderBy('id', 'DESC')->get();
 
         if (!empty($promotions)) {
-            return $this->returnSuccess(__('Promotions fetched successfully!'), $promotions);
+            return $this->returnSuccess(__(PROMOTION_GET), $promotions);
         }
 
         return $this->returnNull();

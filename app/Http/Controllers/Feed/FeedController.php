@@ -22,7 +22,7 @@ class FeedController extends BaseController
             $status = 200;
             $success_res  = [
                 'code' => $status,
-                'msg' => __('Feeds get successfully!'),
+                'msg' => __(FEEDS_GET),
                 'data' => $feeds,
                 'liked_feeds_arr' => $user->likedFeeds()->get()->pluck('id')
             ];
@@ -39,7 +39,7 @@ class FeedController extends BaseController
         $data  = $request->all();
 
         if (empty($data['user_id']) || !is_numeric($data['user_id'])) {
-            return $this->returnError(__('User id seems incorrect.'));
+            return $this->returnError(__(INCORRECT_USERID));
         }
         $userId = (int)$data['user_id'];
         $user = $userModel::find($userId);
@@ -54,7 +54,7 @@ class FeedController extends BaseController
             $request->feed_id
         );
         if($request->has('status') && $request->status == 0) {
-            $msg = 'Feed disliked successfully!';
+            $msg = FEED_DISLIKED;
             $user->likedFeeds()->detach($feed_id);    
         } else {
             $msg = 'Feed liked successfully!';
