@@ -1,0 +1,34 @@
+{
+    "apiResponse": [
+        {
+            "key": "NEWS_FEED_ADD",
+            "english_text": "New Feed Created",
+            "show_text": "",
+            "type": "0"
+        },
+        {
+            "key": "SCRREN_SHOT_TAKE",
+            "english_text": "Takes a screen shot",
+            "show_text": "",
+            "type": "0"
+        },
+        {
+            "key": "MASSAGE_RECEIVED_FROM ",
+            "english_text": "Message received from",
+            "show_text": "",
+            "type": "0"
+        },
+        {
+            "key": "ACCEPT_BY_ADMIN",
+            "english_text": "You are accepted by Admin",
+            "show_text": "",
+            "type": "0"
+        },
+        {
+            "key": "REJECT_BY_ADMIN",
+            "english_text": "You are rejected by Admin",
+            "show_text": "",
+            "type": "0"
+        }
+    ]
+}
