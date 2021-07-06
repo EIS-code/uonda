@@ -122,3 +122,7 @@ span.badge {
 .highlight.highlight-row {
     background-color: #ffd5d5 !important;
 }
+
+.tabledit-edit-button.btn-info {
+    margin-right: 2px;
+}
