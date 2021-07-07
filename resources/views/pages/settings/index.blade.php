@@ -54,11 +54,11 @@
                         <td>{{ Carbon\Carbon::parse($constant->created_at)->format('jS M Y') }}</td>
                         <td class="icons_list">
                             <a href="{{ route('settings.edit', $constant->encrypted_constant_id) }}" title="Edit Settings"><span class="material-icons">edit</span></a> 
-                            <a data-type="user" data-id="{{ $constant->id }}" class="remove-button" title="Delete Settings"><span class="material-icons delete-button">delete</span></a>
+                            <!-- <a data-type="user" data-id="{{ $constant->id }}" class="remove-button" title="Delete Settings"><span class="material-icons delete-button">delete</span></a>
                             <form id="remove-form-{{ $constant->id }}" action="{{ route('settings.destroy', $constant->encrypted_constant_id) }}" method="POST" class="d-none">
                             @csrf
                             {{ method_field('DELETE') }}
-                            </form>
+                            </form> -->
                         </td>
                     </tr>
                 @endforeach

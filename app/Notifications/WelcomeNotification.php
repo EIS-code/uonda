@@ -2,21 +2,25 @@
 
 namespace App\Notifications;
 
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use App\EmailTemplate;
 use App\Email;
 
-class ResetPasswordNotification extends Notification
+class WelcomeNotification extends Notification
 {
+    use Queueable;
+
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct($token)
+    public function __construct()
     {
-        $this->token = $token;
+        //
     }
 
     /**
@@ -39,17 +43,7 @@ class ResetPasswordNotification extends Notification
     public function toMail($notifiable)
     {
         // Get email template.
-        $emailTemplate = EmailTemplate::find(EmailTemplate::RESET_EMAIL_ID);
-
-        if (empty($emailTemplate)) {
-            return (new MailMessage)
-                    ->subject('Password Reset Request')
-                    ->greeting('Hello, '.$notifiable->name)
-                    ->line('You are receiving this email because we received a password reset request for your account. Click the button below to reset your password:')
-                    ->action('Reset Password', url('password/reset', $this->token).'?email='.urlencode($notifiable->email))
-                    ->line('If you did not request a password reset, no further action is required.')
-                    ->line('Thank you for using '. config('app.name'));
-        }
+        $emailTemplate = EmailTemplate::find(EmailTemplate::WELCOME_EMAIL_ID);
 
         $fillableFields = $notifiable->getFillable();
 
@@ -60,10 +54,6 @@ class ResetPasswordNotification extends Notification
 
             $emailBody   = str_ireplace($customField, $notifiable->$field, $emailBody);
         }
-
-        $actionUrl  = url('password/reset', $this->token).'?email='.urlencode($notifiable->email);
-
-        $emailBody  = str_ireplace('{{reset_link_url}}', $actionUrl, $emailBody);
 
         // Update email subject variables.
         $emailSubject = $emailTemplate->email_subject;
@@ -78,6 +68,11 @@ class ResetPasswordNotification extends Notification
         return (new MailMessage)
                 ->subject($emailSubject)
                 ->view('pages.settings.email-templates.email-templates', compact('emailBody'));
+    }
+
+    public function toDatabase($notifiable)
+    {
+        dd($notifiable);
     }
 
     /**

@@ -39,6 +39,9 @@ Route::group(['middleware' => ['auth']], function(){
     Route::post('notification/texts/update', 'Admin\SettingController@updateNotificationText')->name('update.notification.text');
     Route::get('settings/apiResponse/texts', 'Admin\SettingController@getApiResponseText')->name('apiResponse.texts');
     Route::post('apiResponse/texts/update', 'Admin\SettingController@updateApiResponseText')->name('update.apiResponse.text');
+    Route::get('settings/email/templates', 'Admin\SettingController@getEmailTemplates')->name('settings.email.templates.get');
+    Route::get('settings/email/templates/edit/{id}', 'Admin\SettingController@editEmailTemplate')->name('settings.email.templates.edit');
+    Route::put('settings/email/templates/update/{id}', 'Admin\SettingController@updateEmailTemplate')->name('settings.email.templates.update');
     Route::resource('settings', 'Admin\SettingController');
     Route::get('blocked-users', 'Admin\UserController@showBlockedUser')->name('blocked-users');
     Route::resource('emails', 'Admin\EmailController');

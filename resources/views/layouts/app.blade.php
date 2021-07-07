@@ -272,6 +272,11 @@
                                                 </li>
                                             </ul>
                                         </li>
+                                        <li class="{{ Request::is('settings/email/templates*') ? 'mm-active' : '' }}">
+                                            <a href="{{ route('settings.email.templates.get') }}" >
+                                                <i class="metismenu-icon"></i>Email Templates
+                                            </a>
+                                        </li>
                                     </ul>
                                 </li>
                                                                                                                                                                                              

@@ -15,6 +15,7 @@ use App\Notification;
 use App\Jobs\UserRejectNotification;
 use App\Jobs\UserAcceptNotification;
 use Illuminate\Support\Facades\File;
+use App\Notifications\WelcomeNotification;
 
 class UserController extends Controller
 {
@@ -195,6 +196,10 @@ class UserController extends Controller
                 $dataPayload['notification_type']   = Notification::NOTIFICATION_ACCEPT_USER;
 
                 UserAcceptNotification::dispatch($user->id, $dataPayload)->delay(now()->addSeconds(2));
+
+                $user->notify((new WelcomeNotification())->delay(2));
+
+                
             }
 
             $request->session()->flash('alert-success', 'User successfully updated');

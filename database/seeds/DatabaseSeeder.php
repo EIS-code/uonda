@@ -19,5 +19,7 @@ class DatabaseSeeder extends Seeder
         // $this->call(ImageSeeder::class);
         $this->call(SuperadminUserSeeder::class);
         // $this->call(DummyUsersSeeder::class);
+        $this->call(ResetPasswordEmailTemplateSeeder::class);
+        $this->call(WelcomeEmailTemplateSeeder::class);
     }
 }

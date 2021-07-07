@@ -31,7 +31,7 @@ class ForgotPasswordController extends BaseController
         $email = $request->get('email', false);
 
         if ($email) {
-            Email::store([$email], __(PASSWORD_RESET_LINK_SENT), trans($response));
+            // Email::store([$email], __(PASSWORD_RESET_LINK_SENT), trans($response));
 
             $user = $model::with('userDocuments')->where('email', $email)->first();
         }
