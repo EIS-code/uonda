@@ -196,7 +196,9 @@ class NotificationController extends BaseController
 
         $notifications = $model::selectRaw($model::getTableName() . '.*, ' . $modelUser->getTableName() . '.profile, ' . $modelUser->getTableName() . '.profile_icon')
                                ->where('user_id', (int)$userId)->where('is_read', $model::IS_UNREAD)->where('is_success', $model::IS_SUCCESS)
-                               ->join($modelUser->getTableName(), $model::getTableName() . '.created_by', '=', $modelUser->getTableName() . '.id')->get();
+                               ->join($modelUser->getTableName(), $model::getTableName() . '.created_by', '=', $modelUser->getTableName() . '.id')
+                               ->orderBy($model::getTableName() . '.id', 'DESC')
+                               ->get();
 
         if (!empty($notifications) && !$notifications->isEmpty($notifications)) {
             $notifications->makeHidden(['total_notifications', 'total_read_notifications', 'total_unread_notifications']);
