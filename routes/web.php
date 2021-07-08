@@ -33,7 +33,7 @@ Route::group(['middleware' => ['auth']], function(){
     Route::resource('chats', 'Admin\ChatController');
     Route::resource('country', 'Admin\CountryController');
     Route::resource('state', 'Admin\StateController');
-    Route::resource('city', 'Admin\CityControllerupdateApiResponseText');
+    Route::resource('city', 'Admin\CityController');
     Route::get('settings/constants', 'Admin\SettingController@getConstants')->name('settings.constants');
     Route::get('settings/notification/texts', 'Admin\SettingController@getNotificationText')->name('notification.texts');
     Route::post('notification/texts/update', 'Admin\SettingController@updateNotificationText')->name('update.notification.text');
