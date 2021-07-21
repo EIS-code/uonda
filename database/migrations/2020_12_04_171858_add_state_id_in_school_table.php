@@ -14,7 +14,7 @@ class AddStateIdInSchoolTable extends Migration
     public function up()
     {
         Schema::table('schools', function (Blueprint $table) {
-            $table->bigInteger('state_id')->default(1)->unsigned()->after('country_id');
+            $table->bigInteger('state_id')->default(1)->unsigned()->after('country_id')->nullable();
             $table->foreign('state_id')->references('id')->on('states')->onDelete('cascade');
             $table->text('description')->after('name')->nullable();
         });

@@ -28,7 +28,7 @@ class School extends BaseModel
             'name'       => array_merge(['required', 'string', 'max:255'], $name),
             'city_id'    => ['required', 'integer', 'exists:' . City::getTableName() . ',id'],
             'country_id' => ['required', 'integer', 'exists:' . Country::getTableName() . ',id'],
-            'state_id' => ['required', 'integer', 'exists:' . State::getTableName() . ',id'],
+            'state_id' => ['nullable', 'integer', 'exists:' . State::getTableName() . ',id'],
             'description'    => ['nullable', 'string'],
         ]);
 

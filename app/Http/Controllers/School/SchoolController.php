@@ -78,7 +78,7 @@ class SchoolController extends BaseController
         $school_data = $model->with('country', 'city', 'state')->find($create->id);
         if (!empty($school_data)) {
             $school_data->country_name = $school_data->country->name;
-            $school_data->state_name = $school_data->state->name;
+            $school_data->state_name = !empty($school_data->state) ? $school_data->state->name : NULL;
             $school_data->city_name = $school_data->city->name;
             unset($school_data->country);
             unset($school_data->state);
@@ -116,7 +116,13 @@ class SchoolController extends BaseController
 
         $record->name       = (string)$data['name'];
         $record->city_id    = (int)$data['city_id'];
-        $record->state_id   = (int)$data['state_id'];
+
+        if (!empty($data['state_id'])) {
+            $record->state_id = (int)$data['state_id'];
+        } else {
+            $record->state_id = NULL;
+        }
+
         $record->country_id = (int)$data['country_id'];
 
         $update = $record->save();
