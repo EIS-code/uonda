@@ -52,7 +52,7 @@
                         <td>{{ $key  + 1}}</td>
                         <td>{{ ucfirst($school->name) }}</td>
                         <td>{{ ucfirst($school->country->name) }}</td>
-                        <td>{{ ucfirst($school->state->name) }}</td>
+                        <td>{{ !empty($school->state->name) ? ucfirst($school->state->name) : "" }}</td>
                         <td>{{ ucfirst($school->city->name) }}</td>
                         <td class="icons_list">
                             <a href="{{ route('schools.edit', $school->encrypted_school_id) }}" title="Edit School"><span class="material-icons">edit</span></a> 
