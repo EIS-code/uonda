@@ -106,17 +106,26 @@ class UserController extends Controller
      */
     public function show($id)
     {
+        $request->merge(['show_rejected' => true]);
+
         $user = User::with(['userDocuments', 'referralUsers'])->find(decrypt($id));
+
         $data = array();
+
         if(!empty($user->school_id)) {
             $data['school_name'] = School::select('name')->where('id', $user->school_id)->first();
         }
+
         if(!empty($user->country_id)) {
             $data['country_name'] = Country::select('name')->where('id', $user->country_id)->first();
         }
+
         if(!empty($user->city_id)) {
             $data['city_name'] = City::select('name')->where('id', $user->city_id)->first();
         }
+
+        $request->merge(['show_rejected' => false]);
+
         return view('pages.users.show', compact('user', 'data'));
     }
 
