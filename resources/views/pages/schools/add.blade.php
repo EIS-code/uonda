@@ -105,6 +105,8 @@
                         select.append('<option value=' + value.id + '>' + value.name + '</option>');
                     });
                 });
+
+                $('select[name=state_id]').change();
             } else {
                 $('#state_id').html('<option value="">Select country first</option>');
                 $('#city_id').html('<option value="">Select state first</option>'); 
@@ -114,18 +116,31 @@
 
         $('select[name=state_id]').change(function() {
             var stateId = $(this).val();
-            if(stateId) {
+
+            if (stateId.length > 0) {
                 var url = '{{ url('get-cities') }}' + '/' + $(this).val();
                 $.get(url, function(data) {
                     var select = $('form select[name=city_id]');
-                    select.append('<option value="">Please select City</option>')
                     select.empty();
+                    select.append('<option value="">Please select City</option>')
                     $.each(data.data,function(key, value) {
                         select.append('<option value=' + value.id + '>' + value.name + '</option>');
                     });
                 });
             } else {
-                $('#city_id').html('<option value="">Select state first</option>');
+                // $('#city_id').html('<option value="">Select state first</option>');
+
+                var countryId = $('select[name=country_id]').val(),
+                    url       = '{{ url('get-cities-of-country') }}' + '/' + countryId;
+
+                $.get(url, function(data) {
+                    var select = $('form select[name=city_id]');
+                    select.empty();
+                    select.append('<option value="">Please select City</option>')
+                    $.each(data.data,function(key, value) {
+                        select.append('<option value=' + value.id + '>' + value.name + '</option>');
+                    });
+                });
             }
             
         });

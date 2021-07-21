@@ -89,6 +89,18 @@ class SchoolController extends Controller
         $countries = Country::all();
         $states = State::where('country_id', $school->country_id)->get();
         $cities = City::where('state_id', $school->state_id)->get();
+
+        if ((empty($cities) || $cities->isEmpty()) && !empty($school->country_id)) {
+            $countryId  = $school->country_id;
+
+            $cities     = City::with(['state' => function($q) use ($countryId) {
+                          $q->where('country_id', $countryId);
+                      }])
+                      ->whereHas('state', function($q) use ($countryId) {
+                          $q->where('country_id', $countryId);
+                      })->get();
+        }
+
         return view('pages.schools.edit', compact('school', 'countries', 'states', 'cities'));
     }
 
