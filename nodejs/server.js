@@ -443,7 +443,7 @@ io.on('connection', function (socket) {
 
                     if (isGroup) {
                         // let sqlGetChat = "SELECT c.id, c.message, ca.mime_type, ca.attachment, ca.url, ca.address, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' ELSE NULL END AS message_type FROM `" + modelChats + "` AS c LEFT JOIN `" + modelChatAttachment + "` AS ca ON c.id = ca.chat_id WHERE c.`id` = '" + chatId + "' LIMIT 1";
-                        let sqlGetChat = "SELECT c.id, c.message, ca.mime_type, ca.attachment, ca.url, ca.address, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' ELSE NULL END AS message_type, UNIX_TIMESTAMP(c.created_at) * 1000 FROM `" + modelChats + "` AS c LEFT JOIN `" + modelChatDelete + "` AS cd ON `c`.`id` = `cd`.`chat_id` AND `cd`.`user_id` = '" + senderId + "' LEFT JOIN `" + modelChatAttachment + "` AS ca ON c.id = ca.chat_id WHERE c.`id` = '" + chatId + "' AND `cd`.`id` IS NULL LIMIT 1";
+                        let sqlGetChat = "SELECT c.id, c.message, ca.mime_type, ca.attachment, ca.url, ca.address, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' ELSE NULL END AS message_type, UNIX_TIMESTAMP(c.created_at) * 1000 AS created_at FROM `" + modelChats + "` AS c LEFT JOIN `" + modelChatDelete + "` AS cd ON `c`.`id` = `cd`.`chat_id` AND `cd`.`user_id` = '" + senderId + "' LEFT JOIN `" + modelChatAttachment + "` AS ca ON c.id = ca.chat_id WHERE c.`id` = '" + chatId + "' AND `cd`.`id` IS NULL LIMIT 1";
 
                         connection.query(sqlGetChat, async function (err14, resultChat, fields) {
                             if (err14) {
@@ -462,7 +462,7 @@ io.on('connection', function (socket) {
                         });
 
                     } else {
-                        let sqlGetChat = "SELECT c.id, c.message, ca.mime_type, ca.attachment, ca.url, ca.address, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' ELSE NULL END AS message_type, UNIX_TIMESTAMP(c.created_at) * 1000 FROM `" + modelChats + "` AS c LEFT JOIN `" + modelChatDelete + "` AS cd ON `c`.`id` = `cd`.`chat_id` AND `cd`.`user_id` = '" + senderId + "' LEFT JOIN `" + modelChatAttachment + "` AS ca ON c.id = ca.chat_id WHERE c.`id` = '" + chatId + "' AND `cd`.`id` IS NULL LIMIT 1";
+                        let sqlGetChat = "SELECT c.id, c.message, ca.mime_type, ca.attachment, ca.url, ca.address, ca.name, ca.contacts, CASE WHEN ca.mime_type != '' && ca.attachment != '' THEN 'attachment' WHEN ca.url != '' THEN 'location' WHEN ca.name && ca.contacts THEN 'contacts' ELSE NULL END AS message_type, UNIX_TIMESTAMP(c.created_at) * 1000 AS created_at FROM `" + modelChats + "` AS c LEFT JOIN `" + modelChatDelete + "` AS cd ON `c`.`id` = `cd`.`chat_id` AND `cd`.`user_id` = '" + senderId + "' LEFT JOIN `" + modelChatAttachment + "` AS ca ON c.id = ca.chat_id WHERE c.`id` = '" + chatId + "' AND `cd`.`id` IS NULL LIMIT 1";
 
                         connection.query(sqlGetChat, async function (err14, resultChat, fields) {
                             if (err14) {
