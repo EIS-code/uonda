@@ -250,7 +250,7 @@ io.on('connection', function (socket) {
             let now             = mysqlDate(new Date()),
                 timestampsQuery = "`created_at` = NOW(), `updated_at` = NOW()";
 
-            socket.on(listenMessageSend, function(data) {
+            socket.on(listenMessageSend, function(data, callbackFunction) {
 
                 try {
 
@@ -329,6 +329,9 @@ io.on('connection', function (socket) {
 
                                 io.sockets.to(roomId).emit(messageRecieveEmitter, receiverData);
 
+                                /* Callbacks. */
+                                callbackFunction(receiverData);
+
                                 // Send push notification if user is not online.
                                 sendPushNotificationsGroup(chatRoomId, senderId, message);
                             });
@@ -370,6 +373,9 @@ io.on('connection', function (socket) {
 
                                     senderData = resultChat[0];
                                     io.sockets.to(roomId).emit(acknowledgeEmitter, senderData);
+
+                                    /* Callbacks. */
+                                    callbackFunction(senderData);
                                 });
 
                                 let sqlGetReceiverUser = "SELECT `id`, `name`, `user_name`, `email`, `profile` FROM `" + modelUsers + "` WHERE `id` = '" + receiverId + "' LIMIT 1";
@@ -389,6 +395,9 @@ io.on('connection', function (socket) {
 
                                     receiverData = resultChat[0];
                                     io.sockets.to(receiverRoomId).emit(messageRecieveEmitter, receiverData);
+
+                                    /* Callbacks. */
+                                    callbackFunction(receiverData);
 
                                     // Send push notification if user is not online.
                                     sendPushNotifications(receiverId, senderId, message, chatRoomId);
