@@ -408,7 +408,7 @@ io.on('connection', function (socket) {
                 }
             });
 
-            socket.on(listenerSendAttachment, function(data) {
+            socket.on(listenerSendAttachment, function(data, callbackFunction) {
 
                 try {
                     var isGroup     = (data.isGroup == true),
@@ -468,6 +468,9 @@ io.on('connection', function (socket) {
 
                             io.sockets.to(roomId).emit(acknowledgeEmitter, resultChat[0]);
                             io.sockets.to(roomId).emit(messageRecieveEmitter, resultChat[0]);
+
+                            /* Callbacks. */
+                            callbackFunction(resultChat[0]);
                         });
 
                     } else {
@@ -488,10 +491,16 @@ io.on('connection', function (socket) {
 
                                 io.sockets.to(roomId).emit(acknowledgeEmitter, resultChat[0]);
                                 io.sockets.to(receiverRoomId).emit(messageRecieveEmitter, resultChat[0]);
+
+                                /* Callbacks. */
+                                callbackFunction(resultChat[0]);
                             } else {
 
                                 io.sockets.to(roomId).emit(acknowledgeEmitter, []);
                                 io.sockets.to(receiverRoomId).emit(messageRecieveEmitter, []);
+
+                                /* Callbacks. */
+                                callbackFunction([]);
                             }
                         });
                     }
