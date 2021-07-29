@@ -126,7 +126,7 @@ class BaseController extends Controller
             return false;
         }
 
-        $client  = new Client(['headers' => ['api-key' => $apiKey], 'verify' => false]);
+        $client  = new Client(['headers' => ['api-key' => $apiKey]]);
 
         $request = $client->get($route, ['json' => $param]);
 
