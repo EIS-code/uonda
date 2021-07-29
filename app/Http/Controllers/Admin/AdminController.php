@@ -29,7 +29,6 @@ class AdminController extends Controller
             'name' => 'required',
             'email' => 'required|email|unique:users,email,'.$user->id,
             'password' => ['nullable', 'required_with:confirm-password', 'confirmed', 'string'],
-            'confirm-password' => ['nullable', 'required_with:password', 'string'],
             'job_position' => 'nullable',
             'attachment' => 'sometimes|mimes:jpg,jpeg,png'
         ];
