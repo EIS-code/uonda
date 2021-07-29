@@ -71,6 +71,8 @@ class BaseNotification
         }
 
         $this->title = $isScreenShot ? $this->user->full_name . ' ' . $title : $title;
+
+        dd(uniqueValues($this->deviceTokens));
     }
 
     public function getUser()
