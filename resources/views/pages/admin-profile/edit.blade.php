@@ -39,7 +39,7 @@
             <div class="form-group">
                 <label for="title">Email</label>
                 <div>
-                    <input type="text" class="form-control @error('email') is-invalid @enderror" id="email" name="email" placeholder="Email" value="{{ $user->email }}" />
+                    <input type="text" class="form-control @error('email') is-invalid @enderror" id="email" name="email" placeholder="Email" value="{{ $user->email }}" autocomplete="off" />
                     @error('email')
                         <em class="error invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
@@ -61,8 +61,19 @@
             <div class="form-group">
                 <label for="title">Password</label>
                 <div>
-                    <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" placeholder="Password" value="" />
+                    <input type="password" class="form-control @error('password') is-invalid @enderror" id="password" name="password" placeholder="Password" value="" autocomplete="off" />
                     @error('password')
+                        <em class="error invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </em>
+                    @enderror
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="confirm-password">Confirm Password</label>
+                <div>
+                    <input type="password" class="form-control @error('confirm-password') is-invalid @enderror" id="confirm-password" name="password_confirmation" placeholder="{{ __('Confirm Password') }}" value="" autocomplete="off" />
+                    @error('confirm-password')
                         <em class="error invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
                         </em>

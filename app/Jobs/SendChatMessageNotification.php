@@ -16,7 +16,7 @@ class SendChatMessageNotification extends BaseNotification implements ShouldQueu
 
     protected $message;
 
-    protected $notificationTitle = MASSAGE_RECEIVED_FROM;
+    protected $notificationTitle;
 
     /**
      * Create a new job instance.
@@ -32,6 +32,8 @@ class SendChatMessageNotification extends BaseNotification implements ShouldQueu
         $this->message              = truncate($message, 20);
 
         $fromUser                   = User::find($fromUserId);
+
+        $this->notificationTitle    = MASSAGE_RECEIVED_FROM;
 
         $this->notificationTitle    = !empty($fromUser) ? __($this->notificationTitle . $fromUser->fullName) : __($this->notificationTitle);
 

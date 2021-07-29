@@ -13,7 +13,7 @@
             "type": "0"
         },
         {
-            "key": "MASSAGE_RECEIVED_FROM ",
+            "key": "MASSAGE_RECEIVED_FROM",
             "english_text": "Message received from",
             "show_text": "",
             "type": "0"

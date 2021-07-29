@@ -28,7 +28,8 @@ class AdminController extends Controller
         $rules = [
             'name' => 'required',
             'email' => 'required|email|unique:users,email,'.$user->id,
-            'password' => ['nullable', 'string'],
+            'password' => ['nullable', 'required_with:confirm-password', 'confirmed', 'string'],
+            'confirm-password' => ['nullable', 'required_with:password', 'string'],
             'job_position' => 'nullable',
             'attachment' => 'sometimes|mimes:jpg,jpeg,png'
         ];
@@ -41,7 +42,7 @@ class AdminController extends Controller
         $user->name = $request->name;
         $user->email = $request->email;
         $user->job_position = $request->has('job_position') ? $request->job_position : NULL;
-        if($request->has('password')) {
+        if($request->has('password') && !empty($request->get('password'))) {
             $user->password = Hash::make($request->password);
         }
         if (array_key_exists('attachment', $data) && ($data['attachment'] instanceof UploadedFile)) {
