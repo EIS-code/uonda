@@ -104,6 +104,8 @@ class BaseNotification
             }
 
             $requestUser = $requestUser->first();
+
+            dd($requestUser);
         }
 
         $this->requestUsers = $requestUser;
