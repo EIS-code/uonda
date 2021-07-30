@@ -378,7 +378,7 @@ class User extends Authenticatable
     public function getProfileAttribute($value)
     {
         if (empty($value)) {
-            return $value;
+            return asset('assets/images/avatars/2.jpg');
         }
 
         $storageFolderName = (str_ireplace("\\", "/", $this->profile));
@@ -388,7 +388,7 @@ class User extends Authenticatable
     public function getProfileIconAttribute($value)
     {
         if (empty($value)) {
-            return $value;
+            return asset('assets/images/avatars/2.jpg');
         }
 
         $storageFolderName = (str_ireplace("\\", "/", $this->profileIcon));

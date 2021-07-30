@@ -82,7 +82,7 @@
             </div>
             @if(!empty($user->new_profile))
                 <div class="">
-                    <img width="250" src="{{ URL::asset('storage/admin-profile/'. $user->new_profile) }}">
+                    <img width="250" src="{{ Auth::user()->getProfileAttribute(Auth::user()->getAttributes()['profile']) }}">
                 </div>
             @endif
             <div class="form-group">

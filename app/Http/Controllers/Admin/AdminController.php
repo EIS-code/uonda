@@ -59,7 +59,7 @@ class AdminController extends Controller
 
                 $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
                 $fileName  = removeSpaces($fileName);
-                $storeFile = $attachment->storeAs('admin-profile', $fileName, 'public');
+                $storeFile = $attachment->storeAs($user->profile, $fileName, 'public');
                 $user->profile = $fileName;
                 DB::table('users')->where("id", Auth::user()->id)->update(['profile' => $user->profile]);
                 if ($storeFile) {
