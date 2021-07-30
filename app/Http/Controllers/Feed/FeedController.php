@@ -18,7 +18,7 @@ class FeedController extends BaseController
         $feeds = $model::orderBy('id', 'DESC')->get();
         $user = User::find((int)$data['user_id']);
 
-        if (!empty($feeds)) {
+        if (!empty($feeds) && !$feeds->isEmpty() && !empty($user)) {
             $status = 200;
             $success_res  = [
                 'code' => $status,
@@ -53,18 +53,22 @@ class FeedController extends BaseController
         $feed_id = array(
             $request->feed_id
         );
-        if($request->has('status') && $request->status == 0) {
-            $msg = FEED_DISLIKED;
-            $user->likedFeeds()->detach($feed_id);    
-        } else {
-            $msg = 'Feed liked successfully!';
-            if(!$user->likedFeeds()->where('feed_id', $request->feed_id)->exists()) {
-                $user->likedFeeds()->attach($feed_id);
+
+        if (!empty($user)) {
+            if($request->has('status') && $request->status == 0) {
+                $msg = FEED_DISLIKED;
+                $user->likedFeeds()->detach($feed_id);    
+            } else {
+                $msg = 'Feed liked successfully!';
+                if(!$user->likedFeeds()->where('feed_id', $request->feed_id)->exists()) {
+                    $user->likedFeeds()->attach($feed_id);
+                }
+            }
+            if(!empty($user->likedFeeds())) {
+                return $this->returnSuccess(__($msg), $user->likedFeeds()->get());
             }
         }
-        if(!empty($user->likedFeeds())) {
-            return $this->returnSuccess(__($msg), $user->likedFeeds()->get());
-        }
+
         return $this->returnNull();
     }
 }
