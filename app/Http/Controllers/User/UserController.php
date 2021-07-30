@@ -591,7 +591,7 @@ class UserController extends BaseController
         $user   = $getUser();
 
         if (empty($user)) {
-            return $this->returnError(__(INCORRECT_USERID));
+            return $this->returnError(__(INCORRECT_USERID), $this->userIdCode);
         }
 
         if (!empty($user)) {

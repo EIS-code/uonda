@@ -14,6 +14,7 @@ class BaseController extends Controller
 {
     public $errorCode     = 401;
     public $blockCode     = 402;
+    public $userIdCode    = 403;
     public $successCode   = 200;
     public $returnNullMsg = NO_RESPONSE;
 
