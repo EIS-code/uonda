@@ -68,7 +68,8 @@
             <div class="form-group">
                 <label for="body">Photo</label>
                 <div>
-                    <input type="file" name="photo" class="form-control @error('photo') is-invalid @enderror" accept="image/*" />
+                    <input type="file" name="photo" class="form-control @error('photo') is-invalid @enderror" accept="image/*" id="file-input" />
+                    <input type="hidden" name="photo-base64" id="file-input-base64" />
                     @error('photo')
                         <em class="error invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
@@ -76,9 +77,22 @@
                     @enderror
                 </div>
             </div>
-            
+            <br />
+
+            <div class="result-div" style="display:none">
+                <div class="result">
+                </div><br>
+                <div>
+                    <button type="button" data-ratio="1.333333" class="btn btn-success ratio" value="Save">4:3</button>
+                    <button type="button" data-ratio="1.777777" class="btn btn-success ratio" value="Save">16:9</button>
+                    <button type="button" data-ratio="1.5" class="btn btn-success ratio" value="Save">3:2</button>
+                    <button type="button" data-ratio="NaN" class="btn btn-success ratio" value="Save">Free</button>
+                </div>
+            </div>
+            <br />
+
             <div class="form-group">
-                <button type="submit" class="btn btn-primary" name="save" value="Save">Save</button>
+                <button type="button" class="btn btn-primary" name="save" id="save" value="Save">Save</button>
             </div>
         </form>
     </div>
@@ -90,6 +104,66 @@
     $(document).ready(function() {
         CKEDITOR.replace( 'body' );
         expiry_date.min = new Date().toISOString().split("T")[0];
+
+        const image = document.getElementById('image');
+
+        let cropper = '',
+            result  = document.querySelector(".result"),
+            upload  = document.querySelector("#file-input"),
+            options = {
+                aspectRatio: 16/9, // (1.7777)
+                viewMode: 0,
+                crop(event) {},
+            };
+
+        // On change show image with crop options.
+        upload.addEventListener("change", function(e) {
+            // Start file reader.
+            let reader = new FileReader();
+
+            reader.onload = function(e) {
+                if (e.target.result) {
+                    // Create new image.
+                    var img = document.createElement("img");
+                    img.id = "image";
+                    img.src = e.target.result;
+                    img.style = "display: block;max-width: 100%;"
+                    // Clean result before
+                    result.innerHTML = "";
+                    $('.result-div').show();
+                    // Append new image
+                    result.appendChild(img);
+                    // Show save btn and options
+                    // Save.classList.remove("hide");
+                    // Options.classList.remove("hide");
+                    // Init cropper
+                    cropper = new Cropper(img, options);
+                }
+            };
+
+            reader.readAsDataURL(e.target.files[0]);
+        });
+
+        $(document).on('click', '.ratio', function () {
+            options.aspectRatio = Number($(this).attr('data-ratio'));
+
+            let image = document.getElementById('image');
+
+            cropper.destroy();
+
+            cropper = new Cropper(image, options);
+        });
+
+        $('#save').on("click", function(e) {
+            e.preventDefault();
+
+            let self         = $(this),
+                croppedPhoto = cropper.getCroppedCanvas();
+
+            $("#file-input-base64").val(croppedPhoto.toDataURL("image/png"));
+
+            $('#editPromotionForm').submit();
+        });
     });
 </script>
 @endpush

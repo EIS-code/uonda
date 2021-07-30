@@ -66,30 +66,37 @@ class PromotionController extends Controller
         $save = $promotion->save();
 
         if ($save && array_key_exists('photo', $data) && $data['photo'] instanceof UploadedFile) {
-            $id = $promotion->id;
+            $id         = $promotion->id;
 
             $attachment = $data['photo'];
-            $pathInfos = pathinfo($attachment->getClientOriginalName());
+            $pathInfos  = pathinfo($attachment->getClientOriginalName());
+            $folder     = $promotion->storageFolderName . '/' . $id;
+            $folderOrg  = $promotion->storageOrgFolderName . '/' . $id;
 
-            if (!empty($pathInfos['extension'])) {
-                $folder = $promotion->storageFolderName . '/' . $id;
+            if (!empty($pathInfos['extension']) && !empty($folder)) {
+                $fileName     = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                $fileName     = removeSpaces($fileName);
 
-                if (!empty($folder)) {
-                    $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
-                    $fileName  = removeSpaces($fileName);
-                    $storeFile = $attachment->storeAs($folder, $fileName, $promotion->fileSystem);
+                if (!empty($data['photo-base64'])) {
+                    $photo     = base64_decode(substr($data['photo-base64'], strpos($data['photo-base64'], ",") + 1));
 
-                    if ($storeFile) {
-                        $promotion = $promotion->find($id);
+                    $storeFile = Storage::disk($promotion->fileSystem)->put($folder . '/' . $fileName, $photo);
+                }
 
-                        $promotion->photo = $fileName;
+                $storeFile = $attachment->storeAs($folderOrg, $fileName, $promotion->fileSystem);
 
-                        $promotion->save();
-                    }
+                if ($storeFile) {
+                    $promotion = $promotion->find($id);
+
+                    $promotion->photo = $fileName;
+
+                    $promotion->save();
                 }
             }
         }
+
         $request->session()->flash('alert-success', 'Promotion successfully created');
+
         return redirect()->route('promotions.index');
     }
 
@@ -126,9 +133,9 @@ class PromotionController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $promotion = Promotions::find(decrypt($id));
-        $prevAttachment = $promotion->photo;
-        $data  = $request->all();
+        $promotion      = Promotions::find(decrypt($id));
+        $prevAttachment = $promotion->getAttributes()['photo'];
+        $data           = $request->all();
 
         $requiredFileds = [
             'voucher_code'   => ['unique:promotions,voucher_code,'.decrypt($id)]
@@ -154,31 +161,41 @@ class PromotionController extends Controller
         }
 
         if (array_key_exists('photo', $data) && $data['photo'] instanceof UploadedFile) {
-            $attachment = $data['photo'];
-            if(!empty($prevAttachment)) {
-                $array = explode('/', $prevAttachment);
-                $key = array_key_last($array);
-                $image = $array[$key];
-                Storage::delete($promotion->fileSystem . '/'. $promotion->storageFolderName .'/' .decrypt($id) .'/'. $image);
+            // Delete old files.
+            if (!empty($prevAttachment)) {
+                // Cropped image.
+                Storage::delete($promotion->fileSystem . '/'. $promotion->storageFolderName .'/' .decrypt($id) .'/'. $prevAttachment);
+                // Original image.
+                Storage::delete($promotion->fileSystem . '/'. $promotion->storageOrgFolderName .'/' .decrypt($id) .'/'. $prevAttachment);
             }
-            $pathInfos = pathinfo($attachment->getClientOriginalName());
 
-            if (!empty($pathInfos['extension'])) {
-                $folder = $promotion->storageFolderName . '/' . decrypt($id);
+            $attachment = $data['photo'];
+            $pathInfos  = pathinfo($attachment->getClientOriginalName());
+            $folder     = $promotion->storageFolderName . '/' . decrypt($id);
+            $folderOrg  = $promotion->storageOrgFolderName . '/' . decrypt($id);
 
-                if (!empty($folder)) {
-                    $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
-                    $fileName  = removeSpaces($fileName);
-                    $storeFile = $attachment->storeAs($folder, $fileName, $promotion->fileSystem);
+            if (!empty($pathInfos['extension']) && !empty($folder)) {
+                $fileName  = (empty($pathInfos['filename']) ? time() : $pathInfos['filename']) . '_' . time() . '.' . $pathInfos['extension'];
+                $fileName  = removeSpaces($fileName);
 
-                    if ($storeFile) {
-                        $promotion->photo = $fileName;
-                    }
+                if (!empty($data['photo-base64'])) {
+                    $photo     = base64_decode(substr($data['photo-base64'], strpos($data['photo-base64'], ",") + 1));
+
+                    $storeFile = Storage::disk($promotion->fileSystem)->put($folder . '/' . $fileName, $photo);
+                }
+
+                $storeFile = $attachment->storeAs($folderOrg, $fileName, $promotion->fileSystem);
+
+                if ($storeFile) {
+                    $promotion->photo = $fileName;
                 }
             }
         }
+
         $promotion->save();
-        $request->session()->flash('alert-success', 'Promotion successfully updated');
+
+        $request->session()->flash('alert-success', __('Promotion successfully updated'));
+
         return redirect()->route('promotions.index');
     }
 

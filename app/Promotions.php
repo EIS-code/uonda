@@ -31,8 +31,9 @@ class Promotions extends Model
      */
     protected $appends = ['encrypted_promotion_id', 'formatted_expiry_date'];
 
-    public $fileSystem        = 'public';
-    public $storageFolderName = 'promotions';
+    public $fileSystem           = 'public';
+    public $storageFolderName    = 'promotions';
+    public $storageOrgFolderName = 'promotions/original';
 
     public function __construct(array $attributes = array())
     {
