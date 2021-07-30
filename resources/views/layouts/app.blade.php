@@ -9,8 +9,11 @@
 
     <title>{{ config('app.name', 'Laravel') }}</title>
 
-    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
-    <!-- <meta http-equiv="Content-Security-Policy" content="block-all-mixed-content"> -->
+    @if (env('APP_ENV') == 'production' && env('APP_PROTOCOL') == 'https')
+        <meta http-equiv="Content-Security-Policy" content="block-all-mixed-content">
+    @else
+        <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
+    @endif
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
