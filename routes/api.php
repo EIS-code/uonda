@@ -163,6 +163,7 @@ Route::group(['middleware' => ['web.auth.api']], function () {
 
         Route::get('/get', 'NotificationController@getNotifications')->name('notifications.get');
         Route::post('/remove', 'NotificationController@removeNotification')->name('notification.remove');
+        Route::get('/remove/all', 'NotificationController@removeNotificationAll')->name('notification.remove.all');
         Route::post('/read', 'NotificationController@readNotification')->name('notification.read');
 
         Route::post('/ios/test', 'NotificationController@testIOS')->name('user.notifications.test.ios');

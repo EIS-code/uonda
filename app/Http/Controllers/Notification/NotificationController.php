@@ -255,6 +255,30 @@ class NotificationController extends BaseController
         return $this->returnError(__(NOTIFICATION_NOT_FOUND));
     }
 
+    public function removeNotificationAll(Request $request)
+    {
+        $model  = new Notification();
+        $data   = $request->all();
+        $userId = !empty($data['user_id']) ? (int)$data['user_id'] : false;
+
+        if (empty($userId)) {
+            return $this->returnError(__(USERID_REQUIRED));
+        }
+
+        $notifications      = $model::where('user_id', (int)$userId);
+        $getNotifications   = $notifications->get();
+
+        if (!empty($getNotifications) && !$getNotifications->isEmpty()) {
+            $remove = $notifications->delete();
+
+            if ($remove) {
+                return $this->returnSuccess(__(NOTIFICATION_REMOVED), $this->getDetails(0, $userId, true));
+            }
+        }
+
+        return $this->returnError(__(NOTIFICATION_NOT_FOUND));
+    }
+
     public function readNotification(Request $request)
     {
         $model  = new Notification();
