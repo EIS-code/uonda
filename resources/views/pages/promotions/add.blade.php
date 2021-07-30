@@ -153,10 +153,13 @@
         $('#save').on("click", function(e) {
             e.preventDefault();
 
-            let self         = $(this),
-                croppedPhoto = cropper.getCroppedCanvas();
+            let self = $(this);
 
-            $("#file-input-base64").val(croppedPhoto.toDataURL("image/png"));
+            if (cropper) {
+                let croppedPhoto = cropper.getCroppedCanvas();
+
+                $("#file-input-base64").val(croppedPhoto.toDataURL("image/png"));
+            }
 
             $('#addPromotionForm').submit();
         });
