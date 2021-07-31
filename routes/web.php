@@ -22,7 +22,7 @@ Route::get('/get-cities/{id}', 'Admin\SchoolController@getCitiesDetails')->name(
 
 Route::post('/store-token', 'Admin\UserController@storeToken')->name('store.token');
 
-Route::group(['middleware' => ['auth', 'cors']], function(){
+Route::group(['middleware' => ['auth']], function(){
     Route::get('/', 'DashboardController@index')->name('dashboard');
     Route::resource('users', 'Admin\UserController');
     Route::resource('feeds', 'Admin\FeedsController');
