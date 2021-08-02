@@ -220,6 +220,15 @@ class NotificationController extends BaseController
                 } else {
                     $data->time = 0;
                 }
+
+                // Set `notification_type` outside from payload.
+                if (!empty($data->payload)) {
+                    $payloadData = json_decode($data->payload, true);
+
+                    if (!empty($payloadData['notification_type']) && json_last_error() === JSON_ERROR_NONE) {
+                        $data->notification_type = $payloadData['notification_type'];
+                    }
+                }
             });
         }
 
