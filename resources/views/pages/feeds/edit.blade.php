@@ -77,8 +77,19 @@
                     </em>
                 @enderror
             </div>
+            <br />
+            @if ($feed->type == 'video') 
+                <video width="100%" height="100%" controls>
+                    <source src="{{ $feed->attachment }}" type="video/mp4">
+                </video>
+                @else
+                <iframe frameborder="0" width="100%" height="100%" src="{{ $feed->attachment }}" name="imgbox" id="imgbox">
+                    <p>Iframes are not supported by your browser.</p>
+                </iframe>
+            @endif
             <div class="form-group">
                 <label for="description">Attachment</label>
+
                 <div>
                     <input type="file" id="file-input" name="attachment" class="form-control @error('attachment') is-invalid @enderror" accept="image/*, video/*" />
                     @error('attachment')
@@ -98,7 +109,7 @@
                     </div>
                 </div><br>
             </div>
-            
+
             <div class="form-group">
                 <button type="submit" class="btn btn-primary submit-btn" name="save" value="Save">Save</button>
             </div>
@@ -170,7 +181,7 @@
             $('#short_description').val(shortDescriptionValue);
 
             // var formData = new FormData(document.querySelector('form'))
-            if($('#type').val() == 1) {
+            if($('#type').val() == 1 && cropper) {
                 cropper.getCroppedCanvas().toBlob((blob) => {
                     var formData = new FormData($(this)[0]);
                     formData.append('attachment', blob, filename);
@@ -186,7 +197,7 @@
                         success: (data) => {
                             // this.reset();
                             window.location.href = "{{ route('feeds.index') }}";
-    ;                   },
+                        },
                         error: function(data) {
                             console.log(data);
                             if(data.responseJSON.code == 500) {
@@ -209,7 +220,7 @@
                     success: (data) => {
                         // this.reset();
                         window.location.href = "{{ route('feeds.index') }}";
-;                   },
+                    },
                     error: function(data) {
                         console.log(data);
                         if(data.responseJSON.code == 500) {

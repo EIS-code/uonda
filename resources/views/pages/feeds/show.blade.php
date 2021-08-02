@@ -44,11 +44,11 @@
                     </tr>
                     @if(!empty($feed->attachment))
                     <tr>
-                        <th> attachment Type </th>
+                        <th> Attachment Type </th>
                         <td> {{ $feed->type }} </td>
                     </tr>
                     <tr>
-                        <th> Cover Image </th>
+                        <th> Attached File </th>
                         <td> 
                             @if($feed->type == 'video') 
                             <video width="350" height="300" controls>

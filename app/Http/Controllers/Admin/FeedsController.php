@@ -129,7 +129,7 @@ class FeedsController extends Controller
         $prevAttachment = $feed->attachment;
         $data  = $request->all();
 
-        $validator = $feed->validator($data);
+        $validator = $feed->validator($data, false, true);
         if ($validator->fails()) {
             $status = 500;
             $success_res  = [

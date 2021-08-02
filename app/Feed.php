@@ -72,20 +72,19 @@ class Feed extends BaseModel
         $this->makeVisible('created_at');
     }
 
-    public function validator(array $data, $returnBoolsOnly = false)
+    public function validator(array $data, $returnBoolsOnly = false, $isUpdate = false)
     {
         $rules = [
-            'title'       => ['required', 'string', 'max:255'],
-            'sub_title'   => ['nullable', 'string', 'max:255'],
-            'attachment'  => ['nullable', 'mimes:' . implode(",", $this->allowedExtensions)],
-            'attachment' => ['nullable', 'max:10240'],
-            'description' => ['required', 'string'],
+            'title'             => ['required', 'string', 'max:255'],
+            'sub_title'         => ['nullable', 'string', 'max:255'],
+            'attachment'        => ['nullable', 'mimes:' . implode(",", $this->allowedExtensions), 'max:10240'],
+            'description'       => ['required', 'string'],
             'short_description' => ['required', 'string'],
-            'type'        => ['nullable', 'in:' . implode(",", array_keys($this->feedTypes))]
+            'type'              => ['nullable', 'in:' . implode(",", array_keys($this->feedTypes))]
         ];
 
-        if(!empty($data['type'])) {
-            $rules['attachment'] = ['required', 'mimes:' . implode(",", $this->allowedExtensions)];
+        if (!empty($data['type']) && $isUpdate === false) {
+            $rules['attachment'] = ['required', 'mimes:' . implode(",", $this->allowedExtensions), 'max:10240'];
         }
 
         if(!empty($data['attachment'])) {
