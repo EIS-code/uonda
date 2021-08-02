@@ -35,6 +35,10 @@
                         <td> {!! html_entity_decode($promotion->body) !!} </td>
                     </tr>
                     <tr>
+                        <th> Short Body </th>
+                        <td> {!! html_entity_decode($promotion->short_body) !!} </td>
+                    </tr>
+                    <tr>
                         <th> Voucher Code </th>
                         <td> {{ $promotion->voucher_code }} </td>
                     </tr>

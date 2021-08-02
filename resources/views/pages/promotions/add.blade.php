@@ -40,6 +40,17 @@
                 </div>
             </div>
             <div class="form-group">
+                <label for="short_body">Short Body</label>
+                <div>
+                    <textarea type="text" class="form-control @error('short_body') is-invalid @enderror" id="short_body" name="short_body" placeholder="Short Body">{{ old('short_body') }}</textarea>
+                    @error('short_body')
+                        <em class="error invalid-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </em>
+                    @enderror
+                </div>
+            </div>
+            <div class="form-group">
                 <label for="voucher_code">Voucher Code</label>
                 <div>
                     <input type="text" class="form-control @error('voucher_code') is-invalid @enderror" id="voucher_code" name="voucher_code" placeholder="Voucher Code" value="{{ old('voucher_code') }}"/>
@@ -99,6 +110,7 @@
     
     $(document).ready(function() {
         CKEDITOR.replace( 'body' );
+        CKEDITOR.replace( 'short_body' );
         expiry_date.min = new Date().toISOString().split("T")[0];
 
         const image = document.getElementById('image');

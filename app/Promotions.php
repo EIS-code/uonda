@@ -15,7 +15,7 @@ class Promotions extends Model
      * @var array
      */
     protected $fillable = [
-        'title', 'body', 'photo', 'voucher_code', 'expiry_date'
+        'title', 'body', 'short_body', 'photo', 'voucher_code', 'expiry_date'
     ];
 
     public $allowedExtensions = [
@@ -56,6 +56,7 @@ class Promotions extends Model
             'photo'  => [!empty($requiredFileds['photo']) ? $requiredFileds['photo'] : ['nullable'], 'mimes:' . implode(",", $this->allowedExtensions)],
             'photo' => ['nullable', 'max:10240'],
             'body' => ['required', 'string'],
+            'short_body' => ['required', 'string'],
             'expiry_date' => ['required', 'date', 'after_or_equal:today']
         ];
 
