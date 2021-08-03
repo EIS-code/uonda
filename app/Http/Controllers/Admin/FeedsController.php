@@ -87,9 +87,14 @@ class FeedsController extends Controller
                 }
             }
         }
+
         CreateFeedNotification::dispatch($feed->id)->delay(now()->addSeconds(2));
+
         $request->session()->flash('alert-success', 'Feed successfully created');
-        return redirect()->route('feeds.index');
+
+        echo $save;
+
+        // return redirect()->route('feeds.index');
     }
 
     /**
@@ -170,9 +175,14 @@ class FeedsController extends Controller
                 }
             }
         }
-        $feed->save();
+
+        $isSave = $feed->save();
+
         $request->session()->flash('alert-success', 'Feed successfully updated');
-        return redirect()->route('feeds.index');
+
+        echo $isSave;
+
+        // return redirect()->route('feeds.index');
     }
 
     /**
