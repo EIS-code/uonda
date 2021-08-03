@@ -56,7 +56,10 @@ let modelUsers          = 'users',
 // Global variables.
 var isError                     = false,
     onlineUsers                 = {},
+    stringAppProtocol           = '${APP_PROTOCOL}',
+    appProtocol                 = env.config(envPath).parsed.APP_PROTOCOL,
     appUrl                      = env.config(envPath).parsed.APP_URL,
+    appUrl                      = (appUrl.includes(stringAppProtocol) === true) ? appUrl.replace(stringAppProtocol, appProtocol) : appUrl,
     attachmentUrl               = removeTrailingSlash(appUrl) + '/' + 'storage' + '/' + 'user' + '/' + 'chat' + '/' + 'attachment' + '/',
     listenerIndividual          = 'individualJoin',
     listenerGroup               = 'groupJoin',
@@ -941,12 +944,7 @@ async function sendPushNotificationsGroup(roomId, senderId, message)
             }
         });
     }*/
-console.log(removeTrailingSlash(appUrl) + '/api/user/chat/notification/message/group/send');
-console.log({
-        "room_id": roomId,
-        "message": message,
-        "from_user_id": senderId
-    });
+
     axios.post(removeTrailingSlash(appUrl) + '/api/user/chat/notification/message/group/send', {
         "room_id": roomId,
         "message": message,
