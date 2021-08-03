@@ -941,7 +941,12 @@ async function sendPushNotificationsGroup(roomId, senderId, message)
             }
         });
     }*/
-
+console.log(removeTrailingSlash(appUrl) + '/api/user/chat/notification/message/group/send');
+console.log({
+        "room_id": roomId,
+        "message": message,
+        "from_user_id": senderId
+    });
     axios.post(removeTrailingSlash(appUrl) + '/api/user/chat/notification/message/group/send', {
         "room_id": roomId,
         "message": message,
