@@ -50,7 +50,11 @@
                     <tr>
                         <td>{{ $key  + 1}}</td>
                         <td>{{ ucfirst($constant->key) }}</td>
-                        <td>{{ ucfirst($constant->value) }}</td>
+                        @if ($constant->key == 'TERMS_AND_CONDITIONS' || $constant->key == 'ABOUT_US')
+                            <td>{!! $constant->value !!}</td>
+                        @else
+                            <td>{{ ucfirst($constant->value) }}</td>
+                        @endif
                         <td>{{ Carbon\Carbon::parse($constant->created_at)->format('jS M Y') }}</td>
                         <td class="icons_list">
                             <a href="{{ route('settings.edit', $constant->encrypted_constant_id) }}" title="Edit Settings"><span class="material-icons">edit</span></a> 

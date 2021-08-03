@@ -32,7 +32,12 @@
             <div class="form-group">
                 <label for="title">Value</label>
                 <div>
-                    <input type="text" class="form-control @error('value') is-invalid @enderror" id="value" name="value" placeholder="Value" value="{{ $constant->value }}" />
+                    @if ($constant->key == 'TERMS_AND_CONDITIONS' || $constant->key == 'ABOUT_US')
+                        <textarea class="form-control @error('value') is-invalid @enderror" id="editor-value" name="value" placeholder="Value">{{ old('value', $constant->value) }}</textarea>
+                    @else
+                        <input type="text" class="form-control @error('value') is-invalid @enderror" id="value" name="value" placeholder="Value" value="{{ old('value', $constant->value) }}" />
+                    @endif
+
                     @error('value')
                         <em class="error invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
@@ -54,6 +59,9 @@
 </div>
 @endsection
 @push('custom-scripts')
-<script type="text/javascript">    
-</script>
+    <script type="text/javascript">
+        $(document).ready(function() {
+            CKEDITOR.replace('editor-value');
+        });
+    </script>
 @endpush

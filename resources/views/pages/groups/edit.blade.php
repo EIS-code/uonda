@@ -32,7 +32,7 @@
             <div class="form-group">
                 <label for="description">Description</label>
                 <div>
-                    <textarea type="text" class="form-control @error('description') is-invalid @enderror" id="description" name="description" placeholder="Description" value="{{ old('description') }}">{{ $feed->description }}</textarea>
+                    <textarea class="form-control @error('description') is-invalid @enderror" id="description" name="description" placeholder="Description" value="{{ old('description') }}">{{ $feed->description }}</textarea>
                     @error('description')
                         <em class="error invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>

@@ -17,7 +17,7 @@ class Constant extends BaseModel
     public function validator(array $data)
     {
         return Validator::make($data, [
-            'key'        => ['required', 'string'],
+            'key'        => ['required', 'string', 'unique:' . $this->getTableName() . ',key,' . $this->id],
             'value'      => ['required', 'string'],
             'is_removed' => ['integer', 'in:0,1']
         ]);

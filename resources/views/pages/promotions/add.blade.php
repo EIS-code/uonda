@@ -31,7 +31,7 @@
             <div class="form-group">
                 <label for="body">Body</label>
                 <div>
-                    <textarea type="text" class="form-control @error('body') is-invalid @enderror" id="body" name="body" placeholder="Body" value="{{ old('body') }}">{{ old('body') }}</textarea>
+                    <textarea class="form-control @error('body') is-invalid @enderror" id="body" name="body" placeholder="Body" value="{{ old('body') }}">{{ old('body') }}</textarea>
                     @error('body')
                         <em class="error invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
@@ -42,7 +42,7 @@
             <div class="form-group">
                 <label for="short_body">Short Body</label>
                 <div>
-                    <textarea type="text" class="form-control @error('short_body') is-invalid @enderror" id="short_body" name="short_body" placeholder="Short Body">{{ old('short_body') }}</textarea>
+                    <textarea class="form-control @error('short_body') is-invalid @enderror" id="short_body" name="short_body" placeholder="Short Body">{{ old('short_body') }}</textarea>
                     @error('short_body')
                         <em class="error invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>

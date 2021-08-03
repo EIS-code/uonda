@@ -69,7 +69,7 @@
                 <div class="form-group">
                     <label for="email_body">{{ __('Email Body') }}</label>
                     <div>
-                        <textarea type="text" class="form-control @error('email_body') is-invalid @enderror" id="email_body" name="email_body" placeholder="{{ __('Email Body') }}" value="{{ old('email_body') }}">{{ old('email_body', $emailTemplate->email_body) }}</textarea>
+                        <textarea class="form-control @error('email_body') is-invalid @enderror" id="email_body" name="email_body" placeholder="{{ __('Email Body') }}" value="{{ old('email_body') }}">{{ old('email_body', $emailTemplate->email_body) }}</textarea>
 
                         @error('email_body')
                             <em class="error invalid-feedback" role="alert">
