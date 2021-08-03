@@ -17,9 +17,9 @@
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
-    <link href="https://fonts.googleapis.com/css?family=Nunito" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="{{ asset('css/fonts-nunito-google.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/fonts-material-icons-google.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/select2.min.css') }}" rel="stylesheet" />
     <!-- Styles -->
     <link href="{{ asset('css/main.css') }}" rel="stylesheet">
     <link href="{{ asset('plugins/cropper/cropper.min.css') }}" rel="stylesheet">
@@ -344,7 +344,7 @@
 <script type="text/javascript" src="{{ asset('js/jquery.min.js') }}"></script>
 <!-- <script src="https://cdn.ckeditor.com/4.15.1/standard/ckeditor.js"></script>
 <script src="https://cdn.ckeditor.com/ckeditor5/21.0.0/decoupled-document/ckeditor.js"></script> -->
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+<script src="{{ asset('js/select2.min.js') }}"></script>
 <script type="text/javascript" src="{{ asset('plugins/cropper/cropper.min.js') }}"></script>
 <script type="text/javascript" src="{{ asset('plugins/ckeditor/ckeditor.js') }}"></script>
 <!-- The core Firebase JS SDK is always required and must be listed first -->
