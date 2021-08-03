@@ -33,7 +33,7 @@ class SendChatMessageNotification extends BaseNotification implements ShouldQueu
 
         $fromUser                   = User::find($fromUserId);
 
-        $this->notificationTitle    = MASSAGE_RECEIVED_FROM;
+        $this->notificationTitle    = MASSAGE_RECEIVED_FROM . " ";
 
         $this->notificationTitle    = !empty($fromUser) ? __($this->notificationTitle . $fromUser->fullName) : __($this->notificationTitle);
 
