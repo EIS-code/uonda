@@ -190,25 +190,25 @@ class UserController extends Controller
 
             $user->refresh();
 
-            // For rejection.
-            if ($user->is_accepted == User::IS_REJECTED) {
-                $this->resetFlags($user->id, true);
+            if (!$request->ajax()) {
+                // For rejection.
+                if ($user->is_accepted == User::IS_REJECTED) {
+                    $this->resetFlags($user->id, true);
 
-                $dataPayload['data']                = json_encode(['reason_for_rejection' => !empty($user->reason_for_rejection) ? $user->reason_for_rejection : NULL]);
+                    $dataPayload['data']                = json_encode(['reason_for_rejection' => !empty($user->reason_for_rejection) ? $user->reason_for_rejection : NULL]);
 
-                $dataPayload['notification_type']   = Notification::NOTIFICATION_REJECT_USER;
+                    $dataPayload['notification_type']   = Notification::NOTIFICATION_REJECT_USER;
 
-                UserRejectNotification::dispatch($user->id, $dataPayload)->delay(now()->addSeconds(2));
-            } elseif ($user->is_accepted == User::IS_ACCEPTED) {
-                $dataPayload['data']                = json_encode([]);
+                    UserRejectNotification::dispatch($user->id, $dataPayload)->delay(now()->addSeconds(2));
+                } elseif ($user->is_accepted == User::IS_ACCEPTED) {
+                    $dataPayload['data']                = json_encode([]);
 
-                $dataPayload['notification_type']   = Notification::NOTIFICATION_ACCEPT_USER;
+                    $dataPayload['notification_type']   = Notification::NOTIFICATION_ACCEPT_USER;
 
-                UserAcceptNotification::dispatch($user->id, $dataPayload)->delay(now()->addSeconds(2));
+                    UserAcceptNotification::dispatch($user->id, $dataPayload)->delay(now()->addSeconds(2));
 
-                $user->notify((new WelcomeNotification())->delay(2));
-
-                
+                    $user->notify((new WelcomeNotification())->delay(2));
+                }
             }
 
             $request->session()->flash('alert-success', 'User successfully updated');
