@@ -73,7 +73,7 @@
                         <td>{{ Config::get('globalConstant.status')[$user->current_status] }}</td>
                         <td>{{ Carbon\Carbon::parse($user->created_at)->format('jS M Y') }}</td>
                         <td>
-                            <input type="checkbox" {{ $user->is_enable == 1 ? 'checked' : ''}} data-id="{{ $user->encrypted_user_id }}" class="user_status" value="{{ $user->is_enable }}" data-toggle="toggle" data-onstyle="success" data-offstyle="danger">
+                            <input type="checkbox" {{ $user->is_enable == $user::IS_ENABLED ? 'checked' : ''}} data-id="{{ $user->encrypted_user_id }}" class="user_status" value="{{ $user->is_enable }}" data-toggle="toggle" data-onstyle="success" data-offstyle="danger">
                         </td>
                         <td class="icons_list">
                             @if($user->is_accepted == 0)
@@ -110,6 +110,9 @@
 @push('custom-scripts')
 <script type="text/javascript">
     $(document).ready(function() {
+        let isEnabled  = "{{ auth()->user()::IS_ENABLED }}",
+            isDisabled = "{{ auth()->user()::IS_DISABLED }}";
+
         $('.remove-button').on('click', function() {
             var delete_id = $(this).attr('data-id');
     		if(confirm('Are you sure you want to delete this?')) {
@@ -120,18 +123,21 @@
     		$('#rejectionModal').attr('data-id', $(this).attr('data-id'));
     		$('#rejectionModal').show();
         });
+
         $('.toggle').on('click', function() {
-            var attr = $(this).children('.user_status').attr('checked');
-            if(typeof attr !== typeof undefined && attr !== false) {
-                $(this).children('.user_status').attr('checked', false); ;
-                $(this).children('.user_status').val('0');
+            var attr = $(this).children('.user_status').prop('checked');
+
+            if (attr === false) {
+                /* $(this).children('.user_status').prop('checked', true);
+                $(this).children('.user_status').val('0'); */
                 $(this).children('.user_status').trigger('change');
             } else {
-                $(this).children('.user_status').attr('checked', true); ;
-                $(this).children('.user_status').val('1');
+                /* $(this).children('.user_status').prop('checked', false);
+                $(this).children('.user_status').val('1'); */
                 $(this).children('.user_status').trigger('change');
             }
         });
+
         $('.user_status').on('change', function() {
             var user_id = $(this).attr('data-id');
             if(user_id) {
@@ -140,7 +146,7 @@
                     url: url,
                     type: "POST",
                     headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                    data: { 'user_status' : $(this).val(), '_method' : "PUT"}, 
+                    data: { 'user_status' : ($(this).prop('checked') === true ? isDisabled : isEnabled), '_method' : "PUT"}, 
                     success: function(data) {
                         if(data.status == 200) {
                             location.reload();

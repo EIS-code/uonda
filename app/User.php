@@ -133,6 +133,9 @@ class User extends Authenticatable
     const IS_ACCEPTED = '1';
     const IS_REJECTED = '2';
 
+    const IS_ENABLED  = '1';
+    const IS_DISABLED = '0';
+
     public function __construct(array $attributes = array())
     {
         parent::__construct($attributes);
