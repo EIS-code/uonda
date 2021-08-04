@@ -158,7 +158,7 @@ class LocationController extends BaseController
         ], 200);
     }
 
-    //Function to get the users listing based on city
+    // Function to get the users listing based on city
     public function getUsersBasedOnCity(Request $request) {
         $modal = new User();
 
@@ -223,5 +223,40 @@ class LocationController extends BaseController
             'search_cities_count' => $search_cities_count,
             'data' => $cities
         ], 200);
+    }
+
+    public function getCitiesBasedOnUsers(Request $request, $perPage = 10)
+    {
+        $modal      = new City();
+        $search     = $request->get('search', NULL);
+        $userId     = $request->get('user_id', NULL);
+        $isPaginate = $request->get('is_paginate', FALSE);
+        $pageNumber = $request->get('page_number', 1);
+
+        $cities = $modal->query();
+
+        if (!empty($search)) {
+            $cities->where('name', 'like', '%'.$search.'%');
+        }
+
+        $cities->select('id', 'state_id', 'name')->whereHas('user', function($whereHas) use($userId) {
+            $whereHas->where('id', '!=', $userId);
+        });
+
+        if ($isPaginate) {
+            $cities = $cities->paginate($perPage, ['*'], 'page', $pageNumber);
+        } else {
+            $cities = $cities->get();
+        }
+
+        if (!empty($cities) && !$cities->isEmpty()) {
+            $cities->each(function($cityRow) {
+                $cityRow->setHidden(['encrypted_city_id']);
+            });
+
+            return $this->returnSuccess(__(CITY_FETCHED), $cities);
+        }
+
+        return $this->returnNull();
     }
 }

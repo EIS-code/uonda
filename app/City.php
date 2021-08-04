@@ -52,4 +52,9 @@ class City extends BaseModel
     {
         return $this->hasMany('App\User', 'city_id', 'id');
     }
+
+    public function user()
+    {
+        return $this->hasOne('App\User', 'city_id', 'id');
+    }
 }
