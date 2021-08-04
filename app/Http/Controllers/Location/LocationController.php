@@ -236,7 +236,7 @@ class LocationController extends BaseController
         $cities = $modal->query();
 
         if (!empty($search)) {
-            $cities->where('name', 'like', '%'.$search.'%');
+            $cities->where('name', 'like', $search . '%');
         }
 
         $cities->select('id', 'state_id', 'name')->whereHas('user', function($whereHas) use($userId) {
