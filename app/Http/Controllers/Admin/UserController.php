@@ -140,6 +140,51 @@ class UserController extends Controller
         //
     }
 
+    public function resetFlags(int $id, $isUnlinkDocuments = false)
+    {
+        $user   = User::find($id);
+        $update = false;
+
+        if (!empty($user)) {
+            $user->personal_flag = User::PERSONAL_FLAG_PENDING;
+            $user->school_flag   = User::SCHOOL_FLAG_PENDING;
+            $user->other_flag    = User::OTHER_FLAG_PENDING;
+            $user->school_id     = NULL;
+
+            $update = $user->save();
+
+            if ($update && $isUnlinkDocuments) {
+                $userDocuments = $user->userDocuments;
+
+                if (!empty($userDocuments)) {
+                    $modalUserDocument = new UserDocument();
+
+                    foreach ($modalUserDocument->documentTypes as $documentType => $documentName) {
+                        foreach ($userDocuments as $userDocument) {
+                            if (empty($userDocument->getAttributes()['document'])) {
+                                continue;
+                            }
+
+                            if ($userDocument->document_type == $documentType) {
+                                if (!empty(UserDocument::$documentPaths[$documentType])) {
+                                    $documentPath = storage_path() . '\app\public\\' . UserDocument::$documentPaths[$documentType] . '\\' . $userDocument->getAttributes()['document'];
+
+                                    if (File::exists($documentPath)) {
+                                        File::delete($documentPath);
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    $user->userDocuments()->delete();
+                }
+            }
+        }
+
+        return $update;
+    }
+    
     /**
      * Update the specified resource in storage.
      *
@@ -245,50 +290,5 @@ class UserController extends Controller
         $request->merge(['show_rejected' => false]);
 
         return view('pages.users.blocked-user-listing', compact('block_profiles'));
-    }
-
-    public function resetFlags(int $id, $isUnlinkDocuments = false)
-    {
-        $user   = User::find($id);
-        $update = false;
-
-        if (!empty($user)) {
-            $user->personal_flag = User::PERSONAL_FLAG_PENDING;
-            $user->school_flag   = User::SCHOOL_FLAG_PENDING;
-            $user->other_flag    = User::OTHER_FLAG_PENDING;
-            $user->school_id     = NULL;
-
-            $update = $user->save();
-
-            if ($update && $isUnlinkDocuments) {
-                $userDocuments = $user->userDocuments;
-
-                if (!empty($userDocuments)) {
-                    $modalUserDocument = new UserDocument();
-
-                    foreach ($modalUserDocument->documentTypes as $documentType => $documentName) {
-                        foreach ($userDocuments as $userDocument) {
-                            if (empty($userDocument->getAttributes()['document'])) {
-                                continue;
-                            }
-
-                            if ($userDocument->document_type == $documentType) {
-                                if (!empty(UserDocument::$documentPaths[$documentType])) {
-                                    $documentPath = storage_path() . '\app\public\\' . UserDocument::$documentPaths[$documentType] . '\\' . $userDocument->getAttributes()['document'];
-
-                                    if (File::exists($documentPath)) {
-                                        File::delete($documentPath);
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    $user->userDocuments()->delete();
-                }
-            }
-        }
-
-        return $update;
-    }
+    }    
 }
