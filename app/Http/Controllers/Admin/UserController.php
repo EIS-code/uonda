@@ -201,11 +201,12 @@ class UserController extends Controller
         if(!empty($user)) {
             $data  = $request->all();
         
-            if($request->has('description')) {
+            if ($request->has('description')) {
                 $user->reason_for_rejection = $request->description;
                 $user->is_accepted = 2;
             }
-            if($request->has('is_accepted')) {
+
+            if ($request->has('is_accepted')) {
                 $user->reason_for_rejection = NULL;
                 $user->is_accepted = 1;
 
@@ -235,11 +236,13 @@ class UserController extends Controller
 
             $user->refresh();
 
+            if ($user->is_accepted == User::IS_REJECTED) {
+                $this->resetFlags($user->id, true);
+            }
+
             if (!$request->ajax()) {
                 // For rejection.
                 if ($user->is_accepted == User::IS_REJECTED) {
-                    $this->resetFlags($user->id, true);
-
                     $dataPayload['data']                = json_encode(['reason_for_rejection' => !empty($user->reason_for_rejection) ? $user->reason_for_rejection : NULL]);
 
                     $dataPayload['notification_type']   = Notification::NOTIFICATION_REJECT_USER;
