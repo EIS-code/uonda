@@ -63,10 +63,12 @@ class User extends Authenticatable
 
     const MALE = 'm';
     const FEMALE = 'f';
+    const OTHER = 'o';
 
     public $genders = [
         self::MALE => 'Male',
-        self::FEMALE => 'Female'
+        self::FEMALE => 'Female',
+        self::OTHER => 'Other'
     ];
 
     const PERSONAL_FLAG_DONE = '1';
