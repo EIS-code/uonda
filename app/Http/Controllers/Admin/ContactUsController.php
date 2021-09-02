@@ -30,8 +30,6 @@ class ContactUsController extends Controller
     {
         ContactUs::where('id', decrypt($id))->delete();
 
-        \Session::flash('success', 'Contact Us deleted successfully');
-
-        return redirect(url()->previous());
+        return redirect('contactus')->with('alert-success', 'Contact Us deleted successfully');
     }
 }
