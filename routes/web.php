@@ -72,4 +72,5 @@ Route::group(['middleware' => ['auth']], function(){
             return view('reset_success');
         }
     });
+    Route::resource('contactus', 'Admin\ContactUsController');
 });

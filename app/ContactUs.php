@@ -4,9 +4,13 @@ namespace App;
 
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\File;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ContactUs extends BaseModel
 {
+    use SoftDeletes;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -16,10 +20,17 @@ class ContactUs extends BaseModel
         'text', 'attachment', 'model_name', 'model_id'
     ];
 
+    /**
+     * The attributes that should be appends to model object.
+     *
+     * @var array
+     */
+    protected $appends = ['encrypted_contactus_id'];
+
     public $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif'];
 
     public $fileSystem = 'public';
-    public $attachment = 'contact_us';
+    public $attachmentPath = 'contact_us';
 
     public function validator(array $data, $returnBoolsOnly = false)
     {
@@ -48,8 +59,28 @@ class ContactUs extends BaseModel
             return $value;
         }
 
-        $storageFolderName = (str_ireplace("\\", "/", $this->attachment));
+        $storageFolderName = (str_ireplace("\\", "/", $this->attachmentPath));
+        $fileUrl = $storageFolderName . '/' . $this->id . '/' . $value;
 
-        return Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $this->id . '/' . $value);
+        if (File::exists("storage/" . $fileUrl)) {
+            return Storage::disk($this->fileSystem)->url($fileUrl);
+        }
+
+        return false;
+    }
+
+    public function getCreatedAtAttribute($value)
+    {
+        if (strtotime($value) <= 0) {
+            return $value;
+        }
+
+        return strtotime($value) * 1000;
+    }
+
+    // Get encrypted id.
+    public function getEncryptedContactUsIdAttribute()
+    {
+        return encrypt($this->id);
     }
 }

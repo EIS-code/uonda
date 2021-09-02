@@ -305,6 +305,11 @@
                                         <i class="metismenu-icon pe-7s-medal"></i>Promotions
                                     </a>
                                 </li>
+                                <li class="{{ Request::is('contactus*') ? 'mm-active' : '' }}">
+                                    <a href="{{ route('contactus.index') }}" >
+                                        <i class="metismenu-icon pe-7s-phone"></i>Contact Us
+                                    </a>
+                                </li>
                                 <li class="{{ Request::is('country*') ? 'mm-active' : '' }}">
                                     <a href="{{ route('country.index') }}" >
                                         <i class="metismenu-icon pe-7s-world"></i>Country

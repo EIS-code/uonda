@@ -50,7 +50,7 @@ class ContactUsController extends BaseController
             $id = $create->id;
 
             if (!empty($attachment) && $attachment instanceof UploadedFile) {
-                $folder = $model->attachment . '/' . $id;
+                $folder = $model->attachmentPath . '/' . $id;
 
                 $storeFile = $attachment->storeAs($folder, $fileName, $model->fileSystem);
 
