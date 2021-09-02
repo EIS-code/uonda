@@ -830,6 +830,10 @@ class ChatController extends BaseController
                             
         $chat_room_details->each(function($row){
             $row->chatRoomUsers->each(function($userRow) {
+                if (empty($userRow->Users)) {
+                    return false;
+                }
+
                 $userRow->Users->setHidden(['encrypted_user_id', 'permissions', 'total_notifications', 'total_read_notifications', 'total_unread_notifications']);
             });
         });
@@ -907,6 +911,10 @@ class ChatController extends BaseController
             $userDetails = [];
 
             $row->chatRoomUsers->each(function($userRow) use(&$userDetails) {
+                if (empty($userRow->Users)) {
+                    return false;
+                }
+
                 $userRow->Users->setHidden(['encrypted_user_id', 'permissions', 'total_notifications', 'total_read_notifications', 'total_unread_notifications']);
 
                 if ($userRow->Users->is_blocked == UserBlockProfile::IS_NOT_BLOCK) {
