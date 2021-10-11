@@ -10,8 +10,10 @@ class Country extends BaseModel
 
     protected $fillable = [
         'name',
-        'short_name',
-        'phone_code'
+        'sort_name',
+        'phone_code',
+        'latitude',
+        'longitude'
     ];
 
     protected $appends = ['encrypted_country_id'];
@@ -20,7 +22,7 @@ class Country extends BaseModel
     {
         return Validator::make($data, [
             'name'       => ['required', 'string', 'max:255'],
-            'short_name' => ['required', 'string', 'max:255'],
+            'sort_name' => ['required', 'string', 'max:255'],
             'phone_code' => ['required', 'integer', 'max:255']
         ]);
     }

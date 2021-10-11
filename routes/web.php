@@ -72,5 +72,10 @@ Route::group(['middleware' => ['auth']], function(){
             return view('reset_success');
         }
     });
+
     Route::resource('contactus', 'Admin\ContactUsController');
+
+    Route::get('/import/countries', 'Location\LocationController@importCountries')->name('import.countries');
+    Route::get('/import/states', 'Location\LocationController@importStates')->name('import.states');
+    Route::get('/import/cities', 'Location\LocationController@importCities')->name('import.cities');
 });

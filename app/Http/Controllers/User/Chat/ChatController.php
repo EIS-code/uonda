@@ -1075,4 +1075,9 @@ class ChatController extends BaseController
         $groups = $chat_groups->get();
         return $this->returnSuccess(__(CHAT_GROUPS_FETCHED), $groups);
     }
+
+    public function deleteChat(Request $request)
+    {
+        
+    }
 }

@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Auth;
 use Illuminate\Pagination\LengthAwarePaginator;
+use DB;
+use Carbon\Carbon;
 
 class LocationController extends BaseController
 {
@@ -259,4 +261,103 @@ class LocationController extends BaseController
 
         return $this->returnNull();
     }
+
+    /* public function importCountries()
+    {
+        $results = DB::select("SELECT * FROM `temp_countries`");
+
+        $rows = [];
+
+        $now = Carbon::now();
+
+        foreach ($results as $result) {
+            $rows[] = [
+                'name'       => $result->countryName,
+                'sort_name'  => $result->webCode,
+                'latitude'   => $result->latitude,
+                'longitude'  => $result->longitude,
+                'created_at' => $now
+            ];
+        }
+
+        $chunked = array_chunk($rows, 500);
+
+        foreach ($chunked as $items) {
+            Country::insert($items);
+        }
+    }
+
+    public function importStates()
+    {
+        $results = DB::select("SELECT * FROM `temp_states`");
+
+        $rows = $issuedState = [];
+
+        $now = Carbon::now();
+
+        foreach ($results as $result) {
+            $country = Country::where('sort_name', $result->countryID)->first();
+
+            if (!empty($country)) {
+                $rows[] = [
+                    'id'         => $result->stateID,
+                    'name'       => $result->stateName,
+                    'country_id' => $country->id,
+                    'latitude'   => $result->latitude,
+                    'longitude'  => $result->longitude,
+                    'created_at' => $now
+                ];
+            } else {
+                $issuedState[] = $result;
+            }
+        }
+
+        if (!empty($issuedState)) {
+            echo "Unfounded country list here for state", PHP_EOL;
+
+            dd($issuedState);
+        }
+
+        $chunked = array_chunk($rows, 500);
+
+        foreach ($chunked as $items) {
+            State::insert($items);
+        }
+    }
+
+    public function importCities()
+    {
+        ini_set('memory_limit', '2048M');
+        ini_set('max_execution_time', '120');
+
+        $results = DB::select("SELECT * FROM `temp_citiess`");
+
+        $rows = $issuedCity = [];
+
+        $now = Carbon::now();
+
+        foreach ($results as $result) {
+            $state = State::where('id', $result->stateID)->first();
+
+            if (!empty($state)) {
+                $rows[] = [
+                    'name'       => $result->cityName,
+                    'state_id'   => $state->id,
+                    'latitude'   => $result->latitude,
+                    'longitude'  => $result->longitude,
+                    'created_at' => $now
+                ];
+            } else {
+                $issuedCity[] = $result;
+            }
+        }
+
+        dd($issuedCity);
+
+        $chunked = array_chunk($rows, 500);
+
+        foreach ($chunked as $items) {
+            City::insert($items);
+        }
+    } */
 }
