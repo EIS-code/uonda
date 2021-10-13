@@ -94,6 +94,7 @@ io.on('connection', function (socket) {
             }
 
             let sqlSetOnline = "UPDATE " + modelUsers + " SET `is_online` = '1', `socket_id` = '" + socket.id + "' WHERE `id` = '" + userId + "'";
+            console.log(sqlSetOnline);
             connection.query(sqlSetOnline, function (err11, setOnline) {
                 if (err11) {
                     io.emit('error', {error: err11.message});
