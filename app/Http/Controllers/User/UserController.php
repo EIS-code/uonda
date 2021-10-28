@@ -981,8 +981,7 @@ class UserController extends BaseController
             $requiredFileds = [
                 'country_id'      => ['required'],
                 'city_id'  => ['required'],
-                'origin_country_id'      => ['required'],
-                'origin_city_id'  => ['required'],
+                'origin_country_id'      => ['required']
             ];
 
             foreach ($data as $field => $value) {
