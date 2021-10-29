@@ -39,6 +39,8 @@ class SettingController extends Controller
      */
     public function store(Request $request)
     {
+        return false;
+
         $constant = new Constant();
         $data  = $request->all();
         // $data['is_removed'] = 0;

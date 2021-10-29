@@ -32,7 +32,7 @@
             <div class="form-group">
                 <label for="title">Value</label>
                 <div>
-                    @if ($constant->key == 'TERMS_AND_CONDITIONS' || $constant->key == 'ABOUT_US')
+                    @if ($constant->key == 'TERMS_AND_CONDITIONS' || $constant->key == 'ABOUT_US' || $constant->key == 'APP_PRIVACY_POLICY')
                         <textarea class="form-control @error('value') is-invalid @enderror" id="editor-value" name="value" placeholder="Value">{{ old('value', $constant->value) }}</textarea>
                     @else
                         <input type="text" class="form-control @error('value') is-invalid @enderror" id="value" name="value" placeholder="Value" value="{{ old('value', $constant->value) }}" />

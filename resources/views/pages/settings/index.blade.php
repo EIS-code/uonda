@@ -11,7 +11,7 @@
             </div>
         </div>
         
-        <div class="page-title-actions">
+        <!-- <div class="page-title-actions">
             <div class="d-inline-block dropdown">
                 <a href="{{ route('settings.create') }}">
                 <button type="button" class="btn-shadow btn btn-info">
@@ -22,7 +22,7 @@
                 </button>
                 </a>
             </div>
-        </div>
+        </div> -->
     </div>
 </div> 
 @foreach (['danger', 'warning', 'success', 'info'] as $msg)
@@ -50,7 +50,7 @@
                     <tr>
                         <td>{{ $key  + 1}}</td>
                         <td>{{ ucfirst($constant->key) }}</td>
-                        @if ($constant->key == 'TERMS_AND_CONDITIONS' || $constant->key == 'ABOUT_US')
+                        @if ($constant->key == 'TERMS_AND_CONDITIONS' || $constant->key == 'ABOUT_US' || $constant->key == 'APP_PRIVACY_POLICY')
                             <td>{!! $constant->value !!}</td>
                         @else
                             <td>{{ ucfirst($constant->value) }}</td>

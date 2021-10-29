@@ -24,4 +24,13 @@ class ConstantController extends BaseController
 
         return $this->returnNull();
     }
+
+    public function appPrivacyPolicy()
+    {
+        if (defined('APP_PRIVACY_POLICY')) {
+            return $this->returnSuccess(__(APP_PRIVACY_POLICY_FOUND), APP_PRIVACY_POLICY);
+        }
+
+        return $this->returnNull();
+    }
 }

@@ -457,6 +457,12 @@
             "type": "1"
         },
         {
+            "key": "APP_PRIVACY_POLICY_FOUND",
+            "english_text": "App privacy policy found successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
             "key": "SCHOOLS_FOUND",
             "english_text": "Schools found successfully!",
             "show_text": "",

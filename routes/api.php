@@ -144,6 +144,7 @@ Route::group(['middleware' => ['web.auth.api']], function () {
     Route::group(['prefix' => 'constant', 'namespace' => 'Constant'], function () {
         Route::get('/user/terms_and_conditions', 'ConstantController@termsAndConditions')->name('user.constant.terms_and_conditions');
         Route::get('/user/about_us', 'ConstantController@aboutUs')->name('user.constant.about_us');
+        Route::get('/user/app/privacy/policy', 'ConstantController@appPrivacyPolicy')->name('user.constant.app_privacy_policy');
     });
 
     Route::group(['prefix' => 'school', 'namespace' => 'School'], function () {
