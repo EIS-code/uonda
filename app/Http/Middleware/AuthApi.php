@@ -29,7 +29,8 @@ class AuthApi
         'api/user/chat/send',
         'api/user/chat/notification/message/send',
         'api/user/chat/notification/message/group/send',
-        'api/constant/user/terms_and_conditions'
+        'api/constant/user/terms_and_conditions',
+        'api/constant/user/app/privacy/policy'
     ];
 
     /**
