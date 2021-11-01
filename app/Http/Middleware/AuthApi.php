@@ -28,7 +28,8 @@ class AuthApi
         'api/user/password/reset',
         'api/user/chat/send',
         'api/user/chat/notification/message/send',
-        'api/user/chat/notification/message/group/send'
+        'api/user/chat/notification/message/group/send',
+        'api/constant/user/terms_and_conditions'
     ];
 
     /**
