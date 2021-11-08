@@ -3,6 +3,12 @@
  * For licensing, see https://ckeditor.com/legal/ckeditor-oss-license
  */
 
+CKEDITOR.stylesSet.add('api_padding',
+[
+    // Inline styles
+    { name : 'Padding Left Style', element : 'p', attributes : { 'style' : 'padding-left:-10px' } }
+]);
+
 CKEDITOR.editorConfig = function( config ) {
 	// Define changes to default configuration here.
 	// For complete reference see:
@@ -40,5 +46,7 @@ CKEDITOR.editorConfig = function( config ) {
 
 	// config.extraAllowedContent = '*(*)';
 
-	config.extraAllowedContent = '*(*);*{*}';
+	config.extraAllowedContent = '*(*);*{*};style';
+
+	config.stylesSet = 'api_padding';
 };
