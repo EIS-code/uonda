@@ -240,7 +240,7 @@ class UserController extends Controller
                 $this->resetFlags($user->id, true);
             }
 
-            if (!$request->ajax()) {
+            if (true || !$request->ajax()) {
                 // For rejection.
                 if ($user->is_accepted == User::IS_REJECTED) {
                     $dataPayload['data']                = json_encode(['reason_for_rejection' => !empty($user->reason_for_rejection) ? $user->reason_for_rejection : NULL]);
