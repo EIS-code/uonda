@@ -488,7 +488,7 @@ class UserController extends BaseController
             return $this->returnError(__('Oauth uid is incorrect.'));
         }
 
-        $isUserNamePasswordLogin = (!empty($userName) && !empty($password) || empty($oauthId));
+        $isUserNamePasswordLogin = ((!empty($userName) && !empty($password)) || empty($oauthId));
         $isOauthLogin            = (!$isUserNamePasswordLogin && (empty($userName) || empty($password)) && !empty($oauthId));
 
         if ($isUserNamePasswordLogin) {
