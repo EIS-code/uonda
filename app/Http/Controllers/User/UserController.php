@@ -494,7 +494,8 @@ class UserController extends BaseController
         if ($isUserNamePasswordLogin) {
             $user = $model->where('email', $userName)->first();
         } elseif ($isOauthLogin) {
-            $user = $model->where('oauth_uid', $oauthId)->first();
+            $user = $model->where('oauth_uid', $oauthId)->toSql();
+            dd($user);
         }
 
         $check = false;
