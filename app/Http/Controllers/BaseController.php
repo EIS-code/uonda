@@ -137,4 +137,9 @@ class BaseController extends Controller
             return json_decode($request->getBody(), true);
         }
     }
+
+    public function privacyPolicy()
+    {
+        return view('pages.privacy-policy.index');
+    }
 }

@@ -79,3 +79,5 @@ Route::group(['middleware' => ['auth']], function(){
     Route::get('/import/states', 'Location\LocationController@importStates')->name('import.states');
     Route::get('/import/cities', 'Location\LocationController@importCities')->name('import.cities');
 });
+
+Route::get('/privacy-policy', 'BaseController@privacyPolicy')->name('privacy.policy');

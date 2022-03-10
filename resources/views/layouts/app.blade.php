@@ -143,7 +143,7 @@
             </div>
         </div>
     @endauth
-    <div class="app-main">
+    <div class="app-main" style="@guest padding-top: 0px !important; @endguest">
         @auth
             <div class="app-sidebar sidebar-shadow">
                 <div class="app-header__logo">
@@ -323,6 +323,11 @@
                                 <li class="{{ Request::is('city*') ? 'mm-active' : '' }}">
                                     <a href="{{ route('city.index') }}" >
                                         <i class="metismenu-icon pe-7s-global"></i>City
+                                    </a>
+                                </li>
+                                <li class="{{ Request::is('privacy*') ? 'mm-active' : '' }}">
+                                    <a href="{{ route('privacy.policy') }}" >
+                                        <i class="metismenu-icon pe-7s-shield"></i>{{ __('Privacy Policy') }}
                                     </a>
                                 </li>
                             </li>
