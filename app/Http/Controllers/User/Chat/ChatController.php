@@ -526,7 +526,7 @@ class ChatController extends BaseController
             $storageFolderNameUser     = (str_ireplace("\\", "/", $model->profile));
             $storageFolderNameUserIcon = (str_ireplace("\\", "/", $model->profileIcon));
             $dbReceiverId              = collect($records)->pluck('receiver_id');
-
+dd($receiverUser->getAttribute('profile'));
             // Get receiver user.
             $receiverUsers = $model::select('id', 'profile', 'profile_icon')->whereIn('id', $dbReceiverId)->get()->keyBy('id');
 
@@ -546,13 +546,13 @@ class ChatController extends BaseController
                 }
 
                 if (!empty($receiverUser) && !empty($receiverUser->profile)) {
-                    $record->profile = $receiverUser->profile;
+                    $record->profile = Storage::disk($model->fileSystem)->url($storageFolderNameUser . '/' . $receiverUser->getAttribute('profile'));
                 } else {
                     $record->profile = NULL;
                 }
 
                 if (!empty($receiverUser) && !empty($receiverUser->profile_icon)) {
-                    $record->profile_icon = $receiverUser->profile_icon;
+                    $record->profile_icon = Storage::disk($model->fileSystem)->url($storageFolderNameUserIcon . '/' . $receiverUser->profile_icon);
                 } else {
                     $record->profile_icon = NULL;
                 }
