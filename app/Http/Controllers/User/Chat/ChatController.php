@@ -545,13 +545,13 @@ class ChatController extends BaseController
                     $record->attachment = Storage::disk($modelChatAttachment->fileSystem)->url($storageFolderName . '/' . $record->id . '/' . $record->attachment);
                 }
 
-                if (!empty($receiverUser) && !$receiverUser->isEmpty() && !empty($receiverUser->profile)) {
+                if (!empty($receiverUser) && !empty($receiverUser->profile)) {
                     $record->profile = Storage::disk($model->fileSystem)->url($storageFolderNameUser . '/' . $receiverUser->profile);
                 } else {
                     $record->profile = NULL;
                 }
 
-                if (!empty($receiverUser) && !$receiverUser->isEmpty() && !empty($receiverUser->profile_icon)) {
+                if (!empty($receiverUser) && !empty($receiverUser->profile_icon)) {
                     $record->profile_icon = Storage::disk($model->fileSystem)->url($storageFolderNameUserIcon . '/' . $receiverUser->profile_icon);
                 } else {
                     $record->profile_icon = NULL;
