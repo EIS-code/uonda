@@ -528,7 +528,7 @@ class ChatController extends BaseController
             $dbReceiverId              = collect($records)->pluck('receiver_id');
 
             // Get receiver user.
-            $receiverUsers = $model::whereIn('id', $dbReceiverId)->get()->pluck('id');
+            $receiverUsers = $model::select('profile', 'profile_icon')->whereIn('id', $dbReceiverId)->get()->keyBy('id');
             dd($receiverUsers);
 
             foreach ($records as &$record) {
