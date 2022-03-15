@@ -522,7 +522,7 @@ class ChatController extends BaseController
         }
 
         if (!empty($records)) {
-            dd($records->pluck('receiver_id'));
+            dd($records);
             $storageFolderName         = (str_ireplace("\\", "/", $modelChatAttachment->folder));
             $storageFolderNameUser     = (str_ireplace("\\", "/", $model->profile));
             $storageFolderNameUserIcon = (str_ireplace("\\", "/", $model->profileIcon));
