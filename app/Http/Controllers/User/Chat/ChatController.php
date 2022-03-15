@@ -522,11 +522,14 @@ class ChatController extends BaseController
         }
 
         if (!empty($records)) {
-            dd(collect($records)->pluck('receiver_id'));
             $storageFolderName         = (str_ireplace("\\", "/", $modelChatAttachment->folder));
             $storageFolderNameUser     = (str_ireplace("\\", "/", $model->profile));
             $storageFolderNameUserIcon = (str_ireplace("\\", "/", $model->profileIcon));
-            $dbReceiverId              = $record->receiver_id;
+            $dbReceiverId              = collect($records)->pluck('receiver_id');
+
+            // Get receiver user.
+            $receiverUsers = $model::whereIn('id', $dbReceiverId);
+            dd($receiverUsers);
 
             foreach ($records as &$record) {
                 if (!empty($record->created_at) && strtotime($record->created_at) > 0) {
