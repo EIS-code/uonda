@@ -540,7 +540,7 @@ class ChatController extends BaseController
                 }
 
                 if (!empty($record->profile)) {
-                    dd($record->profile);
+                    dd($record);
                     $record->profile = Storage::disk($model->fileSystem)->url($storageFolderNameUser . '/' . $record->profile);
                 }
 
