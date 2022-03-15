@@ -529,7 +529,7 @@ class ChatController extends BaseController
 
             // Get receiver user.
             $receiverUsers = $model::select('id', 'profile', 'profile_icon')->whereIn('id', $dbReceiverId)->get()->keyBy('id');
-            dd($receiverUsers);
+            dd($receiverUsers[6]);
 
             foreach ($records as &$record) {
                 if (!empty($record->created_at) && strtotime($record->created_at) > 0) {
