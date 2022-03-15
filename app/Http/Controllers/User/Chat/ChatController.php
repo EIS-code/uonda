@@ -531,8 +531,7 @@ class ChatController extends BaseController
             $receiverUsers = $model::select('id', 'profile', 'profile_icon')->whereIn('id', $dbReceiverId)->get()->keyBy('id');
 
             foreach ($records as &$record) {
-                $receiverUser = (!empty($receiverUsers[$record->receiver_id])) ? $receiverUsers[$record->receiver_id] : collect([]);
-                dd($receiverUser);
+                $receiverUser = (!empty($receiverUsers[$record->receiver_id])) ? $receiverUsers[$record->receiver_id] : [];
 
                 if (!empty($record->created_at) && strtotime($record->created_at) > 0) {
                     $record->created_at = strtotime($record->created_at) * 1000;
@@ -546,13 +545,13 @@ class ChatController extends BaseController
                     $record->attachment = Storage::disk($modelChatAttachment->fileSystem)->url($storageFolderName . '/' . $record->id . '/' . $record->attachment);
                 }
 
-                if ($receiverUser && !empty($receiverUser->profile)) {
+                if (!$receiverUser->isEmpty() && !empty($receiverUser->profile)) {
                     $record->profile = Storage::disk($model->fileSystem)->url($storageFolderNameUser . '/' . $receiverUser->profile);
                 } else {
                     $record->profile = NULL;
                 }
 
-                if ($receiverUser && !empty($receiverUser->profile_icon)) {
+                if (!$receiverUser->isEmpty() && !empty($receiverUser->profile_icon)) {
                     $record->profile_icon = Storage::disk($model->fileSystem)->url($storageFolderNameUserIcon . '/' . $receiverUser->profile_icon);
                 } else {
                     $record->profile_icon = NULL;
