@@ -526,7 +526,7 @@ class ChatController extends BaseController
             $storageFolderNameUser     = (str_ireplace("\\", "/", $model->profile));
             $storageFolderNameUserIcon = (str_ireplace("\\", "/", $model->profileIcon));
             $dbReceiverId              = collect($records)->pluck('receiver_id');
-dd($receiverUser->getAttribute('profile'));
+dd($receiverUser->getAttributes('profile'));
             // Get receiver user.
             $receiverUsers = $model::select('id', 'profile', 'profile_icon')->whereIn('id', $dbReceiverId)->get()->keyBy('id');
 
