@@ -326,7 +326,7 @@ class ChatController extends BaseController
         if (!empty($records)) {
             $userIds = $records->pluck('sender_id');
             $userIds = $userIds->merge($records->pluck('receiver_id'));
-            $users   = $model::selectRaw('*, profile as profile_image, profile_icon as profile_image_icon')->whereIn('id', $userIds->unique())->where('is_accepted' , 1)->get()->keyBy('id');
+            $users   = $model::select('id, profile, profile_icon')->whereIn('id', $userIds->unique())->where('is_accepted' , 1)->get()->keyBy('id');
 
             $records->map(function($data) use($users, $userId, $storageFolderName, $storageFolderNameIcon, $model, &$returnDatas) {
 
@@ -354,8 +354,8 @@ class ChatController extends BaseController
                         'chat_id'           => $data->chat_id,
                         'chat_room_id'      => $data->chat_room_id,
                         'name'              => $user->name,
-                        'profile'           => !empty($user->profile_image) ? $user->profile_image : NULL,
-                        'profile_icon'      => !empty($user->profile_image_icon) ? $user->profile_image_icon : NULL,
+                        'profile'           => !empty($user->getAttribute('profile')) ? Storage::disk($user->fileSystem)->url($storageFolderName . '/' . $user->getAttribute('profile')) : NULL,
+                        'profile_icon'      => !empty($user->getAttribute('profile_icon')) ? Storage::disk($user->fileSystem)->url($storageFolderNameIcon . '/' . $user->getAttribute('profile_icon')) : NULL,
                         'recent_time'       => strtotime($data->updated_at) * 1000,
                         'recent_message'    => $data->recent_message,
                         'is_group'          => $data->is_group,
@@ -528,7 +528,7 @@ class ChatController extends BaseController
             $dbReceiverId              = collect($records)->pluck('receiver_id');
 
             // Get receiver user.
-            $receiverUsers = $model::select('id', 'profile', 'profile_icon')->whereIn('id', $dbReceiverId)->get()->keyBy('id');
+            $receiverUsers = $model::select('id', 'profile', 'profile_icon')->whereIn('id', $dbReceiverId)->where('is_accepted' , 1)->get()->keyBy('id');
 
             foreach ($records as &$record) {
                 $receiverUser = (!empty($receiverUsers[$record->receiver_id])) ? $receiverUsers[$record->receiver_id] : [];
