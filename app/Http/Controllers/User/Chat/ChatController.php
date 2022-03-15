@@ -546,13 +546,13 @@ class ChatController extends BaseController
                 }
 
                 if (!empty($receiverUser) && !empty($receiverUser->profile)) {
-                    $record->profile = Storage::disk($model->fileSystem)->url($storageFolderNameUser . '/' . $receiverUser->profile);
+                    $record->profile = $receiverUser->profile;
                 } else {
                     $record->profile = NULL;
                 }
 
                 if (!empty($receiverUser) && !empty($receiverUser->profile_icon)) {
-                    $record->profile_icon = Storage::disk($model->fileSystem)->url($storageFolderNameUserIcon . '/' . $receiverUser->profile_icon);
+                    $record->profile_icon = $receiverUser->profile_icon;
                 } else {
                     $record->profile_icon = NULL;
                 }
