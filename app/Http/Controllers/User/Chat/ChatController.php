@@ -532,7 +532,7 @@ class ChatController extends BaseController
 
             foreach ($records as &$record) {
                 $receiverUser = (!empty($receiverUsers[$record->receiver_id]));
-                dd($receiverUser->profile);
+                dd($receiverUser);
 
                 if (!empty($record->created_at) && strtotime($record->created_at) > 0) {
                     $record->created_at = strtotime($record->created_at) * 1000;
