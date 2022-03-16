@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\User\iOSReceipt;
 
 /*
 |--------------------------------------------------------------------------
@@ -138,6 +139,12 @@ Route::group(['middleware' => ['web.auth.api']], function () {
             /* Route::group(['prefix' => 'remove'], function () {
                 Route::post('/', 'ChatController@deleteChat')->name('user.chat.remove.chat');
             }); */
+        });
+
+        Route::group(['prefix' => 'verify'], function () {
+            Route::group(['prefix' => 'in-app-purchase'], function () {
+                Route::post('/ios', [iOSReceipt::class, '__invoke'])->name('user.verify.iap.ios');
+            });
         });
     });
 

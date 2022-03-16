@@ -539,6 +539,18 @@
             "english_text": "Notification details get successfully!",
             "show_text": "",
             "type": "1"
+        },
+        {
+            "key": "USER_VERIFY_PURCHASE",
+            "english_text": "In app purchase verified!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "USER_UNVERIFY_PURCHASE",
+            "english_text": "In app purchase is not verified!",
+            "show_text": "",
+            "type": "1"
         }
     ]
 }
