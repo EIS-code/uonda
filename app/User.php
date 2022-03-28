@@ -30,7 +30,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name', 'user_name', 'sur_name', 'email', 'password', 'referral_code', 'current_location', 'nation', 'gender', 'birthday', 'short_bio', 'school_id', 'state_id', 'country_id', 'city_id', 'origin_country_id', 'origin_city_id',
-        'current_status', 'company', 'job_position', 'university', 'field_of_study', 'profile', 'profile_icon', 'personal_flag', 'school_flag', 'other_flag', 'latitude', 'longitude', 'device_token', 'device_type', 'app_version', 'oauth_uid', 'oauth_provider', 'is_online'
+        'current_status', 'company', 'job_position', 'university', 'field_of_study', 'profile', 'profile_icon', 'personal_flag', 'school_flag', 'other_flag', 'free_for_use_flag', 'payment_flag', 'latitude', 'longitude', 'device_token', 'device_type', 'app_version', 'oauth_uid', 'oauth_provider', 'is_online'
     ];
 
     /**
@@ -39,7 +39,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token', 'personal_flag', 'school_flag', 'other_flag',
+        'password', 'remember_token', 'personal_flag', 'school_flag', 'other_flag', 'free_for_use_flag', 'payment_flag',
         // 'user_name',
         // 'email',
         'created_at', 'updated_at', 'oauth_uid', 'oauth_provider', 'notifications',
@@ -80,6 +80,12 @@ class User extends Authenticatable
     const OTHER_FLAG_DONE = '1';
     const OTHER_FLAG_PENDING = '0';
 
+    const FREE_FOR_USE_FLAG_YES = '1';
+    const FREE_FOR_USE_FLAG_NO = '0';
+
+    const PAYMENT_FLAG_DONE = '1';
+    const PAYMENT_FLAG_PENDING = '0';
+
     public $personalFlags = [
         self::PERSONAL_FLAG_DONE => 'Done',
         self::PERSONAL_FLAG_PENDING => 'Pending'
@@ -93,6 +99,16 @@ class User extends Authenticatable
     public $otherFlags = [
         self::OTHER_FLAG_DONE => 'Done',
         self::OTHER_FLAG_PENDING => 'Pending'
+    ];
+
+    public $freeForUseFlags = [
+        self::FREE_FOR_USE_FLAG_YES => 'Yes',
+        self::FREE_FOR_USE_FLAG_NO => 'Nope'
+    ];
+
+    public $paymentFlags = [
+        self::PAYMENT_FLAG_DONE => 'Done',
+        self::PAYMENT_FLAG_PENDING => 'Not Done'
     ];
 
     public $allowedProfileExtensions = ['jpg', 'jpeg', 'png', 'gif'];
@@ -208,6 +224,8 @@ class User extends Authenticatable
             'personal_flag'    => array_merge(['nullable', 'in:' . implode(",", array_keys($this->personalFlags))], !empty($requiredFileds['personal_flag']) ? $requiredFileds['personal_flag'] : ['nullable']),
             'school_flag'      => array_merge(['nullable', 'in:' . implode(",", array_keys($this->schoolFlags))], !empty($requiredFileds['school_flag']) ? $requiredFileds['school_flag'] : ['nullable']),
             'other_flag'       => array_merge(['nullable', 'in:' . implode(",", array_keys($this->otherFlags))], !empty($requiredFileds['other_flag']) ? $requiredFileds['other_flag'] : ['nullable']),
+            'free_for_use_flag' => array_merge(['nullable', 'in:' . implode(",", array_keys($this->freeForUseFlags))], !empty($requiredFileds['free_for_use_flag']) ? $requiredFileds['free_for_use_flag'] : ['nullable']),
+            'payment_flag'       => array_merge(['nullable', 'in:' . implode(",", array_keys($this->paymentFlags))], !empty($requiredFileds['payment_flag']) ? $requiredFileds['payment_flag'] : ['nullable']),
             'latitude'        => array_merge(['nullable', 'between:0,99.99'], !empty($requiredFileds['latitude']) ? $requiredFileds['latitude'] : ['nullable']),
             'longitude'       => array_merge(['nullable', 'between:0,99.99'], !empty($requiredFileds['longitude']) ? $requiredFileds['longitude'] : ['nullable']),
             'device_token'    => array_merge(['string'], !empty($requiredFileds['device_token']) ? $requiredFileds['device_token'] : ['nullable']),

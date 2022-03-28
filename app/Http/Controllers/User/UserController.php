@@ -585,7 +585,7 @@ class UserController extends BaseController
         $userId     = (int)$data['user_id'];
 
         $getUser    = function() use($userId, $model) {
-            return $model::select('id', 'device_token', 'personal_flag', 'school_flag', 'other_flag' , 'origin_country_id' , 'is_accepted', 'reason_for_rejection')->with('userDocuments')->find($userId);
+            return $model::select('id', 'device_token', 'personal_flag', 'school_flag', 'other_flag', 'free_for_use_flag', 'payment_flag' , 'origin_country_id' , 'is_accepted', 'reason_for_rejection')->with('userDocuments')->find($userId);
         };
 
         $user   = $getUser();
@@ -601,7 +601,7 @@ class UserController extends BaseController
 
             $user = $getUser();
 
-            $user->makeVisible(['personal_flag', 'school_flag', 'other_flag', 'origin_country_id' , 'is_accepted']);
+            $user->makeVisible(['personal_flag', 'school_flag', 'other_flag', 'free_for_use_flag', 'payment_flag', 'origin_country_id' , 'is_accepted']);
 
             // $user->makeHidden(['notifications']);
 

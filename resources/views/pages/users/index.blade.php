@@ -60,6 +60,11 @@
                     <a href="{{Helper::generateURLWithFilter(route('users.index', $type),1,'created_at',(request('sortOrder','asc')=='asc'?'desc':'asc'),request('search'))}}">Registered On {!! Helper::sortingDesign('created_at',request('sortBy'),request('sortOrder')) !!}</a>
                 </th>
                 <th>User Status</th>
+                @if ($type == 'accepted')
+                    <th>
+                        Free For Use
+                    </th>
+                @endif
                 <th>Action</th>
             </tr>
             </thead>
@@ -75,6 +80,11 @@
                         <td>
                             <input type="checkbox" {{ $user->is_enable == $user::IS_ENABLED ? 'checked' : ''}} data-id="{{ $user->encrypted_user_id }}" class="user_status" value="{{ $user->is_enable }}" data-toggle="toggle" data-onstyle="success" data-offstyle="danger">
                         </td>
+                        @if ($type == 'accepted')
+                            <td>
+                                <input type="checkbox" {{ $user->free_for_use_flag == $user::FREE_FOR_USE_FLAG_YES ? 'checked' : ''}} data-id="{{ $user->encrypted_user_id }}" class="free_for_use_flag" value="{{ $user->free_for_use_flag }}" data-toggle="toggle" data-onstyle="success" data-offstyle="danger">
+                            </td>
+                        @endif
                         <td class="icons_list">
                             @if($user->is_accepted == 0)
                                 <a href="javascript:void(0)" class="acceptUser" data-id="{{ $user->encrypted_user_id }}" title="Accept User"><span class="material-icons">done</span></a> 
@@ -111,7 +121,9 @@
 <script type="text/javascript">
     $(document).ready(function() {
         let isEnabled  = "{{ auth()->user()::IS_ENABLED }}",
-            isDisabled = "{{ auth()->user()::IS_DISABLED }}";
+            isDisabled = "{{ auth()->user()::IS_DISABLED }}",
+            ffuFlagYes = "{{ auth()->user()::FREE_FOR_USE_FLAG_YES }}",
+            ffuFlagNo  = "{{ auth()->user()::FREE_FOR_USE_FLAG_NO }}";
 
         $('.remove-button').on('click', function() {
             var delete_id = $(this).attr('data-id');
@@ -125,16 +137,25 @@
         });
 
         $('.toggle').on('click', function() {
-            var attr = $(this).children('.user_status').prop('checked');
+            let attr  = $(this).children('.user_status').prop('checked'),
+                attr1 = $(this).children('.free_for_use_flag').prop('checked');
+
+            if (typeof attr !== typeof undefined) {
+                $(this).children('.user_status').trigger('change')
+            }
+
+            if (typeof attr1 !== typeof undefined) {
+                $(this).children('.free_for_use_flag').trigger('change')
+            }
 
             if (attr === false) {
                 /* $(this).children('.user_status').prop('checked', true);
                 $(this).children('.user_status').val('0'); */
-                $(this).children('.user_status').trigger('change');
+                // $(this).children('.user_status').trigger('change');
             } else {
                 /* $(this).children('.user_status').prop('checked', false);
                 $(this).children('.user_status').val('1'); */
-                $(this).children('.user_status').trigger('change');
+                // $(this).children('.user_status').trigger('change');
             }
         });
 
@@ -159,7 +180,32 @@
                     }
                 });
             }
-        })
+        });
+
+        $('.free_for_use_flag').on('change', function() {
+            let userId = $(this).attr('data-id');
+
+            if (userId) {
+                var url = " {{ url('users') }}/" + userId;
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    data: { 'free_for_use_flag' : ($(this).prop('checked') === true ? ffuFlagNo : ffuFlagYes), '_method' : "PUT"}, 
+                    success: function(data) {
+                        if(data.status == 200) {
+                            location.reload();
+                        }
+                    },
+                    error: function(error) {
+                        if(error.status == 400) {
+                            alert(error.responseJSON.error);
+                        }
+                    }
+                });
+            }
+        });
+
         $('.acceptUser').on('click', function() {
             var user_id = $(this).attr('data-id');
             if(user_id) {

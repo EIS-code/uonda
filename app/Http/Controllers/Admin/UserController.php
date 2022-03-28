@@ -149,6 +149,7 @@ class UserController extends Controller
             $user->personal_flag = User::PERSONAL_FLAG_PENDING;
             $user->school_flag   = User::SCHOOL_FLAG_PENDING;
             $user->other_flag    = User::OTHER_FLAG_PENDING;
+            $user->free_for_use_flag = User::FREE_FOR_USE_FLAG_NO;
             $user->school_id     = NULL;
 
             $update = $user->save();
@@ -228,8 +229,13 @@ class UserController extends Controller
                     return response()->json(['success' => false, 'status' => 200], 200);
                 }
             }
-            if($request->has('user_status')) {
+
+            if ($request->has('user_status')) {
                 $user->is_enable = $request->user_status;
+            }
+
+            if ($request->has('free_for_use_flag')) {
+                $user->free_for_use_flag = $request->free_for_use_flag;
             }
 
             $user->save();
