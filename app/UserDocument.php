@@ -114,7 +114,7 @@ class UserDocument extends BaseModel
             $url = Storage::disk($this->fileSystem)->url($storageFolderName . '/' . $value);
 
             if (!empty($url)) {
-                $url = removeHttp($url);
+                // $url = removeHttp($url);
 
                 return $url;
             }
