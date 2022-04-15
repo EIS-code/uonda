@@ -551,6 +551,12 @@
             "english_text": "In app purchase is not verified!",
             "show_text": "",
             "type": "1"
+        },
+        {
+            "key": "USER_PURCHASE_ALREADY_EXISTS",
+            "english_text": "Your purchase already exists.",
+            "show_text": "",
+            "type": "1"
         }
     ]
 }
