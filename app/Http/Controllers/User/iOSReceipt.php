@@ -102,7 +102,7 @@ class iOSReceipt extends BaseController
 
         // Check with in app purchase.
         $check = $this->verify($request);
-dd($check);
+
         if (!$check) {
             return response()->json([
                 'code'   => $this->errorCode,
