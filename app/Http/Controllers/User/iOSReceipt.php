@@ -78,6 +78,8 @@ class iOSReceipt extends BaseController
         $userId      = $request->get('user_id', null);
         $receiptData = $request->get('receipt_data', null);
 
+        \Log::info("receiptData : " , $receiptData);
+
         // Check user exists.
         $user = User::find($userId);
 
