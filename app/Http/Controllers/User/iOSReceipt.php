@@ -39,35 +39,25 @@ class iOSReceipt extends BaseController
         } catch (Exception $e) {}
 
         if ($response->isValid()) {
-            $now = Carbon::now()->timezone('Etc/GMT');
+            $now = Carbon::now();
 
             foreach ($response->getPurchases() as $purchase) {
                 if (empty($purchase->getExpiresDate())) {
                     continue;
                 }
 
+                // Check cancelled date.
+                if (!empty($purchase->getCancellationDate())) {
+                    continue;
+                }
+
                 // Check expires date.
                 if ($purchase->getExpiresDate()->gte($now)) {
                     $return = $purchase;
+
+                    break;
                 }
             }
-            /* $latestReceipt = $receipt['receipt'] ?? [];
-
-            if (!empty($latestReceipt['in_app'])) {
-                $now = Carbon::now()->timezone('Etc/GMT');
-
-                foreach ($latestReceipt['in_app'] as $inApp) {
-                    if (empty($inApp['purchase_date_ms'])) {
-                        continue;
-                    }
-
-                    $expiresDate = Carbon::parse($inApp['expires_date']);
-
-                    if ($expiresDate->gte($now)) {
-                        $return = $inApp;
-                    }
-                }
-            } */
         }
 
         return $return;
@@ -77,8 +67,6 @@ class iOSReceipt extends BaseController
     {
         $userId      = $request->get('user_id', null);
         $receiptData = $request->get('receipt_data', null);
-
-        \Log::info("receiptData : " . $receiptData);
 
         // Check user exists.
         $user = User::find($userId);
