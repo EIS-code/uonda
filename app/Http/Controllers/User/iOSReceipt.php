@@ -7,6 +7,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use App\Http\Controllers\BaseController;
 use ReceiptValidator\iTunes\Validator as iOSValidator;
+use Carbon\Carbon;
 
 class iOSReceipt extends BaseController
 {
@@ -24,8 +25,9 @@ class iOSReceipt extends BaseController
 
     public function verify(Request $request)
     {
+        $return      = false;
+
         $receiptData = $request->get('receipt_data', null);
-        $productName = $request->get('product_id', null);
 
         try {
             $response = $this->validator
@@ -39,83 +41,82 @@ class iOSReceipt extends BaseController
         if ($response->isValid()) {
             $latestReceipt = $receipt['receipt'] ?? [];
 
-            if ($latestReceipt) {
-                return $latestReceipt;
+            // Check expires date.
+            if (!empty($latestReceipt['in_app'])) {
+                $now = Carbon::now()->timezone('Etc/GMT');
+
+                foreach ($latestReceipt['in_app'] as $inApp) {
+                    if (empty($inApp['purchase_date_ms'])) {
+                        continue;
+                    }
+
+                    $expiresDate = Carbon::parse($inApp['expires_date']);
+
+                    if ($expiresDate->gte($now)) {
+                        $return = $inApp;
+                    }
+                }
             }
         }
 
-        return false;
+        return $return;
     }
 
     public function store(Request $request)
     {
         $userId      = $request->get('user_id', null);
         $receiptData = $request->get('receipt_data', null);
-        $productName = $request->get('product_id', null);
 
         // Check user exists.
         $user = User::find($userId);
-
-        \Log::info("ios userId : " . $userId);
-
-        \Log::info("ios user : " . json_encode($user));
 
         if (empty($user)) {
             return response()->json([
                 'code'   => $this->errorCode,
                 'msg'    => __(USER_NOT_FOUND),
-                'status' => 0,
-                'data'   => []
+                'status' => 0
             ]);
         }
 
         // Check existing user for receipt data.
         $exists = User::where('receipt_data', $receiptData)->where('id', '!=', $userId)->exists();
 
-        \Log::info("ios user already exists : " . $exists);
-
         if ($exists) {
             return response()->json([
                 'code'   => $this->errorCode,
                 'msg'    => __(USER_PURCHASE_ALREADY_EXISTS),
-                'status' => 0,
-                'data'   => []
+                'status' => 0
             ]);
         }
 
         // Check with in app purchase.
         $check = $this->verify($request);
 
-        \Log::info("ios check : " . json_encode($check));
-
         if (!$check) {
             return response()->json([
                 'code'   => $this->errorCode,
                 'msg'    => __(USER_UNVERIFY_PURCHASE),
-                'status' => 0,
-                'data'   => []
+                'status' => 0
             ]);
         }
 
-        // Set purchase info in user model.
-        $update = $user->update(['payment_flag' => User::PAYMENT_FLAG_DONE, 'receipt_data' => $receiptData, 'product_id' => $productName]);
+        $productId = !empty($check['product_id']) ? $check['product_id'] : null;
 
-        \Log::info("ios update : " . json_encode($update));
+        // Set purchase info in user model.
+        $update = $user->update(['payment_flag' => User::PAYMENT_FLAG_DONE, 'receipt_data' => $receiptData, 'product_id' => $productId]);
 
         if ($update) {
             return response()->json([
                 'code'   => $this->successCode,
                 'msg'    => __(USER_VERIFY_PURCHASE),
-                'status' => 1,
-                'data'   => $check
+                'status' => 1
             ]);
         }
 
         return response()->json([
             'code'   => $this->errorCode,
             'msg'    => __(SOMETHING_WENT_WRONG),
-            'status' => 0,
-            'data'   => []
+            'status' => 0
         ]);
     }
 }
