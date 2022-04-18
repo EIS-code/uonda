@@ -48,7 +48,7 @@ class iOSReceipt extends BaseController
 
                 // Check expires date.
                 if ($purchase->getExpiresDate()->gte($now)) {
-                    $return = $inApp;
+                    $return = $purchase;
                 }
             }
             /* $latestReceipt = $receipt['receipt'] ?? [];
