@@ -39,9 +39,20 @@ class iOSReceipt extends BaseController
         } catch (Exception $e) {}
 
         if ($response->isValid()) {
-            $latestReceipt = $receipt['receipt'] ?? [];
+            $now = Carbon::now()->timezone('Etc/GMT');
 
-            // Check expires date.
+            foreach ($response->getPurchases() as $purchase) {
+                if (empty($purchase->getExpiresDate())) {
+                    continue;
+                }
+
+                // Check expires date.
+                if ($purchase->getExpiresDate()->gte($now)) {
+                    $return = $inApp;
+                }
+            }
+            /* $latestReceipt = $receipt['receipt'] ?? [];
+
             if (!empty($latestReceipt['in_app'])) {
                 $now = Carbon::now()->timezone('Etc/GMT');
 
@@ -56,7 +67,7 @@ class iOSReceipt extends BaseController
                         $return = $inApp;
                     }
                 }
-            }
+            } */
         }
 
         return $return;
@@ -91,7 +102,7 @@ class iOSReceipt extends BaseController
 
         // Check with in app purchase.
         $check = $this->verify($request);
-
+dd($check);
         if (!$check) {
             return response()->json([
                 'code'   => $this->errorCode,

@@ -559,6 +559,8 @@ class UserController extends BaseController
                 // Set device informations if request having.
                 $model::setDeviceInfos(request()->all());
 
+                $user->makeVisible(['personal_flag', 'school_flag', 'other_flag', 'free_for_use_flag', 'payment_flag']);
+
                 return $this->returnSuccess(__(USER_DETAILS_GET), $user);
             }
 
