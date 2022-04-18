@@ -39,7 +39,7 @@ class iOSReceipt extends BaseController
         if ($response->isValid()) {
             $latestReceipt = $receipt['receipt'] ?? [];
 
-            if ($latestReceipt && $latestReceipt['product_id'] == $productName) {
+            if ($latestReceipt) {
                 return $latestReceipt;
             }
         }
@@ -56,6 +56,10 @@ class iOSReceipt extends BaseController
         // Check user exists.
         $user = User::find($userId);
 
+        \Log::info("ios userId : " . $userId);
+
+        \Log::info("ios user : " . json_encode($user));
+
         if (empty($user)) {
             return response()->json([
                 'code'   => $this->errorCode,
@@ -67,6 +71,8 @@ class iOSReceipt extends BaseController
 
         // Check existing user for receipt data.
         $exists = User::where('receipt_data', $receiptData)->where('id', '!=', $userId)->exists();
+
+        \Log::info("ios user already exists : " . $exists);
 
         if ($exists) {
             return response()->json([
@@ -80,6 +86,8 @@ class iOSReceipt extends BaseController
         // Check with in app purchase.
         $check = $this->verify($request);
 
+        \Log::info("ios check : " . json_encode($check));
+
         if (!$check) {
             return response()->json([
                 'code'   => $this->errorCode,
@@ -91,6 +99,8 @@ class iOSReceipt extends BaseController
 
         // Set purchase info in user model.
         $update = $user->update(['payment_flag' => User::PAYMENT_FLAG_DONE, 'receipt_data' => $receiptData, 'product_id' => $productName]);
+
+        \Log::info("ios update : " . json_encode($update));
 
         if ($update) {
             return response()->json([
