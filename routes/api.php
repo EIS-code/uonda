@@ -2,7 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\User\iOSReceipt;
+use App\Helper\iOSReceiptHelper;
 
 /*
 |--------------------------------------------------------------------------
@@ -141,15 +141,9 @@ Route::group(['middleware' => ['web.auth.api']], function () {
             }); */
         });
 
-        /* Route::group(['prefix' => 'verify'], function () {
-            Route::group(['prefix' => 'in-app-purchase'], function () {
-                Route::post('/ios', [iOSReceipt::class, 'verify'])->name('user.verify.ios');
-            });
-        }); */
-
         Route::group(['prefix' => 'store'], function () {
             Route::group(['prefix' => 'in-app-purchase'], function () {
-                Route::post('/ios', [iOSReceipt::class, 'store'])->name('user.store.ios');
+                Route::post('/ios', [iOSReceiptHelper::class, 'store'])->name('user.store.iap.ios');
             });
         });
     });

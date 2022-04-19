@@ -30,7 +30,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name', 'user_name', 'sur_name', 'email', 'password', 'referral_code', 'current_location', 'nation', 'gender', 'birthday', 'short_bio', 'school_id', 'state_id', 'country_id', 'city_id', 'origin_country_id', 'origin_city_id',
-        'current_status', 'company', 'job_position', 'university', 'field_of_study', 'profile', 'profile_icon', 'personal_flag', 'school_flag', 'other_flag', 'free_for_use_flag', 'payment_flag', 'receipt_data', 'product_id', 'latitude', 'longitude', 'device_token', 'device_type', 'app_version', 'oauth_uid', 'oauth_provider', 'is_online'
+        'current_status', 'company', 'job_position', 'university', 'field_of_study', 'profile', 'profile_icon', 'personal_flag', 'school_flag', 'other_flag', 'free_for_use_flag', 'payment_flag', 'receipt_data', 'product_id', 'transaction_id', 'latitude', 'longitude', 'device_token', 'device_type', 'app_version', 'oauth_uid', 'oauth_provider', 'is_online'
     ];
 
     /**
@@ -39,7 +39,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token', 'personal_flag', 'school_flag', 'other_flag', 'free_for_use_flag', 'payment_flag', 'receipt_data', 'product_id',
+        'password', 'remember_token', 'personal_flag', 'school_flag', 'other_flag', 'free_for_use_flag', 'payment_flag', 'receipt_data', 'product_id', 'transaction_id',
         // 'user_name',
         // 'email',
         'created_at', 'updated_at', 'oauth_uid', 'oauth_provider', 'notifications',
@@ -228,6 +228,7 @@ class User extends Authenticatable
             'payment_flag'      => array_merge(['nullable', 'in:' . implode(",", array_keys($this->paymentFlags))], !empty($requiredFileds['payment_flag']) ? $requiredFileds['payment_flag'] : ['nullable']),
             'receipt_data'      => array_merge(['string'], !empty($requiredFileds['receipt_data']) ? $requiredFileds['receipt_data'] : ['nullable']),
             'product_id'        => array_merge(['string', 'max:255'], !empty($requiredFileds['product_id']) ? $requiredFileds['product_id'] : ['nullable']),
+            'transaction_id'        => array_merge(['string', 'max:255'], !empty($requiredFileds['transaction_id']) ? $requiredFileds['transaction_id'] : ['nullable']),
             'latitude'        => array_merge(['nullable', 'between:0,99.99'], !empty($requiredFileds['latitude']) ? $requiredFileds['latitude'] : ['nullable']),
             'longitude'       => array_merge(['nullable', 'between:0,99.99'], !empty($requiredFileds['longitude']) ? $requiredFileds['longitude'] : ['nullable']),
             'device_token'    => array_merge(['string'], !empty($requiredFileds['device_token']) ? $requiredFileds['device_token'] : ['nullable']),

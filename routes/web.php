@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\User;
 use Illuminate\Support\Facades\Auth;
+use App\Helper\iOSReceiptHelper;
 
 /*
 |--------------------------------------------------------------------------
@@ -56,6 +57,12 @@ Route::group(['middleware' => ['auth']], function(){
     Route::group(['prefix' => 'user', 'namespace' => 'User'], function () {
         Route::group(['prefix' => 'chat', 'namespace' => 'Chat'], function () {
             Route::get('/', 'ChatController@index');
+        });
+
+        Route::group(['prefix' => 'check'], function () {
+            Route::group(['prefix' => 'in-app-purchase'], function () {
+                Route::get('/ios/{id}', [iOSReceiptHelper::class, 'check'])->name('user.check.iap.ios');
+            });
         });
     });
 

@@ -65,12 +65,15 @@
                         Free For Use
                     </th>
                 @endif
+                <th>
+                    In App Purchase
+                </th>
                 <th>Action</th>
             </tr>
             </thead>
             <tbody>
                 @foreach($users as $key => $user)
-                    <tr>
+                    <tr id="tr-user-list-{{ $user->id }}">
                         <td>{{ Helper::listIndex($users->currentPage(), $users->perPage(), $key) }}</td>
                         <td>{{ ucfirst($user->name) }}</td>
                         <td>{{ $user->email }}</td>
@@ -85,6 +88,17 @@
                                 <input type="checkbox" {{ $user->free_for_use_flag == $user::FREE_FOR_USE_FLAG_YES ? 'checked' : ''}} data-id="{{ $user->encrypted_user_id }}" class="free_for_use_flag" value="{{ $user->free_for_use_flag }}" data-toggle="toggle" data-onstyle="success" data-offstyle="danger">
                             </td>
                         @endif
+                        <td style="display: flex; border: none;">
+                            <div style="width: 90%;">
+                                &nbsp;
+                            </div>
+                            <div style="width: 10%;">
+                                <a href="{{ route('user.check.iap.ios', $user->id) }}" data-user-id="{ $user->id }}" class="show_in_app_purchase">
+                                    <i class="fa fa-eye-slash" style="font-size:20px; color:red;"></i>
+                                    <i class="fa fa-eye d-none" style="font-size:20px;"></i>
+                                </a>
+                            </div>
+                        </td>
                         <td class="icons_list">
                             @if($user->is_accepted == 0)
                                 <a href="javascript:void(0)" class="acceptUser" data-id="{{ $user->encrypted_user_id }}" title="Accept User"><span class="material-icons">done</span></a> 
@@ -227,7 +241,34 @@
                     }
                 });
             }
-        })
+        });
+
+        // In app purchase show.
+        $(document).find(".show_in_app_purchase").on("click", showInAppPurchase);
+
+        function showInAppPurchase(e) {
+            e.preventDefault();
+
+            let self   = $(this),
+                userId = self.data("user-id"),
+                route  = self.attr("href");
+
+            if (userId) {
+                $.ajax({
+                    url: route,
+                    type: "GET",
+                    headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    success: function(data) {
+                        if (data.code == 401) {
+                            
+                        }
+                    },
+                    error: function(error) {
+                        alert(error.responseJSON.message);
+                    }
+                });
+            }
+        }
     });
 </script>
 @endpush

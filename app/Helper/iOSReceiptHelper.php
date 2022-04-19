@@ -1,16 +1,18 @@
 <?php
 
-namespace App\Http\Controllers\User;
+namespace App\Helper;
 
 use App\User;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
-use App\Http\Controllers\BaseController;
 use ReceiptValidator\iTunes\Validator as iOSValidator;
 use Carbon\Carbon;
 
-class iOSReceipt extends BaseController
+class iOSReceiptHelper
 {
+    protected $errorCode   = 401;
+    protected $successCode = 200;
+
     protected $validator;
 
     public function __construct(iOSValidator $iOSValidator)
@@ -23,11 +25,13 @@ class iOSReceipt extends BaseController
         }
     }
 
-    public function verify(Request $request)
+    public function verify($receiptData)
     {
-        $return      = false;
+        $return = false;
 
-        $receiptData = $request->get('receipt_data', null);
+        if (empty($receiptData)) {
+            return $return;
+        }
 
         try {
             $response = $this->validator
@@ -46,7 +50,7 @@ class iOSReceipt extends BaseController
                     continue;
                 }
 
-                // Check cancelled date.
+                // Check cancelled date if available it means receipt cancelled by user.
                 if (!empty($purchase->getCancellationDate())) {
                     continue;
                 }
@@ -91,7 +95,7 @@ class iOSReceipt extends BaseController
         }
 
         // Check with in app purchase.
-        $check = $this->verify($request);
+        $check = $this->verify($receiptData);
 
         if (!$check) {
             return response()->json([
@@ -101,7 +105,19 @@ class iOSReceipt extends BaseController
             ]);
         }
 
-        $productId = !empty($check['product_id']) ? $check['product_id'] : null;
+        $productId     = !empty($check['product_id']) ? $check['product_id'] : null;
+        $transactionId = !empty($check['transaction_id']) ? $check['transaction_id'] : null;
+
+        // Check existing user for transaction id.
+        $exists = User::where('transaction_id', $transactionId)->where('product_id', $productId)->where('id', '!=', $userId)->exists();
+
+        if ($exists) {
+            return response()->json([
+                'code'   => $this->errorCode,
+                'msg'    => __(USER_PURCHASE_ALREADY_EXISTS),
+                'status' => 0
+            ]);
+        }
 
         // Set purchase info in user model.
         $update = $user->update(['payment_flag' => User::PAYMENT_FLAG_DONE, 'receipt_data' => $receiptData, 'product_id' => $productId]);
@@ -119,5 +135,35 @@ class iOSReceipt extends BaseController
             'msg'    => __(SOMETHING_WENT_WRONG),
             'status' => 0
         ]);
+    }
+
+    public function check(Request $request, int $userId)
+    {
+        // Check user exists.
+        $user = !empty($userId) ? User::find($userId) : null;
+
+        if (empty($user)) {
+            return response()->json([
+                'code'   => $this->errorCode,
+                'msg'    => __(USER_NOT_FOUND)
+            ]);
+        }
+
+        if (empty($user->receipt_data)) {
+            return response()->json([
+                'code'   => $this->errorCode,
+                'msg'    => __(USER_UNVERIFY_PURCHASE)
+            ]);
+        }
+
+        // Check with in app purchase.
+        $check = $this->verify($user->receipt_data);
+
+        if (!$check) {
+            return response()->json([
+                'code'   => $this->errorCode,
+                'msg'    => __(USER_UNVERIFY_PURCHASE)
+            ]);
+        }
     }
 }
