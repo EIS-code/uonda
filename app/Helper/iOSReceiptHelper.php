@@ -165,5 +165,14 @@ class iOSReceiptHelper
                 'msg'    => __(USER_UNVERIFY_PURCHASE)
             ]);
         }
+
+        $purchaseDate = Carbon::createFromTimestampUTC((int)round($check['purchase_date_ms']) / 1000);
+        $expiresDate  = Carbon::createFromTimestampUTC((int)round($check['expires_date_ms']) / 1000);
+
+        return response()->json([
+            'code'   => $this->successCode,
+            'msg'    => __(USER_VERIFY_PURCHASE),
+            'data'   => ['purchase_date' => $purchaseDate->format('Y-m-d H:i:s T'), 'expires_date' => $expiresDate->format('Y-m-d H:i:s T')]
+        ]);
     }
 }

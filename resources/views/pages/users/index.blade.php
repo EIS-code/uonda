@@ -94,8 +94,8 @@
                             </div>
                             <div style="width: 10%;">
                                 <a href="{{ route('user.check.iap.ios', $user->id) }}" data-user-id="{ $user->id }}" class="show_in_app_purchase">
-                                    <i class="fa fa-eye-slash" style="font-size:20px; color:red;"></i>
-                                    <i class="fa fa-eye d-none" style="font-size:20px;"></i>
+                                    <i class="fa fa-eye" style="font-size:20px;"></i>
+                                    <i class="fa fa-eye-slash" style="font-size:20px; display: none; color:red;"></i>
                                 </a>
                             </div>
                         </td>
@@ -250,23 +250,39 @@
             e.preventDefault();
 
             let self   = $(this),
+                target = $(e.target),
                 userId = self.data("user-id"),
                 route  = self.attr("href");
 
-            if (userId) {
+            if (userId && target.hasClass('fa-eye')) {
                 $.ajax({
                     url: route,
                     type: "GET",
                     headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                     success: function(data) {
                         if (data.code == 401) {
-                            
+                            self.parent('div').prev('div').empty();
+                            self.parent('div').prev('div').html(data.msg);
+
+                            self.find('.fa.fa-eye').fadeOut(200);
+                            self.find('.fa.fa-eye-slash').fadeIn(100);
+                        } else if (data.code == 200) {
+                            self.parent('div').prev('div').empty();
+                            self.parent('div').prev('div').html("Purchase Date : " + data.data.purchase_date + "<br />" + "Expires Date : " + data.data.expires_date);
+
+                            self.find('.fa.fa-eye').fadeOut(200);
+                            self.find('.fa.fa-eye-slash').fadeIn(100);
                         }
                     },
                     error: function(error) {
                         alert(error.responseJSON.message);
                     }
                 });
+            } else {
+                self.parent('div').prev('div').empty();
+
+                self.find('.fa.fa-eye-slash').fadeOut(100);
+                self.find('.fa.fa-eye').fadeIn(200);
             }
         }
     });
