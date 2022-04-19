@@ -120,7 +120,7 @@ class iOSReceiptHelper
         }
 
         // Set purchase info in user model.
-        $update = $user->update(['payment_flag' => User::PAYMENT_FLAG_DONE, 'receipt_data' => $receiptData, 'product_id' => $productId]);
+        $update = $user->update(['payment_flag' => User::PAYMENT_FLAG_DONE, 'receipt_data' => $receiptData, 'product_id' => $productId, 'transaction_id' => $transactionId]);
 
         if ($update) {
             return response()->json([
