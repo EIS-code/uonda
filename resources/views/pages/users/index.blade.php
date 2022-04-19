@@ -94,8 +94,8 @@
                             </div>
                             <div style="width: 10%;">
                                 <a href="{{ route('user.check.iap.ios', $user->id) }}" data-user-id="{ $user->id }}" class="show_in_app_purchase">
-                                    <i class="fa fa-eye" style="font-size:20px;"></i>
-                                    <i class="fa fa-eye-slash" style="font-size:20px; display: none; color:red;"></i>
+                                    <i class="fa fa-eye" style="font-size:20px; padding-top: 5px;"></i>
+                                    <i class="fa fa-eye-slash" style="font-size:20px; display: none; color:red; padding-top: 5px;"></i>
                                 </a>
                             </div>
                         </td>

@@ -98,6 +98,8 @@ class iOSReceiptHelper
         $check = $this->verify($receiptData);
 
         if (!$check) {
+            User::setPaymentFlagPending($userId);
+
             return response()->json([
                 'code'   => $this->errorCode,
                 'msg'    => __(USER_UNVERIFY_PURCHASE),
@@ -120,7 +122,7 @@ class iOSReceiptHelper
         }
 
         // Set purchase info in user model.
-        $update = $user->update(['payment_flag' => User::PAYMENT_FLAG_DONE, 'receipt_data' => $receiptData, 'product_id' => $productId, 'transaction_id' => $transactionId]);
+        $update = User::setPaymentFlagDone($userId, $receiptData, $productId, $transactionId);
 
         if ($update) {
             return response()->json([
@@ -150,6 +152,8 @@ class iOSReceiptHelper
         }
 
         if (empty($user->receipt_data)) {
+            User::setPaymentFlagPending($userId);
+
             return response()->json([
                 'code'   => $this->errorCode,
                 'msg'    => __(USER_UNVERIFY_PURCHASE)
@@ -160,6 +164,8 @@ class iOSReceiptHelper
         $check = $this->verify($user->receipt_data);
 
         if (!$check) {
+            User::setPaymentFlagPending($userId);
+
             return response()->json([
                 'code'   => $this->errorCode,
                 'msg'    => __(USER_UNVERIFY_PURCHASE)

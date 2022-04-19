@@ -612,4 +612,26 @@ class User extends Authenticatable
     {
         $this->notify(new ResetPasswordNotification($token));
     }
+
+    public static function setPaymentFlagDone(int $userId, string $receiptData, string $productId, string $transactionId)
+    {
+        $user = self::find($userId);
+
+        if (empty($user) || empty($receiptData) || empty($productId) || empty($transactionId)) {
+            return false;
+        }
+
+        return $user->update(['payment_flag' => self::PAYMENT_FLAG_DONE, 'receipt_data' => $receiptData, 'product_id' => $productId, 'transaction_id' => $transactionId]);
+    }
+
+    public static function setPaymentFlagPending(int $userId)
+    {
+        $user = self::find($userId);
+
+        if (empty($user)) {
+            return false;
+        }
+
+        return $user->update(['payment_flag' => self::PAYMENT_FLAG_PENDING, 'receipt_data' => null, 'product_id' => null, 'transaction_id' => null]);
+    }
 }
