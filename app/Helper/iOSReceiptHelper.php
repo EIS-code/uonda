@@ -166,8 +166,8 @@ class iOSReceiptHelper
             ]);
         }
 
-        $purchaseDate = Carbon::createFromTimestampUTC((int)round($check['purchase_date_ms']) / 1000);
-        $expiresDate  = Carbon::createFromTimestampUTC((int)round($check['expires_date_ms']) / 1000);
+        $purchaseDate = Carbon::createFromTimestampUTC((int)round($check['purchase_date_ms']) / 1000)->timezone(config('app.local_timezone'));
+        $expiresDate  = Carbon::createFromTimestampUTC((int)round($check['expires_date_ms']) / 1000)->timezone(config('app.local_timezone'));
 
         return response()->json([
             'code'   => $this->successCode,
