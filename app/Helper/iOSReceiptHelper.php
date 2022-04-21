@@ -111,7 +111,7 @@ class iOSReceiptHelper
         $transactionId = !empty($check['original_transaction_id']) ? $check['original_transaction_id'] : null;
 
         // Check existing user for transaction id.
-        $exists = User::where('transaction_id', $transactionId)->where('product_id', $productId)->where('id', '!=', $userId)->exists();
+        $exists = User::where('transaction_id', $transactionId)->where('id', '!=', $userId)->exists();
 
         if ($exists) {
             return response()->json([
