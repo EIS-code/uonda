@@ -90,7 +90,7 @@ class iOSReceiptHelper
             return response()->json([
                 'code'   => $this->errorCode,
                 'msg'    => __(USER_PURCHASE_ALREADY_EXISTS),
-                'status' => 0
+                'status' => 2
             ]);
         }
 
@@ -117,7 +117,7 @@ class iOSReceiptHelper
             return response()->json([
                 'code'   => $this->errorCode,
                 'msg'    => __(USER_PURCHASE_ALREADY_EXISTS),
-                'status' => 0
+                'status' => 2
             ]);
         }
 
