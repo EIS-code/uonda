@@ -41,7 +41,7 @@ class iOSReceiptHelper
 
             $receipt = $response->getRawData();
         } catch (Exception $e) {}
-
+dd($receipt['receipt']);
         if ($response->isValid()) {
             $now = Carbon::now();
 
@@ -108,7 +108,7 @@ class iOSReceiptHelper
         }
 
         $productId     = !empty($check['product_id']) ? $check['product_id'] : null;
-        $transactionId = !empty($check['transaction_id']) ? $check['transaction_id'] : null;
+        $transactionId = !empty($check['original_transaction_id']) ? $check['original_transaction_id'] : null;
 
         // Check existing user for transaction id.
         $exists = User::where('transaction_id', $transactionId)->where('product_id', $productId)->where('id', '!=', $userId)->exists();
