@@ -41,7 +41,7 @@ class iOSReceiptHelper
 
             $receipt = $response->getRawData();
         } catch (Exception $e) {}
-dd($receipt['receipt']);
+
         if ($response->isValid()) {
             $now = Carbon::now();
 
