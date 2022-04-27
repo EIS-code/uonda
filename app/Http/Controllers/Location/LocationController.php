@@ -131,6 +131,7 @@ class LocationController extends BaseController
 
     //Function to get the cities with user count
     public function getCitiesWithUserCount(Request $request) {
+\Log::info("Request : " . json_encode($request->all()));
         $per_page = $request->has('per_page') ? $request->per_page : 10;
         $offset = $request->has('offset') ? (int)$request->offset : 0;
         $with_pagination = $request->has('with_pagination') ? (int)$request->with_pagination : 0;
@@ -149,6 +150,15 @@ class LocationController extends BaseController
         $cities->each(function($userRow) {
             $userRow->setHidden(['encrypted_city_id', 'created_at', 'updated_at', 'state_id']);
         });
+\Log::info("Response : " . json_encode([
+            'code' => $status,
+            'msg'  => __(CITY_FETCHED),
+            'current_offset' => $offset,
+            'next_offset' => $next_offset,
+            'per_page' => $per_page,
+            'total_cities' => $cities_count,
+            'data' => $cities
+        ]));
         return response()->json([
             'code' => $status,
             'msg'  => __(CITY_FETCHED),
