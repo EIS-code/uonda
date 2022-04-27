@@ -43,7 +43,7 @@ class AuthApi
     public function handle($request, Closure $next)
     {
         $apiKey = (!empty($request->header('api-key'))) ? $request->header('api-key') : false;
-
+\Log::info("API : " . $request->route()->uri);
         if (in_array($request->route()->uri, $this->excludedRoutes)) {
             $request->merge(['show_rejected' => true]);
 
