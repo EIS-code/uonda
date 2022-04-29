@@ -396,7 +396,7 @@ class ChatController extends BaseController
                     'chat_id'            => $data->chat_id,
                     'chat_room_id'       => $data->chat_room_id,
                     'recent_time'        => strtotime($data->updated_at) * 1000,
-                    'recent_message'     => '',
+                    'recent_message'     => $data->recent_message,
                     'is_group'           => $data->is_group,
                     'title'              => $data->title,
                     'group_icon'         => $data->group_icon,
