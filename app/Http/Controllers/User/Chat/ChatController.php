@@ -624,7 +624,7 @@ class ChatController extends BaseController
             $chatIds      = $chats->pluck('id');
             $errorMessage = NULL;
             $delete       = [];
-
+dd($chatIds);
             foreach ($chatIds as $index => $chatId) {
                 $delete[$index] = [
                     'chat_id'    => $chatId,
