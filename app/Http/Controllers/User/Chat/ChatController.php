@@ -380,6 +380,7 @@ class ChatController extends BaseController
                               ->where($modelChatRooms::getTableName() . '.is_group', $modelChatRooms::IS_GROUP)
                               ->where($modelChatRoomUsers::getTableName() . '.sender_id', $userId)
                               // ->whereNull($modelChatDelets::getTableName() . '.id')
+                              ->whereNull($modelChats::getTableName() . '.deleted_at')
                               ->orderBy($modelChats::getTableName() . '.updated_at', 'ASC');
 
         if (!empty($chatRoomId)) {
