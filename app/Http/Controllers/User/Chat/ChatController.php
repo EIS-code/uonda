@@ -615,9 +615,7 @@ class ChatController extends BaseController
                 });
             }
 
-            $chats = $chats->toSql();
-
-            echo $chats;exit;
+            $chats = $chats->get();
         } else {
             $chats = $modelChats::select($modelChats::getTableName() . '.id')
                                 ->join($modelChatRoomUsers::getTableName(), $modelChats::getTableName() . '.chat_room_user_id', '=', $modelChatRoomUsers::getTableName() . '.id')
