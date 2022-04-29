@@ -601,13 +601,23 @@ class ChatController extends BaseController
             $chats = $modelChats::select($modelChats::getTableName() . '.id')
                                 ->join($modelChatRoomUsers::getTableName(), $modelChats::getTableName() . '.chat_room_user_id', '=', $modelChatRoomUsers::getTableName() . '.id')
                                 ->leftJoin($modelChatDelets::getTableName(), $modelChats::getTableName() . '.id', '=', $modelChatDelets::getTableName() . '.chat_id')
-                                ->where(function($query) use($receiverId, $modelChatRoomUsers, $userId) {
-                                        $query->where($modelChatRoomUsers::getTableName() . '.sender_id', $receiverId)
-                                              ->orWhere($modelChatRoomUsers::getTableName() . '.receiver_id', $receiverId)
-                                              ->whereRaw("(({$modelChatRoomUsers::getTableName()}.sender_id = {$userId} AND {$modelChatRoomUsers::getTableName()}.receiver_id = {$receiverId}) OR ({$modelChatRoomUsers::getTableName()}.receiver_id = {$userId} AND {$modelChatRoomUsers::getTableName()}.sender_id = {$receiverId}))");
-                                    })
-                                    ->whereNull($modelChatDelets::getTableName() . '.id')
-                                ->get();
+                                ->whereNull($modelChatDelets::getTableName() . '.id');
+
+            if ($userId == $receiverId) {
+                $chats->where(function($query) use($receiverId, $modelChatRoomUsers, $userId) {
+                    $query->whereRaw("(({$modelChatRoomUsers::getTableName()}.sender_id = {$userId} AND {$modelChatRoomUsers::getTableName()}.receiver_id = {$receiverId}) OR ({$modelChatRoomUsers::getTableName()}.receiver_id = {$userId} AND {$modelChatRoomUsers::getTableName()}.sender_id = {$receiverId}))");
+                });
+            } else {
+                $chats->where(function($query) use($receiverId, $modelChatRoomUsers, $userId) {
+                    $query->where($modelChatRoomUsers::getTableName() . '.sender_id', $receiverId)
+                          ->orWhere($modelChatRoomUsers::getTableName() . '.receiver_id', $receiverId)
+                          ->whereRaw("(({$modelChatRoomUsers::getTableName()}.sender_id = {$userId} AND {$modelChatRoomUsers::getTableName()}.receiver_id = {$receiverId}) OR ({$modelChatRoomUsers::getTableName()}.receiver_id = {$userId} AND {$modelChatRoomUsers::getTableName()}.sender_id = {$receiverId}))");
+                });
+            }
+
+            $chats = $chats->toSql();
+
+            echo $chats;exit;
         } else {
             $chats = $modelChats::select($modelChats::getTableName() . '.id')
                                 ->join($modelChatRoomUsers::getTableName(), $modelChats::getTableName() . '.chat_room_user_id', '=', $modelChatRoomUsers::getTableName() . '.id')
