@@ -634,7 +634,7 @@ class ChatController extends BaseController
             $delete       = [];
 
             // Remove chats from Chat table.
-            $modelChats::whereIn('id', $chatIds->toArray())->remove();
+            $modelChats::whereIn('id', $chatIds)->delete();
 
             foreach ($chatIds as $index => $chatId) {
                 $delete[$index] = [
