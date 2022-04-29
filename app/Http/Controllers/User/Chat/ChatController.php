@@ -369,7 +369,7 @@ class ChatController extends BaseController
             });
         }
 
-        $records = $modelChatRooms::selectRaw("{$modelChats::getTableName()}.id as chat_id, {$modelChatRooms::getTableName()}.id, {$modelChatRooms::getTableName()}.created_by_admin, {$modelChatRooms::getTableName()}.created_by, {$modelChatRooms::getTableName()}.id as chat_room_id, {$modelChats::getTableName()}.updated_at, CASE WHEN {$modelChatAttachments::getTableName()}.mime_type != '' && {$modelChatAttachments::getTableName()}.attachment != '' THEN 'Attachment Sent' WHEN {$modelChatAttachments::getTableName()}.url != '' THEN 'URL Sent' WHEN {$modelChatAttachments::getTableName()}.name != '' && {$modelChatAttachments::getTableName()}.contacts != '' THEN 'Contact Sent' ELSE {$modelChats::getTableName()}.message END AS recent_message, {$modelChatRooms::getTableName()}.is_group, {$modelChatRooms::getTableName()}.title, {$modelChatRooms::getTableName()}.group_icon, {$modelChatRooms::getTableName()}.group_icon_actual")
+        $records = $modelChatRooms::selectRaw("{$modelChats::getTableName()}.id as chat_id, {$modelChatRooms::getTableName()}.id, {$modelChatRooms::getTableName()}.created_by_admin, {$modelChatRooms::getTableName()}.created_by, {$modelChatRooms::getTableName()}.id as chat_room_id, {$modelChats::getTableName()}.updated_at, CASE WHEN {$modelChatAttachments::getTableName()}.mime_type != '' && {$modelChatAttachments::getTableName()}.attachment != '' THEN 'Attachment Sent' WHEN {$modelChatAttachments::getTableName()}.url != '' THEN 'URL Sent' WHEN {$modelChatAttachments::getTableName()}.name != '' && {$modelChatAttachments::getTableName()}.contacts != '' THEN 'Contact Sent' ELSE {$modelChats::getTableName()}.message END AS recent_message, {$modelChatRooms::getTableName()}.is_group, {$modelChatRooms::getTableName()}.title, {$modelChatRooms::getTableName()}.group_icon, {$modelChatRooms::getTableName()}.group_icon_actual, {$modelChats::getTableName()}.deleted_at as chat_deleted_at")
                               ->join($modelChatRoomUsers::getTableName(), $modelChatRooms::getTableName() . '.id', '=', $modelChatRoomUsers::getTableName() . '.chat_room_id')
                               ->leftJoin($modelChats::getTableName(), $modelChatRooms::getTableName() . '.id', '=', $modelChats::getTableName() . '.chat_room_id')
                               /* ->leftJoin($modelChatDelets::getTableName(), function($leftJoin) use($modelChats, $modelChatDelets, $userId) {
@@ -380,7 +380,7 @@ class ChatController extends BaseController
                               ->where($modelChatRooms::getTableName() . '.is_group', $modelChatRooms::IS_GROUP)
                               ->where($modelChatRoomUsers::getTableName() . '.sender_id', $userId)
                               // ->whereNull($modelChatDelets::getTableName() . '.id')
-                              ->whereNull($modelChats::getTableName() . '.deleted_at')
+                              // ->whereNull($modelChats::getTableName() . '.deleted_at')
                               ->orderBy($modelChats::getTableName() . '.updated_at', 'ASC');
 
         if (!empty($chatRoomId)) {
@@ -396,8 +396,8 @@ class ChatController extends BaseController
                 $returnGroupDatas[$data->chat_room_id] = [
                     'chat_id'            => $data->chat_id,
                     'chat_room_id'       => $data->chat_room_id,
-                    'recent_time'        => strtotime($data->updated_at) * 1000,
-                    'recent_message'     => $data->recent_message,
+                    'recent_time'        => empty($data->chat_deleted_at) ? (strtotime($data->updated_at) * 1000) : '',
+                    'recent_message'     => empty($data->chat_deleted_at) ? $data->recent_message : '',
                     'is_group'           => $data->is_group,
                     'title'              => $data->title,
                     'group_icon'         => $data->group_icon,
