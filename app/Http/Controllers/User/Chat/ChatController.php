@@ -318,7 +318,7 @@ class ChatController extends BaseController
         if (!empty($chatRoomId)) {
             $records->where($modelChatRooms::getTableName() . '.id', $chatRoomId);
         }
-
+echo $records->toSql();exit;
         $records = $records->get();
 
         $returnDatas = [];
