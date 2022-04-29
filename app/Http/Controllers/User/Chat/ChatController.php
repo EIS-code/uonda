@@ -369,13 +369,13 @@ class ChatController extends BaseController
             });
         }
 
-        $records = $modelChatRooms::selectRaw("{$modelChats::getTableName()}.id as chat_id, {$modelChatRooms::getTableName()}.id, {$modelChatRooms::getTableName()}.created_by_admin, {$modelChatRooms::getTableName()}.created_by, {$modelChatRooms::getTableName()}.id as chat_room_id, {$modelChats::getTableName()}.updated_at, CASE WHEN {$modelChatAttachments::getTableName()}.mime_type != '' && {$modelChatAttachments::getTableName()}.attachment != '' THEN 'Attachment Sent' WHEN {$modelChatAttachments::getTableName()}.url != '' THEN 'URL Sent' WHEN {$modelChatAttachments::getTableName()}.name != '' && {$modelChatAttachments::getTableName()}.contacts != '' THEN 'Contact Sent' ELSE {$modelChats::getTableName()}.message END AS recent_message, {$modelChatRooms::getTableName()}.is_group, {$modelChatRooms::getTableName()}.title, {$modelChatRooms::getTableName()}.group_icon, {$modelChatRooms::getTableName()}.group_icon_actual, {$modelChats::getTableName()}.deleted_at as chat_deleted_at")
+        $records = $modelChatRooms::selectRaw("{$modelChats::getTableName()}.id as chat_id, {$modelChatRooms::getTableName()}.id, {$modelChatRooms::getTableName()}.created_by_admin, {$modelChatRooms::getTableName()}.created_by, {$modelChatRooms::getTableName()}.id as chat_room_id, {$modelChats::getTableName()}.updated_at, CASE WHEN {$modelChatAttachments::getTableName()}.mime_type != '' && {$modelChatAttachments::getTableName()}.attachment != '' THEN 'Attachment Sent' WHEN {$modelChatAttachments::getTableName()}.url != '' THEN 'URL Sent' WHEN {$modelChatAttachments::getTableName()}.name != '' && {$modelChatAttachments::getTableName()}.contacts != '' THEN 'Contact Sent' ELSE {$modelChats::getTableName()}.message END AS recent_message, {$modelChatRooms::getTableName()}.is_group, {$modelChatRooms::getTableName()}.title, {$modelChatRooms::getTableName()}.group_icon, {$modelChatRooms::getTableName()}.group_icon_actual, {$modelChatDelets::getTableName()}.id as chat_deleted_id")
                               ->join($modelChatRoomUsers::getTableName(), $modelChatRooms::getTableName() . '.id', '=', $modelChatRoomUsers::getTableName() . '.chat_room_id')
                               ->leftJoin($modelChats::getTableName(), $modelChatRooms::getTableName() . '.id', '=', $modelChats::getTableName() . '.chat_room_id')
-                              /* ->leftJoin($modelChatDelets::getTableName(), function($leftJoin) use($modelChats, $modelChatDelets, $userId) {
+                              ->leftJoin($modelChatDelets::getTableName(), function($leftJoin) use($modelChats, $modelChatDelets, $userId) {
                                   $leftJoin->on($modelChats::getTableName() . '.id', '=', $modelChatDelets::getTableName() . '.chat_id')
                                            ->where($modelChatDelets::getTableName() . '.user_id', $userId);
-                              }) */
+                              })
                               ->leftJoin($modelChatAttachments::getTableName(), $modelChats::getTableName() . '.id', '=', $modelChatAttachments::getTableName() . '.chat_id')
                               ->where($modelChatRooms::getTableName() . '.is_group', $modelChatRooms::IS_GROUP)
                               ->where($modelChatRoomUsers::getTableName() . '.sender_id', $userId)
@@ -396,8 +396,8 @@ class ChatController extends BaseController
                 $returnGroupDatas[$data->chat_room_id] = [
                     'chat_id'            => $data->chat_id,
                     'chat_room_id'       => $data->chat_room_id,
-                    'recent_time'        => empty($data->chat_deleted_at) ? (strtotime($data->updated_at) * 1000) : 0,
-                    'recent_message'     => empty($data->chat_deleted_at) ? $data->recent_message : '',
+                    'recent_time'        => empty($data->chat_deleted_id) ? (strtotime($data->updated_at) * 1000) : 0,
+                    'recent_message'     => empty($data->chat_deleted_id) ? $data->recent_message : '',
                     'is_group'           => $data->is_group,
                     'title'              => $data->title,
                     'group_icon'         => $data->group_icon,
