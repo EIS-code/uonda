@@ -600,7 +600,10 @@ class ChatController extends BaseController
         if (!empty($receiverId)) {
             $chats = $modelChats::select($modelChats::getTableName() . '.id')
                                 ->join($modelChatRoomUsers::getTableName(), $modelChats::getTableName() . '.chat_room_user_id', '=', $modelChatRoomUsers::getTableName() . '.id')
-                                ->leftJoin($modelChatDelets::getTableName(), $modelChats::getTableName() . '.id', '=', $modelChatDelets::getTableName() . '.chat_id')
+                                ->leftJoin($modelChatDelets::getTableName(), function($leftJoin) use($modelChats, $modelChatDelets, $userId) {
+                                    $leftJoin->on($modelChats::getTableName() . '.id', '=', $modelChatDelets::getTableName() . '.chat_id')
+                                               ->where($modelChatDelets::getTableName() . '.user_id', $userId);
+                                })
                                 ->where(function($query) use($receiverId, $modelChatRoomUsers, $userId) {
                                         $query->where($modelChatRoomUsers::getTableName() . '.sender_id', $receiverId)
                                               ->orWhere($modelChatRoomUsers::getTableName() . '.receiver_id', $receiverId)
