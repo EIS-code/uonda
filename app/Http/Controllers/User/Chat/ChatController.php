@@ -396,7 +396,7 @@ class ChatController extends BaseController
                 $returnGroupDatas[$data->chat_room_id] = [
                     'chat_id'            => $data->chat_id,
                     'chat_room_id'       => $data->chat_room_id,
-                    'recent_time'        => empty($data->chat_deleted_at) ? (strtotime($data->updated_at) * 1000) : '',
+                    'recent_time'        => empty($data->chat_deleted_at) ? (strtotime($data->updated_at) * 1000) : 0,
                     'recent_message'     => empty($data->chat_deleted_at) ? $data->recent_message : '',
                     'is_group'           => $data->is_group,
                     'title'              => $data->title,
