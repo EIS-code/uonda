@@ -600,18 +600,14 @@ class ChatController extends BaseController
         if (!empty($receiverId)) {
             $chats = $modelChats::select($modelChats::getTableName() . '.id')
                                 ->join($modelChatRoomUsers::getTableName(), $modelChats::getTableName() . '.chat_room_user_id', '=', $modelChatRoomUsers::getTableName() . '.id')
-                                ->leftJoin($modelChatDelets::getTableName(), function($leftJoin) use($modelChats, $modelChatDelets, $userId) {
-                                    $leftJoin->on($modelChats::getTableName() . '.id', '=', $modelChatDelets::getTableName() . '.chat_id')
-                                               ->where($modelChatDelets::getTableName() . '.user_id', $userId);
-                                })
+                                ->leftJoin($modelChatDelets::getTableName(), $modelChats::getTableName() . '.id', '=', $modelChatDelets::getTableName() . '.chat_id')
                                 ->where(function($query) use($receiverId, $modelChatRoomUsers, $userId) {
                                         $query->where($modelChatRoomUsers::getTableName() . '.sender_id', $receiverId)
                                               ->orWhere($modelChatRoomUsers::getTableName() . '.receiver_id', $receiverId)
                                               ->whereRaw("(({$modelChatRoomUsers::getTableName()}.sender_id = {$userId} AND {$modelChatRoomUsers::getTableName()}.receiver_id = {$receiverId}) OR ({$modelChatRoomUsers::getTableName()}.receiver_id = {$userId} AND {$modelChatRoomUsers::getTableName()}.sender_id = {$receiverId}))");
                                     })
                                     ->whereNull($modelChatDelets::getTableName() . '.id')
-                                ->toSql();
-                            echo $chats;exit;
+                                ->get();
         } else {
             $chats = $modelChats::select($modelChats::getTableName() . '.id')
                                 ->join($modelChatRoomUsers::getTableName(), $modelChats::getTableName() . '.chat_room_user_id', '=', $modelChatRoomUsers::getTableName() . '.id')
