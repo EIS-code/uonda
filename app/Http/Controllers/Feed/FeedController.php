@@ -32,6 +32,35 @@ class FeedController extends BaseController
         return $this->returnNull();
     }
 
+    public function getFeedPaginate(Request $request)
+    {
+        $model      = new Feed();
+        $userId     = (int)$request->get('user_id', null);
+        $pageNumber = (int)$request->get('page_number', 1);
+        $pageNumber = (!empty($pageNumber) && is_numeric($pageNumber) && $pageNumber > 0) ? $pageNumber : 1;
+        $perPage    = (int)$request->get('per_page', $model::PAGINATE_RECORDS);
+        $perPage    = (!empty($perPage) && is_numeric($perPage) && $perPage > 0) ? $perPage : $model::PAGINATE_RECORDS;
+
+        $feeds = $model::orderBy('id', 'DESC')->paginate($perPage, ['*'], 'page', $pageNumber);
+        $user  = User::find($userId);
+
+        if (!empty($feeds) && !$feeds->isEmpty() && !empty($user)) {
+            $feedIds = $feeds->pluck('id')->toArray();
+            $status  = 200;
+
+            $successRes  = [
+                'code' => $status,
+                'msg' => __(FEEDS_GET),
+                'data' => $feeds,
+                'liked_feeds_arr' => $user->likedFeedsById($feedIds)->get()->pluck('id')
+            ];
+
+            return response()->json($successRes, 200);
+        }
+
+        return $this->returnNull();
+    }
+
     //Function to save the like/dislikes the feeds
     public function setFeedLikes(Request $request) {
         $userModel = new User();

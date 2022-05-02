@@ -65,6 +65,8 @@ class Feed extends BaseModel
         self::TYPE_GIF   => 'gif'
     ];
 
+    const PAGINATE_RECORDS = 10;
+
     public function __construct(array $attributes = array())
     {
         parent::__construct($attributes);

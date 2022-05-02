@@ -371,6 +371,11 @@ class User extends Authenticatable
         return $this->belongsToMany(Feed::class, 'feed_likes')->withTimestamps();
     }
 
+    public function likedFeedsById(array $feedIds)
+    {
+        return $this->belongsToMany(Feed::class, 'feed_likes')->whereIn('feed_id', $feedIds)->withTimestamps();
+    }
+
     public function ChatRoomsUsers() {
         return $this->belongsTo(ChatRoomUser::class, 'id', 'sender_id');
     }

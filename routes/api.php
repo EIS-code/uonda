@@ -162,6 +162,7 @@ Route::group(['middleware' => ['web.auth.api']], function () {
 
     Route::group(['prefix' => 'feed', 'namespace' => 'Feed'], function () {
         Route::get('/get', 'FeedController@getFeed')->name('getFeed');
+        Route::post('/get', 'FeedController@getFeedPaginate')->name('get.feed.paginate');
         Route::post('/like', 'FeedController@setFeedLikes')->name('feed-like-dislikes');
     });
 
