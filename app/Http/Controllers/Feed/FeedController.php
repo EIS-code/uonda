@@ -15,7 +15,8 @@ class FeedController extends BaseController
         $model = new Feed();
         $data  = $request->all();
 
-        $feeds = $model::orderBy('id', 'DESC')->get();
+        // Fix 10 limit as this is deprecated and stuck if many records.
+        $feeds = $model::orderBy('id', 'DESC')->limit(10)->get();
         $user = User::find((int)$data['user_id']);
 
         if (!empty($feeds) && !$feeds->isEmpty() && !empty($user)) {
