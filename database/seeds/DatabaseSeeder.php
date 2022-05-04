@@ -11,15 +11,15 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $this->call(LocationSeeder::class);
+        /*$this->call(LocationSeeder::class);
         $this->call(TextSeeder::class);
-        $this->call(ConstantsSeeder::class);
-        $this->call(FeedsSeeder::class);
-        $this->call(UserReportQuestionsSeeder::class);
+        $this->call(ConstantsSeeder::class);*/
+        $this->call(DummyFeedsSeeder::class);
+        /* $this->call(UserReportQuestionsSeeder::class);
         // $this->call(ImageSeeder::class);
         $this->call(SuperadminUserSeeder::class);
         // $this->call(DummyUsersSeeder::class);
         $this->call(ResetPasswordEmailTemplateSeeder::class);
-        $this->call(WelcomeEmailTemplateSeeder::class);
+        $this->call(WelcomeEmailTemplateSeeder::class); */
     }
 }
