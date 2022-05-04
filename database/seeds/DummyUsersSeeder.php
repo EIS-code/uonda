@@ -14,15 +14,22 @@ class DummyUsersSeeder extends Seeder
      */
     public function run()
     {
-        // $create = factory(App\User::class, $this->totalUsers)->raw();
-        for ($i = 1; $i <= $this->totalUsers; $i++) {
-            $create[] = [
-                'name'      => Str::random(10),
-                'email'     => Str::random(10).'@gmail.com',
-                'password'  => Hash::make('123456')
-            ];
-        }
+        $confirmed = $this->command->confirm(__('Are you sure ?'));
 
-        User::insert($create);
+        if ($confirmed) {
+            $create = [];
+
+            for ($i = 1; $i <= $this->totalUsers; $i++) {
+                $create[] = [
+                    'name'      => Str::random(10),
+                    'email'     => Str::random(10).'@gmail.com',
+                    'password'  => Hash::make('123456')
+                ];
+            }
+
+            if (!empty($create)) {
+                User::insert($create);
+            }
+        }
     }
 }
