@@ -51,10 +51,13 @@ class FeedController extends BaseController
 
             $successRes  = [
                 'code' => $status,
-                'msg' => __(FEEDS_GET),
-                'data' => $feeds,
-                'liked_feeds_arr' => $user->likedFeedsById($feedIds)->get()->pluck('id')
+                'msg'  => __(FEEDS_GET),
+                'data' => $feeds
             ];
+
+            if ($pageNumber == 1) {
+                $successRes['liked_feeds_arr'] = $user->likedFeeds()->get()->pluck('id');
+            }
 
             return response()->json($successRes, 200);
         }
