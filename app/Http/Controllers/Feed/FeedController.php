@@ -95,7 +95,7 @@ class FeedController extends BaseController
                 }
             }
             if(!empty($user->likedFeeds())) {
-                return $this->returnSuccess(__($msg), $user->likedFeeds()->get());
+                return $this->returnSuccess(__($msg), $user->likedFeeds()->get()->pluck('id'));
             }
         }
 
