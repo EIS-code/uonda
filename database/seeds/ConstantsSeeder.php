@@ -33,6 +33,16 @@ class ConstantsSeeder extends Seeder
                 'key'   => 'EXPLORE_DISTANCE',
                 'value' => '500'
             ]);
+
+            Constant::create([
+                'key'   => 'EMAIL_DYNAMIC_FIELDS',
+                'value' => json_encode(['name' => 'for user name', 'user_name' => 'for username', 'sur_name' => 'for surname'])
+            ]);
+
+            Constant::create([
+                'key'   => 'APP_PRIVACY_POLICY',
+                'value' => ''
+            ]);
         }
     }
 }

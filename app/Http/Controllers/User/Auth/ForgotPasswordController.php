@@ -6,7 +6,8 @@ use App\Http\Controllers\BaseController;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 use Illuminate\Http\Request;
-use APp\User;
+use App\User;
+use App\Email;
 
 class ForgotPasswordController extends BaseController
 {
@@ -30,6 +31,8 @@ class ForgotPasswordController extends BaseController
         $email = $request->get('email', false);
 
         if ($email) {
+            // Email::store([$email], __(PASSWORD_RESET_LINK_SENT), trans($response));
+
             $user = $model::with('userDocuments')->where('email', $email)->first();
         }
 
@@ -38,6 +41,10 @@ class ForgotPasswordController extends BaseController
 
     protected function sendResetLinkFailedResponse(Request $request, $response)
     {
+        $email = $request->get('email', false);
+
+        Email::store([$email], __(RESET_LINK_EXCEPTION), trans($response), [], [], NULL, Email::IS_NOT_SEND, trans($response));
+
         return $this->returnError(trans($response));
     }
 }

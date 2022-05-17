@@ -13,15 +13,24 @@ class SchoolController extends BaseController
         $data   = $request->all();
         $model  = new School();
         $method = $request->method();
+        $country_id = $request->has('country_id') ? $request->country_id : '';
 
         switch ($method) {
             case 'GET':
-                $schools = $model::with('country', 'city')->orderBy($model::getTableName() . '.name', 'ASC')->get();
+                $schools = $model::with('country', 'city', 'state')->orderBy($model::getTableName() . '.name', 'ASC')->get();
                 break;
             case 'POST':
+                $schools_data = $model::with('country', 'city', 'state');
+                if(!empty($country_id)) {
+                    $schools_data->whereHas('country', function($q) use ($country_id) {
+                        $q->where('country_id', $country_id);
+                    });
+                }
+                $schools = $schools_data->orderBy($model::getTableName() . '.name', 'ASC')->get();
+                break;
             case 'PUT':
                 $schoolId = $request->get('school_id', false);
-                $schools  = $model::with('country', 'city')->where($model::getTableName() . '.id', (int)$schoolId)->orderBy($model::getTableName() . '.name', 'ASC')->get();
+                $schools  = $model::with('country', 'city', 'state')->where($model::getTableName() . '.id', (int)$schoolId)->orderBy($model::getTableName() . '.name', 'ASC')->get();
                 break;
             default:
                 $schools = [];
@@ -35,6 +44,12 @@ class SchoolController extends BaseController
 
                 unset($data->country);
 
+                if (!empty($data->state)) {
+                    $data->state_name = $data->state->name;
+                }
+
+                unset($data->state);
+
                 if (!empty($data->city)) {
                     $data->city_name = $data->city->name;
                 }
@@ -42,7 +57,7 @@ class SchoolController extends BaseController
                 unset($data->city);
             });
 
-            return $this->returnSuccess(__('Schools found successfully!'), $schools);
+            return $this->returnSuccess(__(SCHOOLS_FOUND), $schools);
         }
 
         return $this->returnNull();
@@ -60,12 +75,21 @@ class SchoolController extends BaseController
         }
 
         $create = $model->create($data);
-
-        if ($create) {
-            return $this->returnSuccess(__('School saved successfully!'), $create);
+        $school_data = $model->with('country', 'city', 'state')->find($create->id);
+        if (!empty($school_data)) {
+            $school_data->country_name = $school_data->country->name;
+            $school_data->state_name = !empty($school_data->state) ? $school_data->state->name : NULL;
+            $school_data->city_name = $school_data->city->name;
+            unset($school_data->country);
+            unset($school_data->state);
+            unset($school_data->city);
         }
 
-        return $this->returnError(__('Something went wrong!'));
+        if ($create) {
+            return $this->returnSuccess(__(SCHOOL_SAVED), $school_data);
+        }
+
+        return $this->returnError(__(SOMETHING_WENT_WRONG));
     }
 
     public function updateSchool(Request $request)
@@ -75,13 +99,13 @@ class SchoolController extends BaseController
         $schoolId = !empty($data['school_id']) ? (int)$data['school_id'] : false;
 
         if (empty($schoolId)) {
-            return $this->returnError(__('School id not available!'));
+            return $this->returnError(__(SCHOOL_NOT_AVAILABLE));
         }
 
         $record = $model::find($schoolId);
 
         if (empty($record)) {
-            return $this->returnError(__('School not found!'));
+            return $this->returnError(__(SCHOOL_NOT_FOUND));
         }
 
         $validator = $model->validator($data, $record->id);
@@ -92,6 +116,13 @@ class SchoolController extends BaseController
 
         $record->name       = (string)$data['name'];
         $record->city_id    = (int)$data['city_id'];
+
+        if (!empty($data['state_id'])) {
+            $record->state_id = (int)$data['state_id'];
+        } else {
+            $record->state_id = NULL;
+        }
+
         $record->country_id = (int)$data['country_id'];
 
         $update = $record->save();
@@ -99,9 +130,9 @@ class SchoolController extends BaseController
         if ($update) {
             $record->refresh();
 
-            return $this->returnSuccess(__('School updated successfully!'), $record);
+            return $this->returnSuccess(__(SCHOOL_UPDATED), $record);
         }
 
-        return $this->returnError(__('Something went wrong!'));
+        return $this->returnError(__(SOMETHING_WENT_WRONG));
     }
 }

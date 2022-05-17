@@ -39,7 +39,7 @@ class UserReportQuestionController extends BaseController
         }
 
         if (!empty($questions) && !$questions->isEmpty()) {
-            return $this->returnSuccess(__('User report questions get successfully!'), $questions);
+            return $this->returnSuccess(__(USER_REPORT_QUESTIONS_GET), $questions);
         }
 
         return $this->returnNull();

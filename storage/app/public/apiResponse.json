@@ -1,0 +1,562 @@
+{
+    "notification": [
+        {
+            "key": "EMAIL_SENT",
+            "english_text": "Email sent successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "EMAIL_NOT_SENT",
+            "english_text": "Email not sent!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "PROVIDE_EMAIL_VIEW",
+            "english_text": "Please provide email view.",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "NO_RESPONSE",
+            "english_text": "No response found!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "COUNTRY_FETCHED",
+            "english_text": "Country fetched successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "CITY_FETCHED",
+            "english_text": "Cities fetched successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "STATE_FETCHED",
+            "english_text": "State fetched successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "USERS_FETCHED",
+            "english_text": "Users fetched successfully",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "USER_REGISTERD",
+            "english_text": "User registration done successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "CODE_NOT_FOUND",
+            "english_text": "Referral code not found!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "REFERRAL_USER_ADDED",
+            "english_text": "Refferal user successfully added!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "USER_PERSONAL_DETAILS_SAVED",
+            "english_text": "User personal details saved successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "SOMETHING_WENT_WRONG",
+            "english_text": "Something went wrong!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "USER_OTHERS_DETAILS_SAVED",
+            "english_text": "User other details saved successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "USER_SCHOOL_DETAILS_SAVED",
+            "english_text": "User school details saved successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "LOGGED_IN",
+            "english_text": "Logged in successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "INCORRECT_OAUTHID",
+            "english_text": "OauthId is incorrect.",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "INCORRECT_USERNAME_PASSWORD",
+            "english_text": "Username or Password is incorrect.",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "USER_DETAILS_GET",
+            "english_text": "User details get successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "INCORRECT_USERID",
+            "english_text": "User id seems incorrect.",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "INCORRECT_OLD_PASSWORD",
+            "english_text": "Old password seems incorrect.",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "INCORRECT_NEW_PASSWORD",
+            "english_text": "New password seems incorrect.",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "SAME_PASSWORDS",
+            "english_text": "Old & New password both are same! Please use different.",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "USER_DETAILS_UPDATED",
+            "english_text": "User profile details updated successfully",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "USERS_FOUND",
+            "english_text": "Users found successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "USER_NOT_FOUND",
+            "english_text": "User not found!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "USER_LOCATION_SAVED",
+            "english_text": "User locations saved successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "INCORRECT_DOCUMENTID",
+            "english_text": "Document id seems incorrect.",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "USER_DOCUMENTS_SAVED",
+            "english_text": "User document saved successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "USER_DOCUMENT_REMOVED",
+            "english_text": "User document removed successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "USER_DOCUMENT_FETCHED",
+            "english_text": "User documents are successfully fetched!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "USER_LOCATION_UPDATED",
+            "english_text": "User location details updated successfully",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "LOGGED_OUT",
+            "english_text": "You are successfully logged out!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "USER_ACCOUNT_PRIVACY_SAVED",
+            "english_text": "User account privacy saved successfully",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "USER_PASSWORD_UPDATED",
+            "english_text": "User password updated successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "USER_PRIVACY_GET",
+            "english_text": "User privacy get successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "USER_NOTIFICATION_TURN",
+            "english_text": "User notification turn",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "CONTACT_US_SAVED",
+            "english_text": "Contact us created successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "PROMOTION_GET",
+            "english_text": "Promotions fetched successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "FEEDS_GET",
+            "english_text": "Feeds get successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "FEED_DISLIKED",
+            "english_text": "Feed disliked successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "USER_REPORT_SAVED",
+            "english_text": "User report saved successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "USER_REPORT_QUESTIONS_GET",
+            "english_text": "User report questions get successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "PASSWORD_RESET_LINK_SENT",
+            "english_text": "Sent password reset link.",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "RESET_LINK_EXCEPTION",
+            "english_text": "Exception! While password reset link send.",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "MESSAGE_SEND",
+            "english_text": "Message send successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "ATTACHMENT_ADDED",
+            "english_text": "Chat group attachment inserted successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "ATTACHMENT_NOT_ADDED",
+            "english_text": "Chat group attachment doesn't inserted. Try again.",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "URL_ADDRESS_ADDED",
+            "english_text": " URL & Address inserted successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "URL_ADDRESS_NOT_ADDED",
+            "english_text": "Chat group URL & Address doesn't inserted. Try again.",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "USER_CHAT_LIST_GET",
+            "english_text": "User chat list get successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "USER_HISTORY_GET",
+            "english_text": "User chat history get successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "USER_CHAT_REMOVED",
+            "english_text": "User chat removed successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "CHAT_GROUP_UPDATED",
+            "english_text": "Chat group edited successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "CHAT_GROUP_CREATED",
+            "english_text": "Chat group created successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "USER_ADDED_TO_CHAT",
+            "english_text": "User successfully added to Chat group!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "USERID_REQUIRED",
+            "english_text": "UserId is mandatory.",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "RECEIVER_GROUP_ID_REQUIRED",
+            "english_text": "Receiver id or Group id required.",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "CONTACT_REQUIRED",
+            "english_text": "Contact required if name present.",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "NAME_REQUIRED",
+            "english_text": "Name required if contacts present.",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "ATTACHMENT_URL_CONTACTS_PROVIDE",
+            "english_text": "Provide attachment, url or contacts.",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "NO_RIGHTS",
+            "english_text": "You do not have rights to remove the users from this group.",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "USER_REMOVED",
+            "english_text": "Users successfully removed from Chat group!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "CHAT_FETCHED",
+            "english_text": "Chat group details fetched successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "EXIT_GROUP",
+            "english_text": "You exit the group successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "NOT_ASSOCIATED",
+            "english_text": "You are not associated with this group!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "REPORTED_GROUP",
+            "english_text": "You successfully reported the group!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "REMOVED_GROUP",
+            "english_text": "You successfully removed the group!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "NO_RIGHTS_REMOVE_GROUP",
+            "english_text": "You don't have rights to remove the group",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "CHAT_GROUPS_FETCHED",
+            "english_text": "Chat groups fetched successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "GROUP_NOT_FOUND",
+            "english_text": "Group not found.",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "USER_NOT_ADDED_TO_GROUP",
+            "english_text": "User not added in this group.",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "GROUP_CONTACT_ADDED",
+            "english_text": "Chat group contact inserted successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "GROUP_CONTACT_NOT_ADDED",
+            "english_text": "Chat group contact doesn't inserted. Try again.",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "TERMS_AND_CONDITIONS_ADDED",
+            "english_text": "Terms and conditions found successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "ABOUT_US_FOUND",
+            "english_text": "About Us found successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "APP_PRIVACY_POLICY_FOUND",
+            "english_text": "App privacy policy found successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "SCHOOLS_FOUND",
+            "english_text": "Schools found successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "SCHOOL_SAVED",
+            "english_text": "School saved successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "SCHOOL_UPDATED",
+            "english_text": "School updated successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "SCHOOL_NOT_AVAILABLE",
+            "english_text": "School id not available!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "SCHOOL_NOT_FOUND",
+            "english_text": "School not found!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "NOTIFICATION_CREATED",
+            "english_text": "Notification create successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "NOTIFICATION_SENT",
+            "english_text": "Notification sent successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "NOTIFICATION_GET",
+            "english_text": "Notifications get successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "NOTIFICATION_ID_REQUIRED",
+            "english_text": "Notification id is required.",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "NOTIFICATION_REMOVED",
+            "english_text": "Notification removed successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "NOTIFICATION_NOT_FOUND",
+            "english_text": "Notification could't found.",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "NOTIFICATION_READ",
+            "english_text": "Notification read successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "NOTIFICATION_DETAILS_GET",
+            "english_text": "Notification details get successfully!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "USER_VERIFY_PURCHASE",
+            "english_text": "In app purchase verified!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "USER_UNVERIFY_PURCHASE",
+            "english_text": "In app purchase is not verified!",
+            "show_text": "",
+            "type": "1"
+        },
+        {
+            "key": "USER_PURCHASE_ALREADY_EXISTS",
+            "english_text": "Your purchase already exists.",
+            "show_text": "",
+            "type": "1"
+        }
+    ]
+}

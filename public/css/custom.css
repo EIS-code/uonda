@@ -1,0 +1,128 @@
+.faicons {
+    font-size: 18px;
+}
+.dropdown-menu-header {
+    margin-bottom: -1.35rem;
+}
+
+.logo-src {
+    width: 87px !important;
+    height: 23px !important;
+}
+
+.remove-button {
+    cursor: pointer;
+    color: #d41f1f !important;
+}
+.table-icons {
+    float: right;
+}
+.search-component {
+    margin-right: 13px;
+    height: 33px;
+}
+.pagination {
+    float: right;
+}
+.select2.select2-container.select2-container--default {
+    width: 100% !important;
+}
+a.fa-bell {
+  position: relative;
+  font-size: 2em;
+  color: grey;
+  cursor: pointer;
+  margin-left: 970px;
+}
+span.fa-comment {
+  position: absolute;
+  font-size: 0.6em;
+  top: 8px;
+  color: red;
+  right: 0px;
+}
+span.badge {
+    position: absolute;
+    top: 5px;
+    right: -1px;
+    font-size: 0.5em;
+    border-radius: 50%;
+    background-color: red;
+    color: white;
+}
+
+.dropbtn {
+  color: white;
+  padding: 16px;
+  font-size: 16px;
+  border: none;
+  cursor: pointer;
+}
+
+.dropbtn:hover, .dropbtn:focus {
+  background-color: #3e8e41;
+}
+
+.dropdown {
+  float: right;
+  position: relative;
+  /* display: inline-block; */
+  display:flex;
+  width:100%;
+  justify-content: flex-end;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: white;
+  min-width: 160px;
+  overflow: auto;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+  right: 0;
+  z-index: 1;
+  top:100%;
+}
+
+.dropdown-content a {
+  text-decoration: none;
+}
+
+.dropdown-content li:not(.all-notifications) {
+  color: black;
+  padding: 8px 10px;
+  text-decoration: none;
+  display: block;
+  cursor: pointer;
+}
+
+.dropdown-content li.all-notifications {
+  padding: 8px 10px;
+  text-decoration: none;
+  display: block;
+  cursor: pointer;
+}
+
+.dropdown-content li:hover {
+  background-color: #f1f1f1;
+}
+
+.dropdown a:hover {background-color: #ddd;}
+
+.show {display: block;}
+
+.highlight {
+  -webkit-transition: background 0.5s linear;
+  -moz-transition: background 0.5s linear;
+  -ms-transition: background 0.5s linear;
+  -o-transition: background 0.5s linear;
+  transition: background 0.5s linear;
+}
+
+.highlight.highlight-row {
+    background-color: #ffd5d5 !important;
+}
+
+.tabledit-edit-button.btn-info {
+    margin-right: 2px;
+}

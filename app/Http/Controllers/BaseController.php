@@ -3,25 +3,32 @@
 namespace App\Http\Controllers;
 
 use App\Email;
+use App\Image;
 use Illuminate\Support\Facades\Mail;
 use View;
 use Carbon\Carbon;
+use GuzzleHttp\Client;
+use App\AppText;
 
 class BaseController extends Controller
 {
     public $errorCode     = 401;
+    public $blockCode     = 402;
+    public $userIdCode    = 403;
     public $successCode   = 200;
-    public $returnNullMsg = 'No response found!';
+    public $returnNullMsg = NO_RESPONSE;
 
     public function index()
     {
         dd('Welcome to ' . env('APP_NAME'));
     }
 
-    public function returnError($message = NULL)
+    public function returnError($message = NULL, $code = NULL)
     {
+        $code = empty($code) ? $this->errorCode : $code;
+
         return response()->json([
-            'code' => $this->errorCode,
+            'code' => $code,
             'msg'  => $message
         ]);
     }
@@ -48,7 +55,7 @@ class BaseController extends Controller
         if (empty($view)) {
             return response()->json([
                 'code' => 401,
-                'msg'  => __('Please provide email view.')
+                'msg'  => __(PROVIDE_EMAIL_VIEW)
             ]);
         }
 
@@ -89,7 +96,7 @@ class BaseController extends Controller
         if (Mail::failures()) {
             return response()->json([
                 'code' => 401,
-                'msg'  => __('Email not sent')
+                'msg'  => __(EMAIL_NOT_SENT)
             ]);
         } else {
             if (!is_array($to)) {
@@ -97,23 +104,42 @@ class BaseController extends Controller
             }
 
             foreach ($to as $mailId) {
-                Email::insert([
-                    'from'           => env('MAIL_FROM_ADDRESS', ''),
-                    'to'             => $toName . ' ' . $mailId,
-                    'cc'             => $cc,
-                    'bcc'            => $bcc,
-                    'subject'        => $subject,
-                    'body'           => $bodyContent,
-                    'attachments'    => json_encode($attachments),
-                    'exception_info' => NULL,
-                    'created_at'     => Carbon::now()
-                ]);
+                Email::store([$toName . ' ' . $mailId], $subject, $bodyContent, $cc, $bcc, json_encode($attachments));
             }
 
             return response()->json([
                 'code' => 200,
-                'msg'  => __('Email sent successfully !')
+                'msg'  => __(EMAIL_SENT)
             ]);
         }
+    }
+
+    public function getImages()
+    {
+        $count = request()->get('count', 50);
+
+        return Image::limit($count)->get();
+    }
+
+    public function callSelfApiGet(string $route, string $apiKey, array $param = [])
+    {
+        if (empty($route)) {
+            return false;
+        }
+
+        $client  = new Client(['headers' => ['api-key' => $apiKey], 'verify' => !env('APP_DEBUG', false)]);
+
+        $request = $client->get($route, ['json' => $param]);
+
+        if ($request->getStatusCode() == $this->successCode) {
+            return json_decode($request->getBody(), true);
+        } else {
+            return json_decode($request->getBody(), true);
+        }
+    }
+
+    public function privacyPolicy()
+    {
+        return view('pages.privacy-policy.index');
     }
 }

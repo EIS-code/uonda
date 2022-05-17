@@ -10,15 +10,19 @@ class Country extends BaseModel
 
     protected $fillable = [
         'name',
-        'short_name',
-        'phone_code'
+        'sort_name',
+        'phone_code',
+        'latitude',
+        'longitude'
     ];
+
+    protected $appends = ['encrypted_country_id'];
 
     public function validator(array $data, $id = false, $isUpdate = false)
     {
         return Validator::make($data, [
             'name'       => ['required', 'string', 'max:255'],
-            'short_name' => ['required', 'string', 'max:255'],
+            'sort_name' => ['required', 'string', 'max:255'],
             'phone_code' => ['required', 'integer', 'max:255']
         ]);
     }
@@ -26,5 +30,11 @@ class Country extends BaseModel
     public function states()
     {
         return $this->belongsToMany('App\State');
+    }
+
+    //get encrypted country id
+    public function getEncryptedCountryIdAttribute()
+    {
+        return encrypt($this->id);
     }
 }
