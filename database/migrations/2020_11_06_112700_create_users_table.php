@@ -29,7 +29,7 @@ class CreateUsersTable extends Migration
             $table->foreign('school_id')->references('id')->on('schools')->onDelete('cascade');
             $table->bigInteger('country_id')->unsigned()->nullable();
             $table->foreign('country_id')->references('id')->on('countries')->onDelete('cascade');
-            $table->bigInteger('state_id')->unsigned();
+            $table->bigInteger('state_id')->unsigned()->nullable();
             $table->foreign('state_id')->references('id')->on('states')->onDelete('cascade');
             $table->bigInteger('city_id')->unsigned()->nullable();
             $table->foreign('city_id')->references('id')->on('cities')->onDelete('cascade');
