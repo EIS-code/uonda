@@ -15,6 +15,8 @@ class SuperadminUserSeeder extends Seeder
         $confirmed = $this->command->confirm(__('Are you sure ? Because script will remove the old Superadmin credentials data and then add new.'));
 
         if ($confirmed) {
+            DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+
             $oldSuperadmins = User::where('is_admin', User::IS_ADMIN)->get();
 
             if (!empty($oldSuperadmins) && !$oldSuperadmins->isEmpty()) {
@@ -29,6 +31,8 @@ class SuperadminUserSeeder extends Seeder
                 'is_admin'      => User::IS_ADMIN,
                 'device_type'   => 'web'
             ]);
+
+            DB::statement('SET FOREIGN_KEY_CHECKS=1;');
         }
     }
 }
