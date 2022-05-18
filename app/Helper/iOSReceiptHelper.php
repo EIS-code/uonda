@@ -20,10 +20,10 @@ class iOSReceiptHelper
         $this->validator = $iOSValidator;
 
         // Or iTunesValidator::ENDPOINT_SANDBOX if sandbox testing
-        if (config('app.env') == 'local') {
-            $this->validator->setEndpoint(iOSValidator::ENDPOINT_SANDBOX);
-        } else {
+        if (config('app.env') == 'live') {
             $this->validator->setEndpoint(iOSValidator::ENDPOINT_PRODUCTION);
+        } else {
+            $this->validator->setEndpoint(iOSValidator::ENDPOINT_SANDBOX);
         }
     }
 
