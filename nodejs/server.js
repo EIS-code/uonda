@@ -77,7 +77,7 @@ var isError                     = false,
 
 io.on('connection', function (socket) {
 
-    connection.on('error', function(err) {
+    con.on('error', function(err) {
         throw err;
         return;
     });
