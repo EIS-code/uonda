@@ -43,7 +43,7 @@ let con  = mysql.createPool({
     database        : env.config(envPath).parsed.DB_DATABASE,
     strict          : false,
     socketPath      : env.config(envPath).parsed.APP_ENV == 'dev' ? '/var/lib/mysql/mysql.sock' : '/var/run/mysqld/mysqld.sock',
-    debug           : true
+    debug           : false
 });
 
 // Database tables.
