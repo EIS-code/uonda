@@ -33,7 +33,7 @@ app.use(function (req, res, next) {
     res.header('Access-Control-Allow-Credentials', 'true');
     next();
 });
-console.log(env.config(envPath));
+
 // MySql
 let con  = mysql.createPool({
     connectionLimit : 100000,//2000000, // default = 10
@@ -42,7 +42,7 @@ let con  = mysql.createPool({
     password        : env.config(envPath).parsed.DB_PASSWORD,
     database        : env.config(envPath).parsed.DB_DATABASE,
     strict          : false,
-    socketPath      : env.config(envPath).parsed.APP_ENV == 'dev' ? '/var/lib/mysql/mysql.sock' : ''
+    socketPath      : env.config(envPath).parsed.APP_ENV == 'dev' ? '/var/lib/mysql/mysql.sock' : '/run/mysqld/mysqld.sock'
 });
 
 // Database tables.
