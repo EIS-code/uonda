@@ -33,7 +33,7 @@ app.use(function (req, res, next) {
     res.header('Access-Control-Allow-Credentials', 'true');
     next();
 });
-
+console.log(env.config(envPath));
 // MySql
 let con  = mysql.createPool({
     connectionLimit : 100000,//2000000, // default = 10
@@ -76,11 +76,6 @@ var isError                     = false,
     socketIds                   = [];
 
 io.on('connection', function (socket) {
-
-    con.on('error', function(err) {
-        throw err;
-        return;
-    });
 
     /* Emit connected. */
     socket.emit('connected', {
