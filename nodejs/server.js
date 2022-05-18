@@ -42,7 +42,8 @@ let con  = mysql.createPool({
     password        : env.config(envPath).parsed.DB_PASSWORD,
     database        : env.config(envPath).parsed.DB_DATABASE,
     strict          : false,
-    socketPath      : env.config(envPath).parsed.APP_ENV == 'dev' ? '/var/lib/mysql/mysql.sock' : '/var/run/mysqld/mysqld.sock'
+    socketPath      : env.config(envPath).parsed.APP_ENV == 'dev' ? '/var/lib/mysql/mysql.sock' : '/var/run/mysqld/mysqld.sock',
+    debug           : true
 });
 
 // Database tables.
