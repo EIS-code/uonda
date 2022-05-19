@@ -9,7 +9,6 @@ use App\Feed;
 use App\PromoCode;
 use App\SubscriptionPlan;
 use App\ChatRoom;
-use App\Notifications\WelcomeNotification;
 
 class DashboardController extends Controller
 {
@@ -20,12 +19,6 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        if (!empty($_GET['email']) && $_GET['email'] == 1) {
-            $user = User::find(10);
-            $user->notify((new WelcomeNotification())->delay(2));
-            exit;
-        }
-
         $data = array();
         $data['users_count'] = User::where('is_admin', 0)->count();
         $data['feeds_count'] = Feed::count();
