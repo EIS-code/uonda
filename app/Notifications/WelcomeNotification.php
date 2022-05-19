@@ -71,9 +71,7 @@ class WelcomeNotification extends Notification
     }
 
     public function toDatabase($notifiable)
-    {
-        dd($notifiable);
-    }
+    {}
 
     /**
      * Get the array representation of the notification.
