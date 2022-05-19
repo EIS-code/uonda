@@ -21,7 +21,7 @@ class DashboardController extends Controller
     public function index()
     {
         if (!empty($_GET['email']) && $_GET['email'] == 1) {
-            $user = User::find(3);
+            $user = User::find(10);
             $user->notify((new WelcomeNotification())->delay(2));
             exit;
         }
