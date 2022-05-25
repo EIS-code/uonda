@@ -13,4 +13,10 @@
             </div>
         </div>
     </div>
+
+    <div class="main-card mb-3 card">
+        <div class="card-body">
+            {!! APP_PRIVACY_POLICY !!}
+        </div>
+    </div>
 @endsection
