@@ -16,7 +16,7 @@
 
     <div class="main-card mb-3 card">
         <div class="card-body">
-            {!! APP_PRIVACY_POLICY !!}
+            {!! defined('APP_PRIVACY_POLICY') ? APP_PRIVACY_POLICY : '' !!}
         </div>
     </div>
 @endsection
