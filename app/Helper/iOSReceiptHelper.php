@@ -19,11 +19,9 @@ class iOSReceiptHelper
     {
         $this->validator = $iOSValidator;
 
-        $this->sandboxValidator = $iOSValidator;
-
         $this->validator->setEndpoint(iOSValidator::ENDPOINT_PRODUCTION);
 
-        $this->sandboxValidator->setEndpoint(iOSValidator::ENDPOINT_SANDBOX);
+        // $this->validator->setEndpoint(iOSValidator::ENDPOINT_SANDBOX);
     }
 
     public function verify($receiptData)
@@ -39,13 +37,6 @@ class iOSReceiptHelper
                              ->setSharedSecret(config('services.ios.shared_secret'))
                              ->setReceiptData($receiptData)
                              ->validate();
-
-            if ($response->getResultCode() == '21007') {
-                $response = $this->sandboxValidator
-                             ->setSharedSecret(config('services.ios.shared_secret'))
-                             ->setReceiptData($receiptData)
-                             ->validate();
-            }
 
             $receipt = $response->getRawData();
         } catch (Exception $e) {}
