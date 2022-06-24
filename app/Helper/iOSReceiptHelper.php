@@ -103,7 +103,7 @@ class iOSReceiptHelper
             // Because if user install app first time then error popup should not display.
             if ($isFirstTime) {
                 return response()->json([
-                    'code'   => $this->errorCode,
+                    'code'   => null,
                     'msg'    => null,
                     'status' => 0
                 ]);
