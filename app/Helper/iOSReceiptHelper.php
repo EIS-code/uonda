@@ -70,6 +70,7 @@ class iOSReceiptHelper
     {
         $userId      = $request->get('user_id', null);
         $receiptData = $request->get('receipt_data', null);
+        $isFirstTime = $request->get('is_first_time', null);
 
         // Check user exists.
         $user = User::find($userId);
@@ -98,6 +99,14 @@ class iOSReceiptHelper
 
         if (!$check) {
             User::setPaymentFlagPending($userId);
+
+            if ($isFirstTime) {
+                return response()->json([
+                    'code'   => $this->errorCode,
+                    'msg'    => null,
+                    'status' => 0
+                ]);
+            }
 
             return response()->json([
                 'code'   => $this->errorCode,
