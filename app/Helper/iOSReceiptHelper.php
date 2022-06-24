@@ -70,7 +70,7 @@ class iOSReceiptHelper
     {
         $userId      = $request->get('user_id', null);
         $receiptData = $request->get('receipt_data', null);
-        $isFirstTime = $request->get('is_first_time', null);
+        $isFirstTime = $request->get('is_first_time', false);
 
         // Check user exists.
         $user = User::find($userId);
@@ -100,6 +100,7 @@ class iOSReceiptHelper
         if (!$check) {
             User::setPaymentFlagPending($userId);
 
+            // Because if user install app first time then error popup should not display.
             if ($isFirstTime) {
                 return response()->json([
                     'code'   => $this->errorCode,
