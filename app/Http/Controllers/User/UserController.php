@@ -1219,4 +1219,13 @@ class UserController extends BaseController
         }
         return $this->returnError(__(SOMETHING_WENT_WRONG));
     }
+
+    public function delete(Request $request, $id) {
+        if (!empty($id)) {
+            User::where('id', $id)->delete();
+
+            return $this->returnSuccess("Deleted Successfull");
+        }
+        return $this->returnError(__(SOMETHING_WENT_WRONG));
+    }
 }
