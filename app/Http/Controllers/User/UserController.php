@@ -800,22 +800,22 @@ class UserController extends BaseController
 
         $fieldOfStudy = $request->get('field_of_study', false);
         if (!empty($fieldOfStudy)) {
-            $query->where($model->getTableName() . '.field_of_study', 'LIKE', '%' . $fieldOfStudy . '%');
+            $query->where($model->getTableName() . '.field_of_study', 'LIKE', $fieldOfStudy . '%');
         }
 
         $jobPosition = $request->get('job_position', false);
         if (!empty($jobPosition)) {
-            $query->where($model->getTableName() . '.job_position', 'LIKE', '%' . $jobPosition . '%');
+            $query->where($model->getTableName() . '.job_position', 'LIKE', $jobPosition . '%');
         }
 
         $company = $request->get('company', false);
         if (!empty($company)) {
-            $query->where($model->getTableName() . '.company', 'LIKE', '%' . $company . '%');
+            $query->where($model->getTableName() . '.company', 'LIKE', $company . '%');
         }
 
         $university = $request->get('university', false);
         if (!empty($university)) {
-            $query->where($model->getTableName() . '.university', 'LIKE', '%' . $university . '%');
+            $query->where($model->getTableName() . '.university', 'LIKE', $university . '%');
         }
 
         $type = $request->get('type', false);
@@ -827,7 +827,7 @@ class UserController extends BaseController
                 case "school":
                     $latitude = $longitude = false;
 
-                    $query->where($schoolModel::getTableName() . '.name', 'LIKE', '%' . $keyword . '%');
+                    $query->where($schoolModel::getTableName() . '.name', 'LIKE', $keyword . '%');
                     break;
                 case "location":
                     $latitude = $longitude = false;
@@ -835,17 +835,17 @@ class UserController extends BaseController
                 case 'job_position':
                     $latitude = $longitude = false;
 
-                    $query->where($model->getTableName() . '.job_position', 'LIKE', '%' . $keyword . '%');
+                    $query->where($model->getTableName() . '.job_position', 'LIKE', $keyword . '%');
                     break;
                 case 'company':
                     $latitude = $longitude = false;
 
-                    $query->where($model->getTableName() . '.company', 'LIKE', '%' . $keyword . '%');
+                    $query->where($model->getTableName() . '.company', 'LIKE', $keyword . '%');
                     break;
                 case 'university':
                     $latitude = $longitude = false;
 
-                    $query->where($model->getTableName() . '.university', 'LIKE', '%' . $keyword . '%');
+                    $query->where($model->getTableName() . '.university', 'LIKE', $keyword . '%');
                     break;
                 case "person":
                     if ($type == "person") {
@@ -853,9 +853,9 @@ class UserController extends BaseController
                     }
 
                     $query->where(function($query) use($model, $keyword) {
-                        $query->where($model->getTableName() . '.name', 'LIKE', '%' . $keyword . '%')
-                              ->orWhere($model->getTableName() . '.email', 'LIKE', '%' . $keyword . '%')
-                              ->orWhere($model->getTableName() . '.user_name', 'LIKE', '%' . $keyword . '%');
+                        $query->where($model->getTableName() . '.name', 'LIKE', $keyword . '%')
+                            //   ->orWhere($model->getTableName() . '.email', 'LIKE', $keyword . '%')
+                              ->orWhere($model->getTableName() . '.user_name', 'LIKE', $keyword . '%');
                     });
                     break;
             }
@@ -1074,22 +1074,22 @@ class UserController extends BaseController
 
         $fieldOfStudy = $request->get('field_of_study', false);
         if (!empty($fieldOfStudy)) {
-            $query->where($model->getTableName() . '.field_of_study', 'LIKE', '%' . $fieldOfStudy . '%');
+            $query->where($model->getTableName() . '.field_of_study', 'LIKE', $fieldOfStudy . '%');
         }
 
         $jobPosition = $request->get('job_position', false);
         if (!empty($jobPosition)) {
-            $query->where($model->getTableName() . '.job_position', 'LIKE', '%' . $jobPosition . '%');
+            $query->where($model->getTableName() . '.job_position', 'LIKE', $jobPosition . '%');
         }
 
         $company = $request->get('company', false);
         if (!empty($company)) {
-            $query->where($model->getTableName() . '.company', 'LIKE', '%' . $company . '%');
+            $query->where($model->getTableName() . '.company', 'LIKE', $company . '%');
         }
 
         $university = $request->get('university', false);
         if (!empty($university)) {
-            $query->where($model->getTableName() . '.university', 'LIKE', '%' . $university . '%');
+            $query->where($model->getTableName() . '.university', 'LIKE', $university . '%');
         }
 
         $type = $request->get('type', false);
@@ -1101,7 +1101,7 @@ class UserController extends BaseController
                 case "school":
                     $latitude = $longitude = false;
 
-                    $query->where($schoolModel::getTableName() . '.name', 'LIKE', '%' . $keyword . '%');
+                    $query->where($schoolModel::getTableName() . '.name', 'LIKE', $keyword . '%');
                     break;
                 case "country":
                     $latitude = $longitude = false;
@@ -1117,24 +1117,24 @@ class UserController extends BaseController
                 case "location":
                     $latitude = $longitude = false;
                     $query->where(function($query) use($cityModel, $model, $keyword) {
-                        $query->where($cityModel::getTableName() . '.name', 'LIKE', '%' . $keyword . '%')
-                              ->orWhere($model->getTableName() . '.current_location', 'LIKE', '%' . $keyword . '%');
+                        $query->where($cityModel::getTableName() . '.name', 'LIKE', $keyword . '%')
+                              ->orWhere($model->getTableName() . '.current_location', 'LIKE', $keyword . '%');
                     });
                     break;
                 case 'job_position':
                     $latitude = $longitude = false;
 
-                    $query->where($model->getTableName() . '.job_position', 'LIKE', '%' . $keyword . '%');
+                    $query->where($model->getTableName() . '.job_position', 'LIKE', $keyword . '%');
                     break;
                 case 'company':
                     $latitude = $longitude = false;
 
-                    $query->where($model->getTableName() . '.company', 'LIKE', '%' . $keyword . '%');
+                    $query->where($model->getTableName() . '.company', 'LIKE', $keyword . '%');
                     break;
                 case 'university':
                     $latitude = $longitude = false;
 
-                    $query->where($model->getTableName() . '.university', 'LIKE', '%' . $keyword . '%');
+                    $query->where($model->getTableName() . '.university', 'LIKE', $keyword . '%');
                     break;
                 case "person":
                     if ($type == "person") {
@@ -1142,9 +1142,9 @@ class UserController extends BaseController
                     }
 
                     $query->where(function($query) use($model, $keyword) {
-                        $query->where($model->getTableName() . '.name', 'LIKE', '%' . $keyword . '%')
-                              ->orWhere($model->getTableName() . '.email', 'LIKE', '%' . $keyword . '%')
-                              ->orWhere($model->getTableName() . '.user_name', 'LIKE', '%' . $keyword . '%');
+                        $query->where($model->getTableName() . '.name', 'LIKE', $keyword . '%')
+                            //   ->orWhere($model->getTableName() . '.email', 'LIKE', $keyword . '%')
+                              ->orWhere($model->getTableName() . '.user_name', 'LIKE', $keyword . '%');
                     });
                     break;
             }
