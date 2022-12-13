@@ -19,6 +19,8 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+Route::get('/email/verify/{token}','user\UserController@SendEmailVerifyLink')->name('user.email.verify');
+
 Route::group(['middleware' => ['web.auth.api']], function () {
 
     Route::get('/', 'BaseController@index')->name('index');

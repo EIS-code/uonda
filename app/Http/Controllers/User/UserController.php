@@ -20,6 +20,9 @@ use Intervention\Image\ImageManagerStatic as Image;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\UserReferral;
+use Illuminate\Support\Facades\Crypt;
+use App\Notifications\VerifyEmailNotification;
+
 
 class UserController extends BaseController
 {
@@ -242,6 +245,11 @@ class UserController extends BaseController
                 }
 
                 DB::commit();
+
+                $token = Crypt::encryptString($userId);
+                $create->notify((new VerifyEmailNotification($token)));
+
+
 
                 return $this->returnSuccess(__(USER_PERSONAL_DETAILS_SAVED), $this->getDetails($userId, false, true));
             }
@@ -505,6 +513,11 @@ class UserController extends BaseController
             } elseif ($isOauthLogin) {
                 $check = (string)$user->oauth_uid === (string)$oauthId;
             }
+        }
+
+        if (empty($user->email_verified_at))
+        {
+            return $this->returnError(__('Please verify your email.'));
         }
 
         if ($check === true) {
@@ -1227,5 +1240,26 @@ class UserController extends BaseController
             return $this->returnSuccess("Deleted Successfull");
         }
         return $this->returnError(__(SOMETHING_WENT_WRONG));
+    }
+
+    public function SendEmailVerifyLink(Request $request, $token)
+    {   
+
+        $decrypted = Crypt::decryptString($token);
+
+        print_r($decrypted);
+
+        $user = User::find($decrypted);
+
+        if (!empty ($user))
+        {
+            $userUpdate = User::where(['id'=>$decrypted])->update(['email_verified_at'=>Carbon::now()]);
+
+            return $this->returnSuccess("Verified Successfull");
+        }
+        else
+        {
+            return $this->returnError(__(USER_NOT_FOUND));
+        }
     }
 }

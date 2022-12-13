@@ -21,6 +21,8 @@ class EmailTemplate extends BaseModel
 
     const WELCOME_EMAIL_ID = '2';
 
+    const VERIFY_EMAIL_ID = '3';
+
     public function validator(array $data, $returnBoolsOnly = false)
     {
         $validator = Validator::make($data, [
