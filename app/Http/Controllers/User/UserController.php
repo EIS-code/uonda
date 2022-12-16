@@ -249,8 +249,6 @@ class UserController extends BaseController
                 $token = Crypt::encryptString($userId);
                 $create->notify((new VerifyEmailNotification($token)));
 
-
-
                 return $this->returnSuccess(__(USER_PERSONAL_DETAILS_SAVED), $this->getDetails($userId, false, true));
             }
             return $this->returnError(__(SOMETHING_WENT_WRONG));
