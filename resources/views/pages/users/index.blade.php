@@ -66,6 +66,9 @@
                     </th>
                 @endif
                 <th>
+                    Email Verified
+                </th>
+                <th>
                     In App Purchase
                 </th>
                 <th>Action</th>
@@ -82,6 +85,9 @@
                         <td>{{ Carbon\Carbon::parse($user->created_at)->format('jS M Y') }}</td>
                         <td>
                             <input type="checkbox" {{ $user->is_enable == $user::IS_ENABLED ? 'checked' : ''}} data-id="{{ $user->encrypted_user_id }}" class="user_status" value="{{ $user->is_enable }}" data-toggle="toggle" data-onstyle="success" data-offstyle="danger">
+                        </td>
+                        <td>
+                            {{ !empty($user->email_verified_at) ? 'Yes' : 'No' }}
                         </td>
                         @if ($type == 'accepted')
                             <td>
