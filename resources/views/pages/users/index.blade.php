@@ -86,14 +86,14 @@
                         <td>
                             <input type="checkbox" {{ $user->is_enable == $user::IS_ENABLED ? 'checked' : ''}} data-id="{{ $user->encrypted_user_id }}" class="user_status" value="{{ $user->is_enable }}" data-toggle="toggle" data-onstyle="success" data-offstyle="danger">
                         </td>
-                        <td>
-                            {{ !empty($user->email_verified_at) ? 'Yes' : 'No' }}
-                        </td>
                         @if ($type == 'accepted')
                             <td>
                                 <input type="checkbox" {{ $user->free_for_use_flag == $user::FREE_FOR_USE_FLAG_YES ? 'checked' : ''}} data-id="{{ $user->encrypted_user_id }}" class="free_for_use_flag" value="{{ $user->free_for_use_flag }}" data-toggle="toggle" data-onstyle="success" data-offstyle="danger">
                             </td>
                         @endif
+                        <td>
+                            {{ !empty($user->email_verified_at) ? 'Yes' : 'No' }}
+                        </td>
                         <td style="display: flex; border: none;">
                             <div style="width: 90%;">
                                 &nbsp;
