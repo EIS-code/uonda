@@ -285,7 +285,8 @@ class UserController extends Controller
      */
     public function destroy(Request $request, $id)
     {
-        User::where('id', decrypt($id))->delete();
+        //User::where('id', decrypt($id))->delete();
+        User::where('id', decrypt($id))->forceDelete();
 		$request->session()->flash('success','User deleted successfully');
 		return redirect(url()->previous());
     }

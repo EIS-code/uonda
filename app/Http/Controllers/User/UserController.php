@@ -1233,8 +1233,8 @@ class UserController extends BaseController
 
     public function delete(Request $request, $id) {
         if (!empty($id)) {
-            User::where('id', $id)->delete();
-
+            //User::where('id', $id)->delete();
+            User::where('id', $id)->forceDelete();
             return $this->returnSuccess("Deleted Successfull");
         }
         return $this->returnError(__(SOMETHING_WENT_WRONG));
