@@ -30,7 +30,7 @@ class SchoolController extends Controller
      */
     public function create()
     {
-        $countries = Country::get();
+        $countries = Country::orderBy('name', 'ASC')->get();
         return view('pages.schools.add', compact('countries'));
     }
 
@@ -150,13 +150,13 @@ class SchoolController extends Controller
 
     //function to get the states details from the country
     public function getStateDetails(Request $request, $id) {
-        $states = State::where('country_id', $id)->get();
+        $states = State::where('country_id', $id)->orderBy('name', 'ASC')->get();
         return response()->json(['data' => $states, 'status' => 200], 200);
     }
 
     //function to get the cities details from the state
     public function getCitiesDetails(Request $request, $id) {
-        $cities = City::where('state_id', $id)->get();
+        $cities = City::where('state_id', $id)->orderBy('name', 'ASC')->get();
         return response()->json(['data' => $cities, 'status' => 200], 200);
     }
 
@@ -168,7 +168,7 @@ class SchoolController extends Controller
                     }])
                     ->whereHas('state', function($q) use ($country_id) {
                         $q->where('country_id', $country_id);
-                    })->get();
+                    })->orderBy('name', 'ASC')->get();
         return response()->json(['data' => $cities, 'status' => 200], 200);
     }
 }
