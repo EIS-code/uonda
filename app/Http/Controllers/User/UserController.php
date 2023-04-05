@@ -510,6 +510,7 @@ class UserController extends BaseController
                 $check = ((string)$user->email === (string)$userName && Hash::check($password, $user->password));
             } elseif ($isOauthLogin) {
                 $check = (string)$user->oauth_uid === (string)$oauthId;
+                $userUpdate = User::where(['id'=>$user->id])->update(['email_verified_at'=>Carbon::now()]);
             }
         }
 
@@ -1242,7 +1243,6 @@ class UserController extends BaseController
 
     public function SendEmailVerifyLink(Request $request, $token)
     {   
-
         $decrypted = Crypt::decryptString($token);
 
         print_r($decrypted);
