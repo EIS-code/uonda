@@ -510,7 +510,10 @@ class UserController extends BaseController
                 $check = ((string)$user->email === (string)$userName && Hash::check($password, $user->password));
             } elseif ($isOauthLogin) {
                 $check = (string)$user->oauth_uid === (string)$oauthId;
-                $userUpdate = User::where(['id'=>$user->id])->update(['email_verified_at'=>Carbon::now()]);
+                //$userUpdate = User::where(['id'=>$user->id])->update(['email_verified_at'=>Carbon::now()]);
+                $user->email_verified_at = Carbon::now();
+                $user->save();
+                $user->refresh();
             }
         }
 
