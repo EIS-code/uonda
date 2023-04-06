@@ -517,10 +517,10 @@ class UserController extends BaseController
             }
         }
 
-        if (empty($user->email_verified_at))
-        {
-            return $this->returnError(__('Please verify your email.'));
-        }
+        // if (empty($user->email_verified_at))
+        // {
+        //     return $this->returnError(__('Please verify your email.'));
+        // }
 
         if ($check === true) {
             // Generate API key.
