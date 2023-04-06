@@ -124,7 +124,7 @@ class UserController extends BaseController
 
         return $this->returnNull();
     }
-    
+
     public function returns($message = NULL, $with = NULL, $isError = false)
     {
         if ($isError && !empty($message)) {
@@ -146,7 +146,8 @@ class UserController extends BaseController
         return $this->returnNull();
     }
 
-    public function getReferralCode() {
+    public function getReferralCode()
+    {
         $code = Str::random(6);
         $check = User::where('referral_code', $code)->first();
         if (empty($check)) {
@@ -155,10 +156,11 @@ class UserController extends BaseController
             return $this->getReferralCode();
         }
     }
-    
-    public function addUserReferral(Request $request, $userId){
+
+    public function addUserReferral(Request $request, $userId)
+    {
         $user = User::where('referral_code', $request->referral_code)->first();
-        if(empty($user)) {
+        if (empty($user)) {
             return ['isError' => true, 'message' => CODE_NOT_FOUND];
         }
         $data = [
@@ -167,7 +169,7 @@ class UserController extends BaseController
             'referral_code' => $request->referral_code
         ];
         $model = new UserReferral();
-        
+
         $validator = $model->validator($data);
         if ($validator->fails()) {
             return ['isError' => true, 'message' => $validator->errors()->first()];
@@ -348,7 +350,7 @@ class UserController extends BaseController
         // $user->nation           = $data['nation'];
         $user->gender           = $data['gender'];
         $user->birthday         = !empty($data['birthday']) ? $data['birthday'] : NULL;
-        $user->current_status   = isset($data['current_status']) ? ''.$data['current_status'] : '0';
+        $user->current_status   = isset($data['current_status']) ? '' . $data['current_status'] : '0';
         $user->company          = !empty($data['company']) ? $data['company'] : NULL;
         $user->job_position     = !empty($data['job_position']) ? $data['job_position'] : NULL;
         $user->university       = !empty($data['university']) ? $data['university'] : NULL;
@@ -508,6 +510,10 @@ class UserController extends BaseController
         if (!empty($user)) {
             if ($isUserNamePasswordLogin) {
                 $check = ((string)$user->email === (string)$userName && Hash::check($password, $user->password));
+
+                if (empty($user->email_verified_at)) {
+                    return $this->returnError(__('Please verify your email.'));
+                }
             } elseif ($isOauthLogin) {
                 $check = (string)$user->oauth_uid === (string)$oauthId;
                 //$userUpdate = User::where(['id'=>$user->id])->update(['email_verified_at'=>Carbon::now()]);
@@ -517,10 +523,7 @@ class UserController extends BaseController
             }
         }
 
-        // if (empty($user->email_verified_at))
-        // {
-        //     return $this->returnError(__('Please verify your email.'));
-        // }
+
 
         if ($check === true) {
             // Generate API key.
@@ -553,8 +556,8 @@ class UserController extends BaseController
             return $this->returnError(__('This profile blocked by user.'), $this->blockCode);
         }
 
-        $user = $model::with(['userDocuments','userPermission'])->find($userId);
-        
+        $user = $model::with(['userDocuments', 'userPermission'])->find($userId);
+
         if (!empty($user)) {
             if ($apiKey) {
                 // Generate API key.
@@ -601,8 +604,8 @@ class UserController extends BaseController
 
         $userId     = (int)$data['user_id'];
 
-        $getUser    = function() use($userId, $model) {
-            return $model::select('id', 'device_token', 'personal_flag', 'school_flag', 'other_flag', 'free_for_use_flag', 'payment_flag' , 'origin_country_id' , 'is_accepted', 'reason_for_rejection')->with('userDocuments')->find($userId);
+        $getUser    = function () use ($userId, $model) {
+            return $model::select('id', 'device_token', 'personal_flag', 'school_flag', 'other_flag', 'free_for_use_flag', 'payment_flag', 'origin_country_id', 'is_accepted', 'reason_for_rejection')->with('userDocuments')->find($userId);
         };
 
         $user   = $getUser();
@@ -618,7 +621,7 @@ class UserController extends BaseController
 
             $user = $getUser();
 
-            $user->makeVisible(['personal_flag', 'school_flag', 'other_flag', 'free_for_use_flag', 'payment_flag', 'origin_country_id' , 'is_accepted']);
+            $user->makeVisible(['personal_flag', 'school_flag', 'other_flag', 'free_for_use_flag', 'payment_flag', 'origin_country_id', 'is_accepted']);
 
             // $user->makeHidden(['notifications']);
 
@@ -838,7 +841,7 @@ class UserController extends BaseController
             $keyword = $request->get('keyword', false);
 
             // if (!empty($keyword)) {}
-            switch($type) {
+            switch ($type) {
                 case "school":
                     $latitude = $longitude = false;
 
@@ -867,10 +870,10 @@ class UserController extends BaseController
                         $latitude = $longitude = false;
                     }
 
-                    $query->where(function($query) use($model, $keyword) {
+                    $query->where(function ($query) use ($model, $keyword) {
                         $query->where($model->getTableName() . '.name', 'LIKE', $keyword . '%')
                             //   ->orWhere($model->getTableName() . '.email', 'LIKE', $keyword . '%')
-                              ->orWhere($model->getTableName() . '.user_name', 'LIKE', $keyword . '%');
+                            ->orWhere($model->getTableName() . '.user_name', 'LIKE', $keyword . '%');
                     });
                     break;
             }
@@ -890,13 +893,13 @@ class UserController extends BaseController
         }
 
         $query->join($schoolModel::getTableName(), $model->getTableName() . '.school_id', '=', $schoolModel::getTableName() . '.id');
-        $query->leftJoin($userBlockProfilesModel::getTableName(), function($leftJoin) use($model, $userBlockProfilesModel, $userId) {
+        $query->leftJoin($userBlockProfilesModel::getTableName(), function ($leftJoin) use ($model, $userBlockProfilesModel, $userId) {
             $leftJoin->on($model->getTableName() . '.id', '=', $userBlockProfilesModel::getTableName() . '.user_id')
-                     ->where($userBlockProfilesModel::getTableName() . '.is_block', (string)$userBlockProfilesModel::IS_BLOCK)
-                     ->where(function($where) use($model, $userBlockProfilesModel, $userId) {
-                        $where->where($userBlockProfilesModel::getTableName() . '.user_id', '=', $userId)
-                              ->orWhere($userBlockProfilesModel::getTableName() . '.blocked_by', '=', $userId);
-                     });
+                ->where($userBlockProfilesModel::getTableName() . '.is_block', (string)$userBlockProfilesModel::IS_BLOCK)
+                ->where(function ($where) use ($model, $userBlockProfilesModel, $userId) {
+                    $where->where($userBlockProfilesModel::getTableName() . '.user_id', '=', $userId)
+                        ->orWhere($userBlockProfilesModel::getTableName() . '.blocked_by', '=', $userId);
+                });
         });
         $query->leftJoin($cityModel::getTableName(), $model->getTableName() . '.city_id', '=', $cityModel::getTableName() . '.id');
 
@@ -959,7 +962,7 @@ class UserController extends BaseController
         $model  = new UserDocument();
         $data   = $request->all();
         $userId = !empty($data['user_id']) ? (int)$data['user_id'] : false;
-        $id     = !empty($data['id']) ? (int)$data['id']: false;
+        $id     = !empty($data['id']) ? (int)$data['id'] : false;
 
         if (empty($userId)) {
             return $this->returnError(__(INCORRECT_USERID));
@@ -979,10 +982,11 @@ class UserController extends BaseController
     }
 
     //Function to save the location of user
-    public function saveOriginLocation(Request $request) {
+    public function saveOriginLocation(Request $request)
+    {
         $model = new User();
         $data  = $request->all();
-        
+
         if (empty($data['user_id']) || !is_numeric($data['user_id'])) {
             return $this->returnError(__(INCORRECT_USERID));
         }
@@ -1112,7 +1116,7 @@ class UserController extends BaseController
             $keyword = $request->get('keyword', false);
 
             // if (!empty($keyword)) {}
-            switch($type) {
+            switch ($type) {
                 case "school":
                     $latitude = $longitude = false;
 
@@ -1124,16 +1128,16 @@ class UserController extends BaseController
                     break;
                 case "city":
                     $latitude = $longitude = false;
-                    $query->where(function($query) use($cityModel, $model, $keyword) {
+                    $query->where(function ($query) use ($cityModel, $model, $keyword) {
                         $query->where($cityModel::getTableName() . '.name', 'LIKE', $keyword . '%')
-                              ->orWhere($model->getTableName() . '.current_location', 'LIKE', $keyword . '%');
+                            ->orWhere($model->getTableName() . '.current_location', 'LIKE', $keyword . '%');
                     });
                     break;
                 case "location":
                     $latitude = $longitude = false;
-                    $query->where(function($query) use($cityModel, $model, $keyword) {
+                    $query->where(function ($query) use ($cityModel, $model, $keyword) {
                         $query->where($cityModel::getTableName() . '.name', 'LIKE', $keyword . '%')
-                              ->orWhere($model->getTableName() . '.current_location', 'LIKE', $keyword . '%');
+                            ->orWhere($model->getTableName() . '.current_location', 'LIKE', $keyword . '%');
                     });
                     break;
                 case 'job_position':
@@ -1156,10 +1160,10 @@ class UserController extends BaseController
                         $latitude = $longitude = false;
                     }
 
-                    $query->where(function($query) use($model, $keyword) {
+                    $query->where(function ($query) use ($model, $keyword) {
                         $query->where($model->getTableName() . '.name', 'LIKE', $keyword . '%')
                             //   ->orWhere($model->getTableName() . '.email', 'LIKE', $keyword . '%')
-                              ->orWhere($model->getTableName() . '.user_name', 'LIKE', $keyword . '%');
+                            ->orWhere($model->getTableName() . '.user_name', 'LIKE', $keyword . '%');
                     });
                     break;
             }
@@ -1179,13 +1183,13 @@ class UserController extends BaseController
         }
 
         $query->join($schoolModel::getTableName(), $model->getTableName() . '.school_id', '=', $schoolModel::getTableName() . '.id');
-        $query->leftJoin($userBlockProfilesModel::getTableName(), function($leftJoin) use($model, $userBlockProfilesModel, $userId) {
+        $query->leftJoin($userBlockProfilesModel::getTableName(), function ($leftJoin) use ($model, $userBlockProfilesModel, $userId) {
             $leftJoin->on($model->getTableName() . '.id', '=', $userBlockProfilesModel::getTableName() . '.user_id')
-                     ->where($userBlockProfilesModel::getTableName() . '.is_block', (string)$userBlockProfilesModel::IS_BLOCK)
-                     ->where(function($where) use($model, $userBlockProfilesModel, $userId) {
-                        $where->where($userBlockProfilesModel::getTableName() . '.user_id', '=', $userId)
-                              ->orWhere($userBlockProfilesModel::getTableName() . '.blocked_by', '=', $userId);
-                     });
+                ->where($userBlockProfilesModel::getTableName() . '.is_block', (string)$userBlockProfilesModel::IS_BLOCK)
+                ->where(function ($where) use ($model, $userBlockProfilesModel, $userId) {
+                    $where->where($userBlockProfilesModel::getTableName() . '.user_id', '=', $userId)
+                        ->orWhere($userBlockProfilesModel::getTableName() . '.blocked_by', '=', $userId);
+                });
         });
         $query->leftJoin($cityModel::getTableName(), $model->getTableName() . '.city_id', '=', $cityModel::getTableName() . '.id');
         $query->leftJoin($countryModel::getTableName(), $model->getTableName() . '.country_id', '=', $countryModel::getTableName() . '.id');
@@ -1222,9 +1226,10 @@ class UserController extends BaseController
 
         return $this->returnNull();
     }
-    
+
     //Function to get all the documents 
-    public function getAllDocuments(Request $request) {
+    public function getAllDocuments(Request $request)
+    {
         $data = $request->all();
         $userId = !empty($data['user_id']) ? (int)$data['user_id'] : false;
 
@@ -1235,7 +1240,8 @@ class UserController extends BaseController
         return $this->returnError(__(SOMETHING_WENT_WRONG));
     }
 
-    public function delete(Request $request, $id) {
+    public function delete(Request $request, $id)
+    {
         if (!empty($id)) {
             //User::where('id', $id)->delete();
             User::where('id', $id)->forceDelete();
@@ -1245,21 +1251,18 @@ class UserController extends BaseController
     }
 
     public function SendEmailVerifyLink(Request $request, $token)
-    {   
+    {
         $decrypted = Crypt::decryptString($token);
 
         print_r($decrypted);
 
         $user = User::find($decrypted);
 
-        if (!empty ($user))
-        {
-            $userUpdate = User::where(['id'=>$decrypted])->update(['email_verified_at'=>Carbon::now()]);
+        if (!empty($user)) {
+            $userUpdate = User::where(['id' => $decrypted])->update(['email_verified_at' => Carbon::now()]);
 
             return $this->returnSuccess("Verified Successfull");
-        }
-        else
-        {
+        } else {
             return $this->returnError(__(USER_NOT_FOUND));
         }
     }
