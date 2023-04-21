@@ -51,6 +51,7 @@ class CountryController extends Controller
      */
     public function store(Request $request)
     {
+        
         $country = new Country();
         $data  = $request->all();
 
@@ -65,13 +66,15 @@ class CountryController extends Controller
 
         foreach ($data as $field => $value) {
             if (in_array($field, $fillableFields)) {
-                if($field == 'short_name') {
+                if($field == 'sort_name') {
                     $country->sort_name = $value;
                 } else {
                     $country->{$field} = $value;
                 }
             }
         }
+
+       
         $country->save();
         $request->session()->flash('alert-success', 'Country successfully created');
         return redirect()->route('country.index');
@@ -124,7 +127,7 @@ class CountryController extends Controller
 
         foreach ($data as $field => $value) {
             if (in_array($field, $fillableFields)) {
-                if($field == 'short_name') {
+                if($field == 'sort_name') {
                     $country->sort_name = $value;
                 } else {
                     $country->{$field} = $value;

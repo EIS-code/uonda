@@ -31,8 +31,8 @@
             <div class="form-group">
                 <label for="title">Sort Name</label>
                 <div>
-                    <input type="text" class="form-control @error('short_name') is-invalid @enderror" id="short_name" name="short_name" placeholder="Sort Name" value="{{ old('short_name') }}" />
-                    @error('short_name')
+                    <input type="text" class="form-control @error('sort_name') is-invalid @enderror" id="sort_name" name="sort_name" placeholder="Sort Name" value="{{ old('sort_name') }}" />
+                    @error('sort_name')
                         <em class="error invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
                         </em>

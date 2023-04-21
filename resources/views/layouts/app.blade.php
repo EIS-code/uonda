@@ -7,7 +7,7 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ config('app.name', 'Laravel') }}</title>
+    <title>{{ config('app.name', 'Uonda') }}</title>
 
     @if (env('APP_ENV') == 'production' && env('APP_PROTOCOL') == 'https')
         <!-- <meta http-equiv="Content-Security-Policy" content="block-all-mixed-content"> -->

@@ -69,6 +69,12 @@
                 <th>
                     <a href="{{Helper::generateURLWithFilter(route('city.index'),1,'created_at',(request('sortOrder','asc')=='asc'?'desc':'asc'),request('search'))}}">Registered On {!! Helper::sortingDesign('created_at',request('sortBy'),request('sortOrder')) !!}</a>
                 </th>
+                <th>
+                    Latitude
+                </th>
+                <th>
+                    Longitude
+                </th>
                 <th>Action</th>
             </tr>
             </thead>
@@ -77,9 +83,11 @@
                     <tr>
                         <td>{{ Helper::listIndex($cities->currentPage(), $cities->perPage(), $key) }}</td>
                         <td>{{ ucfirst($city->name) }}</td>
-                        <td>{{ ucfirst($city->state->name) }}</td>
-                        <td>{{ ucfirst($city->state->country->name) }}</td>
+                        <td>{{ !empty($city->state->name) ? ucfirst($city->state->name) :'-' }}</td>
+                        <td>{{ !empty($city->state->country->name) ? ucfirst($city->state->country->name) : '-' }}</td>
                         <td>{{ !empty($city->created_at) ? Carbon\Carbon::parse($city->created_at)->format('jS M Y') : '-' }}</td>
+                        <td>{{ !empty($city->latitude) ? ucfirst($city->latitude) :'-' }}</td>
+                        <td>{{ !empty($city->longitude) ? ucfirst($city->longitude) :'-' }}</td>
                         <td class="icons_list">
                             <a href="{{ route('city.edit', $city->encrypted_city_id) }}" title="Edit City"><span class="material-icons">edit</span></a> 
                             <a href="javascript:void(0)" class="remove-button" data-id="{{ $city->id }}" title="Delete City"><span class="material-icons delete-button">delete</span></a>

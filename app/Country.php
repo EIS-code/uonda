@@ -23,7 +23,7 @@ class Country extends BaseModel
         return Validator::make($data, [
             'name'       => ['required', 'string', 'max:255'],
             'sort_name' => ['required', 'string', 'max:255'],
-            'phone_code' => ['required', 'integer', 'max:255']
+            'phone_code' => ['required', 'integer']
         ]);
     }
 

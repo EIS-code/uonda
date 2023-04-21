@@ -14,7 +14,7 @@
 </div>
 <div class="main-card mb-3 card">
     <div class="card-body">
-        <h5 class="card-title">Edit School</h5>
+        <h5 class="card-title">Edit Country</h5>
         <form id="editCountryForm" class="col-md-10 mx-auto" method="POST" action="{{ route('country.update', $country->encrypted_country_id) }}" enctype="multipart/form-data">
         @csrf
         {{ method_field('PUT') }}
@@ -32,8 +32,8 @@
             <div class="form-group">
                 <label for="title">Sort Name</label>
                 <div>
-                    <input type="text" class="form-control @error('short_name') is-invalid @enderror" id="short_name" name="short_name" placeholder="Sort Name" value="{{ $country->sort_name }}" />
-                    @error('short_name')
+                    <input type="text" class="form-control @error('short_name') is-invalid @enderror" id="sort_name" name="sort_name" placeholder="Sort Name" value="{{ $country->sort_name }}" />
+                    @error('sort_name')
                         <em class="error invalid-feedback" role="alert">
                             <strong>{{ $message }}</strong>
                         </em>

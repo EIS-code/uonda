@@ -9,7 +9,9 @@ class City extends BaseModel
 {
     protected $fillable = [
         'name',
-        'state_id'
+        'state_id',
+        'latitude',
+        'longitude',
     ];
 
     protected $appends = ['encrypted_city_id'];
@@ -18,7 +20,9 @@ class City extends BaseModel
     {
         $validator = Validator::make($data, [
             'name'     => ['required', 'string', 'max:255'],
-            'state_id' => ['required', 'integer', 'exists:' . State::getTableName() . ',id']
+            'state_id' => ['required', 'integer', 'exists:' . State::getTableName() . ',id'],
+            'latitude' =>['required'],
+            'longitude' =>['required'],
         ]);
 
         if ($returnBoolsOnly === true) {

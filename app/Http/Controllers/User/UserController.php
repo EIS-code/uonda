@@ -519,10 +519,8 @@ class UserController extends BaseController
                 //$userUpdate = User::where(['id'=>$user->id])->update(['email_verified_at'=>Carbon::now()]);
                 $user->email_verified_at = Carbon::now();
                 $user->save();
-                $user->refresh();
             }
         }
-
 
 
         if ($check === true) {

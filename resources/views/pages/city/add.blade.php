@@ -54,6 +54,31 @@
                     </em>
                 @enderror
             </div>
+
+            <div class="position-relative form-group">
+                <label for="latitude">Latitude</label>
+                <div>
+                    <input type="text" class="form-control @error('latitude') is-invalid @enderror" id="latitude" name="latitude" placeholder="Latitude" value="{{ old('latitude')}}" />
+                    @error('latitude')
+                    <em class="error invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </em>
+                    @enderror
+                </div>
+            </div>
+
+            <div class="position-relative form-group">
+                <label for="longitude">Longitude</label>
+                <div>
+                    <input type="text" class="form-control @error('longitude') is-invalid @enderror" id="longitude" name="longitude" placeholder="Longitude" value="{{ old('longitude') }}" />
+                    @error('longitude')
+                    <em class="error invalid-feedback" role="alert">
+                        <strong>{{ $message }}</strong>
+                    </em>
+                    @enderror
+                </div>
+            </div>
+
             <div class="form-group">
                 <button type="submit" class="btn btn-primary" name="save" value="Save">Save</button>
             </div>
