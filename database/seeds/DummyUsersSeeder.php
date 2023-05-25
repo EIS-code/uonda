@@ -3,9 +3,28 @@
 use Illuminate\Database\Seeder;
 use App\User;
 
+use Faker\Generator;
+use Illuminate\Container\Container;
+
 class DummyUsersSeeder extends Seeder
 {
-    private $totalUsers = 1000;
+    protected $faker;
+
+    public function __construct()
+    {
+        $this->faker = $this->withFaker();
+    }
+
+    /**
+     * Get a new Faker instance.
+     *
+     * @return \Faker\Generator
+     */
+    protected function withFaker()
+    {
+        return Container::getInstance()->make(Generator::class);
+    }
+
 
     /**
      * Run the database seeds.
@@ -14,22 +33,31 @@ class DummyUsersSeeder extends Seeder
      */
     public function run()
     {
-        $confirmed = $this->command->confirm(__('Are you sure ?'));
+        for ($i = 0; $i < 500; $i++) {
+            $countryId = random_int(\DB::table('countries')->min('id'), \DB::table('countries')->max('id'));
 
-        if ($confirmed) {
-            $create = [];
-
-            for ($i = 1; $i <= $this->totalUsers; $i++) {
-                $create[] = [
-                    'name'      => Str::random(10),
-                    'email'     => Str::random(10).'@gmail.com',
-                    'password'  => Hash::make('123456')
-                ];
+            $stateArray = \DB::table('states')->where('country_id', $countryId)->pluck('id')->toArray();
+            if(empty($stateArray)) {
+                continue;
             }
+            $states = array_rand($stateArray);
+            $stateId = $stateArray[$states];
 
-            if (!empty($create)) {
-                User::insert($create);
-            }
+            $cityArray = \DB::table('cities')->where('state_id', $stateId)->pluck('id')->toArray();
+            $cities = array_rand($cityArray);
+            $cityId = $cityArray[$cities];
+            
+            \DB::table('users')->insert([
+                'name' => $this->faker->name,
+                'email' => $this->faker->unique()->safeEmail,
+                'password' => bcrypt('password@123'), // Can also be used Hash::make('password@123')
+                'email_verified_at' => now(),
+                'remember_token' => \Str::random(10),
+                'country_id' => $countryId,
+                'state_id' => $stateId,
+                'city_id' => $cityId,
+                'is_accepted' =>'1',
+            ]);
         }
     }
 }
